@@ -470,7 +470,7 @@ Org-ref for managing bibliographies and writing in org-mode.
     (setq org-roam-directory "/home/xavier/Dropbox/notes/"))
 #+END_SRC
 
-* TODO RSS Feeds
+* RSS Feeds
 #+BEGIN_SRC emacs-lisp
   (use-package elfeed
     ;;:init
