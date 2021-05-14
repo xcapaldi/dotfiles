@@ -1,6 +1,7 @@
 #+TITLE: System Configuration
 #+AUTHOR: Xavier Capaldi
 #+PROPERTY: header-args    :results silent
+#+OPTIONS: toc:2
 
 There are several great systems for managing configurations including [[https://www.gnu.org/software/stow/][GNU Stow]].
 However they are still a little confusing to use and you fundamentally need to track which configuration is relevant for which part of your system.
