@@ -1,0 +1,894 @@
+#+TITLE: System Configuration
+#+AUTHOR: Xavier Capaldi
+#+PROPERTY: header-args    :results silent
+
+There are several great systems for managing configurations including [[https://www.gnu.org/software/stow/][GNU Stow]].
+However they are still a little confusing to use and you fundamentally need to track which configuration is relevant for which part of your system.
+Given org-mode's capable source blocks, the entire system installation and configuration can be contained in a single file and then the relevant configs tangled out. 
+Similar to a systems options panel in XFCE, you can control all parameters of your system directly from this file, keeping a record as you go.
+The only exception is the window manager which typically has its own method of configuration.
+
+* installation
+Start with a Fedora network installer.
+Select the minimal installation with no addons.
+If you're doing this at McGill, you'll need to use ethernet with the following settings:
+- IP: 132.206.186.65
+- netmask: 255.255.255.0
+- gateway: 132.206.186.1
+- dns nameservers: 132.206.44.21, 132.216.44.21
+
+Make sure you set a root password and a user with administrative privileges.
+
+** disk partitioning
+Be careful with automatic partitioning.
+I've found it won't use the whole hard drive unless instructed.
+
+- Click custom partitioning and click the old partition tree and then the minus.
+- Delete everything.
+- Then click "automatically generate new partitioning scheme."
+- Look at the details and look at the / partition (which is home).
+- It will be very small (15 GiB).
+- Change it to a number larger than your remaining space and it will automatically increase appropriately.
+
+After the install you can log into the tty.
+
+** remove splash screen
+This is personal preference but I like seeing the boot sequence.
+
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf remove plymouth-*
+#+END_SRC
+
+* git
+Git is necessary to pull the configuration files.
+
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install git
+  git config --global user.name "Xavier Capaldi"
+  git config --global user.email xcapaldi@scribo.biz
+#+END_SRC
+
+Now you can pull the config.
+
+#+BEGIN_SRC sh :dir /home/xavier/.config
+  git clone https://github.com/xcapaldi/dotfiles.git emacs
+#+END_SRC
+
+* emacs
+Emacs is the first and most important priority as it allows the running of source blocks from this file.
+
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install emacs
+#+END_SRC
+
+The first time running emacs -nw (since you don't have a windowing system yet), emacs will install the full configuration.
+This will allow you to progress through the remainder of the installation in emacs.
+
+* package repositories
+DNF is a nice package manager but is known for being a little slow.
+We can force it to use the fastest mirrors by modifying its configuration.
+
+#+BEGIN_SRC sh :dir /sudo::
+  echo "fastestmirror=True" | sudo tee -a /etc/dnf/dnf.conf 
+#+END_SRC
+
+** RPM Fusion
+A nonfree repo must be added if you want to watch videos.
+
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+  sudo dnf groupupdate multimedia --setop="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin
+#+END_SRC
+
+** Flatpak
+Flatpak is a containerized application method used by companies to distribute their software to different linux distros without needing to package for the repos.
+Ubuntu has their own clone of this technology called Snap.
+
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install flatpak
+  flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+#+END_SRC
+
+Install apps:
+#+BEGIN_SRC sh :dir /sudo::
+  flatpak install flathub us.zoom.Zoom
+  flatpak install flathub com.valvesoftware.Steam
+#+END_SRC
+
+I'm not sure a local spotify app is really any better than the web version.
+#+BEGIN_SRC sh :dir /sudo::
+  flatpak install flathub com.spotify.Client
+#+END_SRC
+
+Don't install Slack.
+It is a terrible electron app.
+
+* graphical display
+Install xorg (no wayland for us yet).
+
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install xorg-x11-server-Xorg xorg-x11-xinit
+#+END_SRC
+
+for Intel
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install xorg-x11-drv-intel
+#+END_SRC
+
+** Changing screen resolutions
+While xrandr is technically sufficient, a graphical method of managing displays is very helpful whenever you might be working in an unusual setting or giving a presentation.
+
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install arandr
+#+END_SRC
+
+Alternatively, you can easily script this.
+
+* keybindings
+My philosophy is that window manager keybindings can/should be managed by the window manager.
+Other keybindings can be managed with an additional program.
+
+xbindkeys and sxhkd are both options but xbindkeys can be configured in guile and thus supports much more complex keybindings.
+
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install xbindkeys
+#+END_SRC
+
+Certain binds will be reserved by the window manager (DWM).
+There are also some Mod + mouse button binds.
+
+We will want a few additional binds that are quite simple:
+- increase volume
+- decrease volume
+- max volume
+- minimum volume
+
+We don't really need anything else as any additional keybinds just infringe on our memory for more important things.
+Since our needs are so minimal, we'll just add the new binds directly to the DWM "configuration".
+
+We can also add symlinks to our bin in order to launch more commands from a command palette instead of from memory.
+
+If you want to modify your keybindings often, use xbindkeys as it is much faster than modifying the DWM config.
+** xbindkeys configuration
+This configuration is [[http://www.gnu.org/software/guile/guile.html][guile]]-based.
+Any functions that work in guile will work here.
+The semicolon is used for comments.
+
+Check how to reference keys with ~xbindkeys --key~ or ~xbindkeys --multikey~.
+There is also a list of keys in /usr/include/X11/keysym.h and /usr/include/X11/keysymdef.h
+
+Check the [[https://www.nongnu.org/xbindkeys/xbindkeys.html#configuration][sample configurations]].
+xbindkeys is capable of timed-keybinds and modal keychords (like in i3).
+Honestly, it is amazing and I'd use it heavily in a window manager like herbstluftwm.
+
+* wifi
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install NetworkManager NetworkManager-wifi
+#+END_SRC
+
+Complex configuration requires the applet for the system tray:
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install network-manager-applet
+#+END_SRC
+
+Need to modify options on wifi card on current laptop:
+#+BEGIN_SRC sh :dir /sudo::
+  sudo echo "options iwlwifi 11n_disable=1" >> /etc/modprobe.d/iwlwifi.conf
+#+END_SRC
+
+* audio control
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install alsa-utils
+#+END_SRC
+
+Another option is pulse audio which has much more control.
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install pulseaudio
+  sudo dnf install pavucontrol
+#+END_SRC
+
+You can even add an icon to the system tray.
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install pasystray
+#+END_SRC
+
+* power management
+* external drive management
+* backlight
+This is very system dependent so best to do manually
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install xbacklight
+  ls /sys/class/backlight # probably have an intel backlight
+  xrandr --verbose
+#+END_SRC
+
+Note the identifier from the xrandr call (mine was 0x41).
+Now modify /etc/X11/xorg.conf:
+#+BEGIN_SRC
+  Section "Device"
+      Indentifier "0x41"
+      Driver "intel"
+      Option "Backlight" "intel_backlight"
+  EndSection
+#+END_SRC
+
+You'll need to reboot for this to take effect.
+
+* fonts
+I prefer to install a solid fontset which has monospaced and standard fonts.
+Good options are Mozilla's Fira fontset or IBM's Plex fontset.
+#+BEGIN_SRC sh :dir /sudo::
+sudo dnf install mozilla-fira-mono-fonts mozilla-fira-sans-fonts
+#+END_SRC
+
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install ibm-plex-fonts
+#+END_SRC
+
+You should also consider installing an emoji font.
+It's not really crucial for an emacs setup since within emacs you can use emojify. 
+However if you'd like to rice your bar, an emoji font can be very useful.
+Note that just because you have an emoji font does not mean all terminals will support them.
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install google-noto-emoji-fonts google-noto-emoji-color-fonts 
+#+END_SRC
+
+Alternatively if you want to rice, another option is to install the nerd font for your main font and only use it in the bar.
+I suppose if you really like tons of extra symbols and ligatures, you could use the nerd font everywhere. 
+I think think it's a bit excessive.
+In general I think it is simpler to use these company fonts because they'll have good support over something like DaddyTimeMono.
+
+** International fonts
+By default Emacs falls back on symbola so that's a good font to install as a backup.
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install gdouros-symbola-fonts
+#+END_SRC
+
+Alternatively, to have good international font coverage, you can install the whole set of google noto sans fonts:
+
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install google-noto-sans-*
+#+END_SRC
+
+Check the emacs configuration to see how these are listed as options in the config.
+Installing the whole set takes ~1Gb of space so you may want to just install the font for a particular language you use often.
+
+* shell
+Alias sh to dash instead of bash.
+This should speed up posix-compliant scripts.
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install dash
+  sudo rm /bin/sh
+  sudo ln -s /bin/dash /bin/sh
+#+END_SRC
+
+* terminal emulator
+We try to use the emacs built-in terminal emulators but xterm is a fallback.
+Check this [[https://anarc.at/blog/2018-05-04-terminal-emulators-2/][review of terminal emulators]] to see that xterm is actually quite small and has little latency.
+In addition, xterm is one of the most compatible terminals with anything that is thrown at it.
+This is a desirable trait for a fallback terminal.
+
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install xterm
+#+END_SRC
+
+Xterm is configured via Xresources.
+
+* videos
+These are the best applications for downloading and watching videos.
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install ffmpeg youtube-dl mpv
+#+END_SRC
+
+* printers
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install cups
+#+END_SRC
+
+Setup the printers in the physics department
+#+BEGIN_SRC sh :dir /sudo::
+  curl -O http://www.physics.mcgill.ca/~juan/ppd/number17.ppd
+  curl -O http://www.physics.mcgill.ca/~juan/ppd/number5.ppd
+  curl -O http://www.physics.mcgill.ca/~juan/ppd/phaser9.ppd
+
+  sudo mv number17.ppd /etc/cups/ppd
+  sudo mv number5.ppd /etc/cups/ppd
+  sudo mv phaser9.ppd /etc/cups/ppd
+
+  sudo lpadmin -p number17 -E -v ipp://printserver.physics.mcgill.ca/printers/number17
+  sudo lpadmin -p number5 -E -v ipp://printserver.physics.mcgill.ca/printers/number5
+  sudo lpadmin -p phaser9 -E -v ipp://printserver.physics.mcgill.ca/printers/phaser9
+#+END_SRC
+
+Selinux will have an issue with this so:
+#+BEGIN_SRC sh :dir /sudo::
+  sudo /sbin/restorecon -v /etc/cups/ppd/number17.ppd
+  sudo /sbin/restorecon -v /etc/cups/ppd/number5.ppd
+  sudo /sbin/restorecon -v /etc/cups/ppd/phaser9.ppd
+#+END_SRC
+
+* text editors
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install vim
+#+END_SRC
+
+* java
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install icedtea-web
+#+END_SRC
+
+* applications
+** graphics
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install sxiv inkscape gimp ImageMagick
+#+END_SRC
+
+sxiv is amazing and easily rivals image-dired in emacs.
+It is like a dmenu of images and can even pipe images.
+
+** CAD
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install freecad
+#+END_SRC
+
+** PCB
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install kicad
+#+END_SRC
+
+* terminal applications
+** critical
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install unzip
+#+END_SRC
+
+** other
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install ftp espeak lm_sensors entr task-spooler urlview tree byanz oneko
+#+END_SRC
+
+* internet browsers
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install firefox
+#+END_SRC
+
+* office
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install libreoffice
+#+END_SRC
+
+* PDF
+I'll use pdf-tools in emacs but here is documentation for alternatives:
+
+The most minimal is just to use mupdf which is crude at best.
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install mupdf
+#+END_SRC
+
+A step up is zathura which has some nice features included smooth page transitions, color theming and reading from standard input.
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install zathura zathura-pdf-mupdf zathura-djvu
+#+END_SRC
+
+Maybe evince?
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install evince
+#+END_SRC
+
+Or Okular for the most comprehensive PDF editing features.
+I believe Okular is the only tool I've found on linux that can do typewriter in a PDF or draw arbitrary lines.
+I usually avoid installing it as much as a I can.
+
+* Dropbox
+I've always installed it from their [[https://www.dropbox.com/install-linux][rpm package on their website]].
+
+* system tray
+Stalonetray is in the repos (as apposed to trayer) so I use that.
+
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install stalonetray
+#+END_SRC
+
+* notifications
+I use my own notification daemon, [[https://github.com/xcapaldi/fondle][fondle]].
+Fondle is a python program and has a few dependencies:
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install python3-gobject gtk3
+#+END_SRC
+
+Clone the repository:
+#+BEGIN_SRC sh :dir /home/xavier/src
+  git clone https://github.com/xcapaldi/fondle.git
+#+END_SRC
+
+And install:
+#+BEGIN_SRC sh :dir /sudo::/home/xavier/src/fondle
+  sudo make install
+#+END_SRC
+
+Fondle is configured via flags at runtime so all the options can be set in [[*xinitrc][xinitrc]]. 
+
+* screenlock
+This is the most amazing and trippy screen locker I've seen.
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install xlock
+#+END_SRC
+
+* password management
+Pass is really sexy but it isn't easily portable and it seems a bit like reinventing the wheel. 
+Keepassxc is a graphical tool with a command-line interface.
+It is cross-platform compatible with all operating systems and the password store can be transported as a single database.
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install keepassxc
+#+END_SRC
+
+There are browser extensions as well for this.
+
+** backup database?
+* gpg
+Of course I am using a master and subkey strategy for my gpg keys.
+This seems to be the best practice these days.
+I'll add my references to this section later.
+In short, my master key is kept on an offline security drive.
+Most actions are performed with my temporary subkeys which I use on the machine. 
+To move to a new computer, you can just copy your .gnupg directory over.
+
+* email
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install mbsync msmtp notmuch emacs-notmuch
+#+END_SRC
+
+We will use a gtk pinentry application.
+Maybe later we will try to use emacs for this.
+#+BEGIN_SRC sh :dir /sudo::
+  sudo dnf install pinentry-gtk
+#+END_SRC
+
+The passwords are stored in gpg-encrypted plain-text files.
+Use the following command to encrypt the files:
+#+BEGIN_SRC sh :dir /sudo::
+  gpg --default-recipient-self -e /path/to/plain/password
+#+END_SRC
+
+** mbsync                                                            :config:
+This takes care of syncing our mail between the server and the computer.
+
+*** mail.mcgill
+#+BEGIN_SRC sh :tangle no
+IMAPAccount mail.mcgill
+# Address to connect to
+Host outlook.office365.com
+User xavier.capaldi@mail.mcgill.ca
+PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.config/emacs/mail/mail.mcgill.ca.gpg"
+#
+# Use SSL
+SSLType IMAPS
+# The following line should work. If get certificate errors, uncomment the two following lines and read the "Troubleshooting" section.
+CertificateFile /etc/ssl/certs/ca-bundle.crt
+#CertificateFile ~/.cert/imap.gmail.com.pem
+#CertificateFile ~/.cert/Equifax_Secure_CA.pem
+
+IMAPStore mail.mcgill-remote
+Account mail.mcgill
+
+MaildirStore mail.mcgill-local
+Subfolders Verbatim
+# The trailing "/" is important
+Path ~/.mail/mail.mcgill/
+Inbox ~/.mail/mail.mcgill/INBOX
+
+Channel mail.mcgill
+Master :mail.mcgill-remote:
+Slave :mail.mcgill-local:
+# Exclude everything under the internal [Gmail] folder, except the interesting folders
+#Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail"
+# Or include everything
+Patterns * !Calendar* !Contacts* !"Conversation History"* !Journal* !Notes* !"RSS Feeds"* !"Sent"* !"Sync Issues"* !Trash* !Tasks* !Clutter*
+# Automatically create missing mailboxes, both locally and on the server
+Create Both
+# Save the synchronization state files in the relevant directory
+SyncState *
+#+END_SRC
+
+*** mcgill
+#+BEGIN_SRC sh :tangle no
+IMAPAccount mcgill
+# Address to connect to
+Host outlook.office365.com
+User xavier.capaldi@mcgill.ca
+PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.config/emacs/mail/mcgill.ca.gpg"
+#
+# Use SSL
+SSLType IMAPS
+# The following line should work. If get certificate errors, uncomment the two following lines and read the "Troubleshooting" section.
+CertificateFile /etc/ssl/certs/ca-bundle.crt
+#CertificateFile ~/.cert/imap.gmail.com.pem
+#CertificateFile ~/.cert/Equifax_Secure_CA.pem
+
+IMAPStore mcgill-remote
+Account mcgill
+
+MaildirStore mcgill-local
+Subfolders Verbatim
+# The trailing "/" is important
+Path ~/.mail/mcgill/
+Inbox ~/.mail/mcgill/INBOX
+
+Channel mcgill
+Master :mcgill-remote:
+Slave :mcgill-local:
+# Exclude everything under the internal [Gmail] folder, except the interesting folders
+#Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail"
+# Or include everything
+Patterns * !Calendar* !Contacts* !"Conversation History"* !Journal* !Notes* !"RSS Feeds"* !sent* !"Sync Issues"* !Trash* !Tasks* !Clutter* !Archive1*
+# Automatically create missing mailboxes, both locally and on the server
+Create Both
+# Save the synchronization state files in the relevant directory
+SyncState *
+#+END_SRC
+
+*** physics.mcgill
+#+BEGIN_SRC sh :tangle ~/.mbsyncrc
+IMAPAccount physics.mcgill
+# Address to connect to
+Host imap.physics.mcgill.ca
+User capaldix
+PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.config/emacs/mail/physics.mcgill.ca.gpg"
+#
+# Use SSL
+SSLType IMAPS
+# The following line should work. If get certificate errors, uncomment the two following lines and read the "Troubleshooting" section.
+CertificateFile /etc/ssl/certs/ca-bundle.crt
+#CertificateFile ~/.cert/imap.gmail.com.pem
+#CertificateFile ~/.cert/Equifax_Secure_CA.pem
+
+IMAPStore physics.mcgill-remote
+Account physics.mcgill
+
+MaildirStore physics.mcgill-local
+Subfolders Verbatim
+# The trailing "/" is important
+Path ~/.mail/physics.mcgill/
+Inbox ~/.mail/physics.mcgill/INBOX
+
+Channel physics.mcgill
+Master :physics.mcgill-remote:
+Slave :physics.mcgill-local:
+# Exclude everything under the internal [Gmail] folder, except the interesting folders
+#Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail"
+# Or include everything
+Patterns * !Sent* !drafts* !junk* !sent* !trash*
+# Automatically create missing mailboxes, both locally and on the server
+Create Both
+# Save the synchronization state files in the relevant directory
+SyncState *
+#+END_SRC
+
+*** scribo
+#+BEGIN_SRC sh :tangle ~/.mbsyncrc
+IMAPAccount scribo
+# Address to connect to
+Host mail.lonex.com
+User xcapaldi@scribo.biz
+PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.config/emacs/mail/scribo.biz.gpg"
+#
+# Use SSL
+SSLType IMAPS
+# The following line should work. If get certificate errors, uncomment the two following lines and read the "Troubleshooting" section.
+CertificateFile /etc/ssl/certs/ca-bundle.crt
+#CertificateFile ~/.cert/imap.gmail.com.pem
+#CertificateFile ~/.cert/Equifax_Secure_CA.pem
+
+IMAPStore scribo-remote
+Account scribo
+
+MaildirStore scribo-local
+Subfolders Verbatim
+# The trailing "/" is important
+Path ~/.mail/scribo/
+Inbox ~/.mail/scribo/INBOX
+
+Channel scribo
+Master :scribo-remote:
+Slave :scribo-local:
+# Exclude everything under the internal [Gmail] folder, except the interesting folders
+#Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail"
+# Or include everything
+Patterns * !drafts* !junk* !sent* !trash*
+# Automatically create missing mailboxes, both locally and on the server
+Create Both
+# Save the synchronization state files in the relevant directory
+SyncState *
+#+END_SRC
+
+*** giftedfleece
+#+BEGIN_SRC sh :tangle ~/.mbsyncrc
+IMAPAccount giftedfleece
+# Address to connect to
+Host mail.lonex.com
+User beeboy@giftedfleece.com
+PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.config/emacs/mail/giftedfleece.com.gpg"
+#
+# Use SSL
+SSLType IMAPS
+# The following line should work. If get certificate errors, uncomment the two following lines and read the "Troubleshooting" section.
+CertificateFile /etc/ssl/certs/ca-bundle.crt
+#CertificateFile ~/.cert/imap.gmail.com.pem
+#CertificateFile ~/.cert/Equifax_Secure_CA.pem
+
+IMAPStore giftedfleece-remote
+Account giftedfleece
+
+MaildirStore giftedfleece-local
+Subfolders Verbatim
+# The trailing "/" is important
+Path ~/.mail/giftedfleece/
+Inbox ~/.mail/giftedfleece/INBOX
+
+Channel giftedfleece
+Master :giftedfleece-remote:
+Slave :giftedfleece-local:
+# Exclude everything under the internal [Gmail] folder, except the interesting folders
+#Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail"
+# Or include everything
+Patterns !junk* !sent* !trash* !drafts*
+# Automatically create missing mailboxes, both locally and on the server
+Create Both
+# Save the synchronization state files in the relevant directory
+SyncState *
+#+END_SRC
+
+*** gmail
+#+BEGIN_SRC sh :tangle ~/.mbsyncrc
+IMAPAccount gmail
+# Address to connect to
+Host imap.gmail.com
+User xavier.capaldi@gmail.com
+PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.config/emacs/mail/gmail.com.gpg"
+#
+# Use SSL
+SSLType IMAPS
+# The following line should work. If get certificate errors, uncomment the two following lines and read the "Troubleshooting" section.
+CertificateFile /etc/ssl/certs/ca-bundle.crt
+#CertificateFile ~/.cert/imap.gmail.com.pem
+#CertificateFile ~/.cert/Equifax_Secure_CA.pem
+
+IMAPStore gmail-remote
+Account gmail
+
+MaildirStore gmail-local
+Subfolders Verbatim
+# The trailing "/" is important
+Path ~/.mail/gmail/
+Inbox ~/.mail/gmail/Inbox
+
+Channel gmail
+Master :gmail-remote:
+Slave :gmail-local:
+# Exclude everything under the internal [Gmail] folder, except the interesting folders
+Patterns * !"Inbox/Sync Issues"* !"[Gmail]/All Mail"* !"[Gmail]/Starred"* !"[Gmail]/Important"* !archive* !drafts* !flagged* !important* !sent* !spam* !trash*
+# Or include everything
+#Patterns *
+# Automatically create missing mailboxes, both locally and on the server
+Create Both
+# Save the synchronization state files in the relevant directory
+SyncState *
+#+END_SRC
+
+** notmuch                                                           :config:
+*** database configuration
+The only value supported here is 'path' which should be the top-level directory where your mail currently exists and to where mail will be delivered in the future.
+Files should be individual email messages.
+Notmuch will store its database within a sub-directory of the path configured here named ".notmuch".
+
+#+BEGIN_SRC sh :tangle ~/.notmuch-config
+[database]
+path=/home/xavier/.mail
+#+END_SRC
+
+*** user configuration
+Here is where you can let notmuch know how you would like to be addressed.
+Valid settings are
+
+name		Your full name.
+primary_email	Your primary email address.
+other_email	A list (separated by ';') of other email addresses at which you receive email.
+
+Notmuch will use the various email addresses configured here when formatting replies.
+It will avoid including your own addresses in the recipient list of replies, and will set the From address based on the address to which the original email was addressed.
+
+#+BEGIN_SRC sh :tangle ~/.notmuch-config
+[user]
+name=Xavier Capaldi
+primary_email=capaldix@physics.mcgill.ca
+other_email=xcapaldi@scribo.biz;beeboy@giftedfleece.com;xavier.capaldi@gmail.com;
+#+END_SRC
+
+*** configuration for "notmuch new"
+The following options are supported here:
+
+tags	A list (separated by ';') of the tags that will be added to all messages incorporated by "notmuch new".
+
+ignore	A list (separated by ';') of file and directory names that will not be searched for messages by "notmuch new".
+
+	NOTE: *Every* file/directory that goes by one of those names will be ignored, independent of its depth/location	in the mail store.
+
+#+BEGIN_SRC sh :tangle ~/.notmuch-config
+[new]
+tags=unread;inbox;
+ignore=
+#+END_SRC
+
+*** search configuration
+The following option is supported here:
+
+exclude_tags
+	A ;-separated list of tags that will be excluded from search results by default.
+	Using an excluded tag in a query will override that exclusion.
+
+#+BEGIN_SRC sh :tangle ~/.notmuch-config
+[search]
+exclude_tags=deleted;spam;
+#+END_SRC
+
+*** maildir compatibility configuration
+The following option is supported here:
+
+synchronize_flags      Valid values are true and false.
+
+If true, then the following maildir flags (in message filenames) will be synchronized with the corresponding notmuch tags:
+
+	Flag	Tag
+	----	-------
+	D	draft
+	F	flagged
+	P	passed
+	R	replied
+	S	unread (added when 'S' flag is not present)
+
+The "notmuch new" command will notice flag changes in filenames and update tags, while the "notmuch tag" and "notmuch restore" commands will notice tag changes and update flags in filenames.
+
+#+BEGIN_SRC sh :tangle ~/.notmuch-config
+[maildir]
+synchronize_flags=true
+#+END_SRC
+
+** msmtp                                                             :config:
+This application takes care of sending our emails.
+The passwords are all stored in GPG-encrypted files and decryted on demand when sending mail.
+
+You can test msmtp from the command line:
+#+BEGIN_SRC sh :dir /sudo::
+  printf "Subject: Test\nhello there username." | msmtp -a default username@domain.com
+#+END_SRC
+
+We need to symlink the sendmail command to msmtp:
+#+BEGIN_SRC sh :dir /sudo::
+  sudo ln -s /usr/bin/msmtp /usr/sbin/sendmail
+#+END_SRC
+
+*** default values
+#+BEGIN_SRC sh :tangle ~/.config/msmtp/config
+defaults
+protocol smtp
+auth  on
+tls   on
+tls_starttls on
+tls_trust_file /etc/ssl/certs/ca-bundle.crt
+#logfile ~/.msmtp.log
+#+END_SRC
+
+*** mail.mcgill
+#+BEGIN_SRC sh :tangle no
+account       mail.mcgill.ca
+host          smtp.office365.com
+port          587
+from          xavier.capaldi@mail.mcgill.ca
+user          xavier.capaldi@mail.mcgill.ca
+passwordeval  "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.config/emacs/mail/mail.mcgill.ca.gpg"
+#+END_SRC
+
+*** mcgill
+#+BEGIN_SRC sh :tangle no
+account      mcgill.ca
+host         smtp.office365.com
+port         587
+from         xavier.capaldi@mcgill.ca
+user         xavier.capaldi@mcgill.ca
+passwordeval  "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.config/emacs/mail/mcgill.ca.gpg"
+#+END_SRC
+
+*** physics.mcgill
+#+BEGIN_SRC sh :tangle ~/.config/msmtp/config
+account      physics.mcgill.ca
+host         mailhost.physics.mcgill.ca
+port         587
+from         capaldix@physics.mcgill.ca
+user         capaldix@physics.mcgill.ca
+passwordeval  "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.config/emacs/mail/physics.mcgill.ca.gpg"
+#+END_SRC
+
+*** giftedfleece
+#+BEGIN_SRC sh :tangle ~/.config/msmtp/config
+account      giftedfleece.com
+host         mail.lonex.com
+port         465
+from         beeboy@giftedfleece.com
+user         beeboy@giftedfleece.com
+passwordeval  "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.config/emacs/mail/giftedfleece.com.gpg"
+tls_starttls off
+#+END_SRC
+
+*** scribo
+#+BEGIN_SRC sh :tangle ~/.config/msmtp/config
+account      scribo.biz
+host         mail.lonex.com
+port         465
+from         xcapaldi@scribo.biz
+user         xcapaldi@scribo.biz
+passwordeval  "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.config/emacs/mail/scribo.biz.gpg"
+tls_starttls off
+#+END_SRC
+
+*** gmail
+Make sure you allow less secure apps to access your gmail account or this will not work
+#+BEGIN_SRC sh :tangle ~/.config/msmtp/config
+account      gmail.com
+host         smtp.gmail.com
+port         587
+from         xavier.capaldi@gmail.com
+user         xavier.capaldi@gmail.com
+passwordeval  "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.config/emacs/mail/gmail.com.gpg"
+#+END_SRC
+
+* window manager
+I will use dwm for now so the configuration is a separate git repo.
+* xinitrc                                                           :config:
+This defines what is launched when running startx.
+If you want to run emacs alone, you need to run ~startx /usr/bin/emacs~.
+
+*** xinitrc-common
+Mandatorily source xinitrc-common, which is common code shared between the
+Xsession and xinitrc scripts which has been factored out to avoid duplication.
+#+BEGIN_SRC sh :tangle ~/.xinitrc
+  #!/usr/bin/sh
+  . /etc/X11/xinit/xinitrc-common
+#+END_SRC
+
+*** startup applications
+#+BEGIN_SRC sh :tangle ~/.xinitrc
+  killall notification-daemon &> /dev/null
+  fondle ~/bin/mybar.sh -c "xsetroot -name" &
+  stalonetray &
+#+END_SRC
+
+*** default window manager
+#+BEGIN_SRC sh :tangle ~/.xinitrc
+  exec dwm
+#+END_SRC
+
+*** system fallbacks
+The user may have their own clients they want to run.  If they don't,
+fall back to system defaults.
+#+BEGIN_SRC sh :tangle ~/.xinitrc
+  if [ -f $HOME/.Xclients ]; then
+      exec $CK_XINIT_SESSION $SSH_AGENT $HOME/.Xclients || \
+      exec $CK_XINIT_SESSION $SSH_AGENT $HOME/.Xclients
+  elif [ -f /etc/X11/xinit/Xclients ]; then
+      exec $CK_XINIT_SESSION $SSH_AGENT /etc/X11/xinit/Xclients || \
+      exec $CK_XINIT_SESSION $SSH_AGENT /etc/X11/xinit/Xclients
+  else
+      # Failsafe settings.  Although we should never get here
+      # (we provide fallbacks in Xclients as well) it can't hurt.
+      [ -x /usr/bin/xsetroot ] && /usr/bin/xsetroot -solid '#222E45'
+      [ -x /usr/bin/xclock ] && /usr/bin/xclock -geometry 100x100-5+5 &
+      [ -x /usr/bin/xterm ] && xterm -geometry 80x50-50+150 &
+      [ -x /usr/bin/twm ] && /usr/bin/twm
+  fi
+#+END_SRC
+* scripts                                                            :config:
+** mybar.sh
+#+BEGIN_SRC sh :tangle ~/bin/mybar.sh
+  #!/usr/bin/sh
+  date
+#+END_SRC

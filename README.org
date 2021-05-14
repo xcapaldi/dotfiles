@@ -1,0 +1,11 @@
+#+TITLE: dotfiles
+#+AUTHOR: Xavier Capaldi
+
+Literate configuration for linux box and emacs.
+Since both main configuration files are org-files, you can read them directly on Github.
+
+* system.org
+The Fedora system installation and configuration.
+
+* config.org
+The emacs-specific configuration.

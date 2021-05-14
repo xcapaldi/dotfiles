@@ -1,0 +1,753 @@
+#+TITLE: Emacs Configuration
+#+AUTHOR: Xavier Capaldi
+#+PROPERTY: header-args :results silent :exports code
+
+* Early init file
+The [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Early-Init-File.html][early init file]] is loaded before the package system or GUI is initialized.
+We use it to disable ~package.el~ as we will use ~straight.el~ for package management.
+#+BEGIN_SRC emacs-lisp :tangle early-init.el
+  (setq package-enable-at-startup nil)
+#+END_SRC
+
+* Source this literate configuration
+#+BEGIN_SRC elisp :tangle init.el
+  (org-babel-load-file "emacs.org")
+#+END_SRC
+  
+* Package management
+First bootstrap straight.el:
+#+BEGIN_SRC emacs-lisp
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+	 (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+	(bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+	  (url-retrieve-synchronously
+	   "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+	   'silent 'inhibit-cookies)
+	(goto-char (point-max))
+	(eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
+#+END_SRC
+
+** Integration with use-package
+We can tell use-package to invoke ~straight.el~ by default.
+
+#+BEGIN_SRC emacs-lisp
+  (setq straight-use-package-by-default 1)
+#+END_SRC
+
+* General emacs configuration
+Wrap lines instead of extending past view.
+#+BEGIN_SRC emacs-lisp
+  (global-visual-line-mode 1)
+#+END_SRC
+
+GUI components
+#+BEGIN_SRC emacs-lisp
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (scroll-bar-mode -1)
+#+END_SRC
+
+Use visual bell
+#+BEGIN_SRC emacs-lisp
+  (setq ring-bell-function 1)
+  (setq visible-bell t)
+  (blink-cursor-mode 0)
+#+END_SRC
+
+Use UTF-8 by default
+#+BEGIN_SRC emacs-lisp
+  (setq coding-system-for-read 'utf-8)
+  (setq coding-system-for-write 'utf-8)
+#+END_SRC
+
+Remove default start screen
+#+BEGIN_SRC emacs-lisp
+  (setq inhibit-startup-screen t)
+#+END_SRC
+
+Don't ask for confirmation following symlinked files
+#+BEGIN_SRC emacs-lisp
+  (setq vc-follow-symlinks t)
+#+END_SRC
+
+Store backup files in one location and automatically delete old versions.
+#+BEGIN_SRC emacs-lisp
+  (setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
+	backup-by-copying t
+	version-control t
+	delete-old-versions t
+	kept-new-versions 20
+	kept-old-versions 5)
+#+END_SRC
+
+Change frame title to match filename and major mode
+%f will show full path.
+This is crucial to work well with a dmenu script or rofi.
+#+BEGIN_SRC emacs-lisp
+  (setq-default frame-title-format '("%b [%m]"))
+#+END_SRC
+
+Define the menu key as the hyper key.
+With this bound, you can use Hyper as a modifier with H-
+Also if we still use space as our leader key, we can access it with H-<space> or Hyperspace.
+A fundamental flaw however is that hyper isn't defined elsewhere on the system, notably in the terminal emulators.
+So using emacs in the terminal will completely block your ability to use your hyper binds.
+#+BEGIN_SRC emacs-lisp :tangle no
+  (define-key key-translation-map (kbd "<menu>") 'event-apply-hyper-modifier)
+#+END_SRC
+* Foundational packages
+** COMMENT Evil                                                               :dirty:
+Evil-mode for vi emulation.
+I'll leave this out for now as I'm trying to learn the default emacs bindings.
+#+BEGIN_SRC emacs-lisp
+  (use-package evil
+    :straight t
+    :init
+    (evil-mode))
+#+END_SRC
+
+** COMMENT General                                                            :dirty:
+I only consider this package to be required if you are using Evil since it adds a lot of nice functionality.
+In particular, it allows you to bind keys specific to a certain Evil state.
+My method of stacking hydras replaces the need for a leader key and almost all the other functionality is in ~use-package~.
+For these reasons, this will also be ommitted until (if) I enable Evil again.
+#+BEGIN_SRC emacs-lisp
+  (use-package general
+    :straight t)
+#+END_SRC
+
+*** option 1
+Set caps lock to menu -> hyper.
+Then bind it to evil-normal-state in insert and visual modes.
+Bind hyper + space or alt + hyper to leader-def for general.
+In normal and emacs modes, bind hyper to leader-def.
+Use hyper to access quick commands and hydras:
+H a -> avy-goto
+H A -> avy-hydra
+H f -> find-file
+H F -> file-hydra
+H p -> programming hydra
+
+Advantages are that you can access frequent commands in two presses.
+Disadvantage is that pressing hyper alone won't bring up a contextual menu displaying info.
+Maybe this is faster?
+
+*** option 2
+Set caps lock to menu -> hyper.
+Then bind it to evil-normal-state in insert and visual modes.
+Bind hyper + space or alt + hyper to hyper-hydra.
+In normal and emacs modes, bind hyper to hyper-hydra.
+
+Advantages are contextual menu
+Maybe slower?
+Space is better for ergonomics but means in emacs mode you always need to combine with a modifier.
+
+*** option 3
+None of the above were possible with the hacked together hyper key, so I ended up just falling back on space to launch my main hydra.
+
+** Hydra                                                              :dirty:
+Hydra for keybinding menus
+This is the most important and most powerful package to make emacs amazing.
+In particular, I create nested hydras which can be modified when an external package is loaded.
+Everything is accessed through a master hydra (bound to SPC).
+This is functionally equivalent to a leader-key from general but I prefer adding my own annotations and it doesn't require ~which key~.
+In addition, I find hydra is more responsive.
+Then from the master hydra, I can bind commands or open other more specific hydras.
+For example, "SPC f f" launches the master-hydra, then launches the file-hydra and then runs find-file.
+Later, I can dynamically add hydras using defhydra+ with external packages.
+Unfortunately every hydra must contain one binding which I just use to go back to the prior hydra
+#+BEGIN_SRC emacs-lisp
+  (use-package hydra
+    :bind ("C-c SPC" . hydra-master/body))
+#+END_SRC
+
+** hydra-master
+#+BEGIN_SRC emacs-lisp
+  (defhydra hydra-master (:color blue
+                                 :columns 4)
+    "Master"
+    ("f" hydra-file/body "file")
+    ("c" xcc/hydra-launcher "mode"))
+#+END_SRC
+
+** hydra-file
+#+BEGIN_SRC emacs-lisp
+  (defhydra hydra-file (:color blue
+                               :columns 4)
+    "File"
+    ("f" find-file "find file"))
+#+END_SRC
+
+** hydra-mode
+We want this to be context dependant.
+#+BEGIN_SRC emacs-lisp
+  (defun xcc/hydra-launcher ()
+    "A launcher for code-assisting hydras based on current major mode."
+    (interactive)
+    (cl-case major-mode
+      ('python-mode (hydra-python/body))
+      (t (message "No hydra for this major mode: %s" major-mode))))
+#+END_SRC
+
+* Org
+This block *must* fall before any blocks that requires org-mode because they will cause Straight.el to install the latest version of org-mode which will cause conflicts.
+** Organization
+*** Worker methodology
+My planner philosophy is heavy tailored to my work in graduate school.
+My work is very diverse and usually (non-COVID) requires moving around from lab to lab.
+I have used the Franklin Covey planner and planning method since I was 16 (10 years).
+While I think it is an excellent planner, I find it lacking in some regards.
+There are many benefits to the Franklin planner in particular.
+Anywhere I go, I know I have a clear picture of my deadlines and schedules.
+I can meet anyone impromptu and still be fully capable of planning my week.
+I'm not tied to my phone or a computer.
+I can make notes during meetings and record important information for permanent record.
+It makes an impression.
+Carrying a faux-leather-bound thicc-boi planner really makes a statement and several people have remarked.
+*** Limitations of the Franklin
+I really think it is the ideal planner for a worker.
+What I mean is that, if I had a job, almost any job, where I wasn't planning large projects or managing other people, this planner would be sufficient.
+However as soon as you start doing those things, I find it a bit insufficient as a manager's planner.
+There are also some other limitations.
+In particular, it can be hard to track delegated tasks.
+Notes in particular meetings can get lost and are hard to reference because they must go by date.
+The planning space is fundamentally limited which means you must omit smaller tasks.
+Time-tracking is tedious and the daily tracker is designed for an era where you didnt' receive hundreds of emails.
+Repeat tasks are tedious to implement.
+In general I find it very hard to structure a large project.
+If I try to plan in advance, invariably the plan changes and I either have to go back and erase the entire plan, if I had the foresight to use pencil, or I have a permanent irrelevant plan cluttering things up.
+The Franklin system seems to work best, in my position, when used to track and plan about 2 - 3 weeks ahead.
+That being said, I still really like and will continue to use it in my day-to-day.
+So how then do I organize everything else?
+I'm working on a hybrid organization system.
+The Franklin planner is for me, the worker, while the Org planner is for me, the manager.
+The manager can dispatch tasks to the worker at regular intervals (every morning).
+Then the working takes over and operates from the Franklin all day.
+At the end of the day, the worker reports to manager and the manager can then plan the next day.
+In principle, there could be multiple workers but for now that functionality will be limited.
+*** Manager methodologies
+Since I've already discussed the worker's Franklin system I will talk about the manager.
+There are many planning methodologies, most of which simply don't work for me.
+We have agile methodologies like sprints and scrum.
+We have kanbam boards.
+We have gantt charts.
+PhD research is fundamentally chaotic.
+It is nearly impossible to plan a project from start to end or to accurately estimate dates.
+However, despite the name, agile methodologies aren't a good fit.
+In the agile system, a discrete and complete subproject is set as a short-term sprint goal and then the entire team works to reach that goal.
+The idea, combined with burndown charts, is attractive but my research can get held up suddenly at any point which means the sprint turns into a marathon.
+In addition, it relies on estimating effort which is very hard.
+Finally a have to push in several different directions in my life: 1-2 research projects, teaching, home work, preparing to get a job, volunteer.
+Agile is suited toward focusing on one goal.
+Kanbam is another method which relies on electronic boards with cards to track task progress and completion.
+It's very flexible and doesn't require a particular methodology.
+Probably if I were another person, this would be the best option in my situation.
+I just find kanbam very disgusting.
+I prefer keeping my planning in a format that I can manage.
+I don't like using a proprietary service.
+I find a densely filled kanbam board to be terrible for actually working on a project.
+It's like looking at remnants of the body of a manager who accepted too many tasks, became bloated, and then exploded, leaving kanbam cards scattered across a screen in multiple hues.
+Gantt charts are the oldest and most intuitive method.
+They were designed originally to streamline the munitions pipeline in WWII.
+The idea is that you can pick your deadline and then work backwards based on time to complete tasks, worker allocations and dependencies to create a clear image of the entire project.
+In it's original form, this won't work either because we can't really estimate time to complete tasks and oftentimes the PI will add work which means restructuring the entire tree.
+However, something like this is what I am aiming for and I think org-mode can be well-suited toward it.
+*** Org-mode planning
+There are several agenda files, each of which will fill different roles and implement different features in Org.
+
+**** personal.org
+This document will contain non-project or work-related tasks.
+There will be many recurring tasks for household duties.
+Habits can be tracked here as well.
+A key point is that time-tracking is largely unnecessary here and archiving can be very simple.
+Recurring dates of interest will also fall here.
+
+**** inbox.org/Franklin
+This would be a file for rapidly storing tasks which come in while working at the computer.
+The purpose is to be able to add the task and get back to work.
+At the end of the day they can be filed into their correct project folders.
+However, during the day, the Franklin serves this purpose quite well.
+Tasks can be filed in their respective projects straight from the planner at the end of the day.
+
+**** phd.org
+This file contains all PhD projects.
+These projects will not be archived as I want easy (structured) access to everything.
+
+**** project_A.org
+Individual projects can have their own org planning file.
+These projects are similar to phd.org but smaller in scope.
+Again, nothing should need to be archived within a single project.
+Each project should be completely distinct from another.
+It isn't possible to specify dependencies across files.
+
+**** archive.org
+This file isn't parsed for org agenda and serves as an archive of items from personal.org.
+Since archiving doesn't allow for precise positioning, it is only really record but can't be used to generate time records.
+
+** Configuration
+#+BEGIN_SRC emacs-lisp
+  (use-package org
+    :straight (:type built-in)
+    :bind (:map org-mode-map
+		;; These commands would normally add current org file to agenda.
+		;; Better do assign them manually with org-agenda-files
+		("C-c [" . nil)
+		("C-c ]" . nil))
+    ;; Use virtual identation
+    :hook ((org-mode . org-indent-mode))
+    :config
+    ;; Don't indent text by default
+    ;; Technically this is disabled automatically with org-indent-mode
+    (setq org-adapt-indentation nil)
+    ;; Define all project files or files that contain dates
+    (setq org-agenda-files
+	  '("/home/xavier/Dropbox/org/personal.org"
+	    "/home/xavier/Dropbox/org/archive.org"
+	    "/home/xavier/Dropbox/org/phd.org"
+	    "/home/xavier/Dropbox/org/birthdays.org"))
+    ;; 
+    (setq org-agenda-start-with-log-mode t)
+    (setq org-deadline-warning-days 14)
+    (setq org-log-done 'time)
+    (setq org-log-into-drawer t)
+
+    (setq org-todo-keywords
+	  '((sequence "TODO(t)" "|" "DONE(d!)")
+	    (sequence "EMAIL(e)" "WAIT(w@/!)" "HOLD(h@/!)" "MEETING(m)" "|" "CANCELLED(c@/!)")))
+    ;; select a todo from any in the above list quickly
+    (setq org-use-fast-todo-selection t)
+
+    ;; Enforce todo dependencies
+    ;; Parent nodes can only be finished if all children are finished
+    (setq org-enforce-todo-dependencies t)
+    (setq org-enforce-todo-checkbox-dependencies t)
+    ;; Tasks which have unfulfilled dependencies (children or those linked by org-edna) will remain invisible on the agenda
+    (setq org-agenda-dim-blocked-tasks 'invisible)
+
+    ;; Habits
+    ;;(require 'org-habit)
+    (add-to-list 'org-modules 'org-habit)
+
+    (setq org-file-apps '((auto-mode . emacs)
+			  ("\\.mm\\'" . default)
+			  ("\\.x?html?\\'" . default)
+			  ("\\.pdf\\'" . "evince %s")))
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((shell . t))))
+
+    ;; Custom agenda view
+    ;; Many of my tasks are blocked in my projects but some still have deadlines
+    ;; that I will want a warning for
+    ;;  https://stackoverflow.com/questions/29846732/make-emacs-org-mode-deadlines-and-scheduled-blocked-tasks-visible-in-agenda-view
+    ;; (setq org-agenda-custom-commands
+    ;; 	'(("c"
+    ;; 	   "Agenda to show deadlines and hide blocked"
+    ;; 	   (
+    ;; 	    (agenda ""
+    ;; 		    ((org-agenda-entry-types '(:deadline :scheduled))))
+    ;; 	    (tags-todo "-TODO=\"DONE\""
+    ;; 		       ((org-agenda-skip-entry-if 'deadline 'scheduled)
+    ;; 			(org-agenda-dim-blocked-tasks 'invisible)))
+    ;; 	    ))))
+
+    ;; setup org-capture
+    ;; Use franklin for capture for now
+    ;; Might add this back later for notmuch integration
+    ;; default directory where captures are stored
+    ;; (setq org-default-notes-file "/home/xavier/Dropbox/inbox.org")
+
+    ;; ;; Define capture templates
+    ;; (setq org-capture-templates
+    ;; 	  (quote (("t" "todo" entry (file "/home/xavier/Dropbox/inbox.org")
+    ;; 		   "* TODO %?\n%U\n")
+    ;; 		  ;;("e" "email" entry (file "/home/xavier/Dropbox/inbox.org")
+    ;; 		  ;; "* NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n" :immediate-finish t)
+    ;; 		  ("m" "meeting" entry (file "/home/xavier/Dropbox/inbox.org")
+    ;; 		   "* MEETING with %? \n%U")))))
+#+END_SRC
+
+** COMMENT Org Edna
+This package is only used for phd.org and project_A.org.
+It allows defining dependencies and triggers.
+Normal org mode can only specify hierarchical dependencies while org edna will allow non-linear dependencies.
+#+BEGIN_SRC emacs-lisp
+  (use-package org-edna
+    :hook (org-mode-hook))
+#+END_SRC
+
+* Managing frames and windows
+** COMMENT frames-only-mode
+Use frames instead of windows whenever possible.
+#+BEGIN_SRC emacs-lisp
+  (use-package frames-only-mode
+    :init
+    (frames-only-mode 1))
+#+END_SRC
+
+* Search and completion framework
+** Ivy
+Ivy completion mechanism
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy)
+    ;;:general
+    ;;(:keymaps 'ivy-minibuffer-map
+    ;;          "H-<return>" 'ivy-dispatching-done)
+    ;;:config)
+    ;;(ivy-mode 1))
+#+END_SRC
+
+** Counsel
+Counsel to improve basic emacs commands.
+#+BEGIN_SRC emacs-lisp
+  (use-package counsel)
+    ;;:general
+    ;; This option gives some nice information about the file location and type
+    ;; ("C-x b" 'counsel-ibuffer)
+    ;; But this option gives a file preview
+    ;;("C-x b" 'counsel-switch-buffer)
+    ;;:config
+    ;;(counsel-mode 1))
+#+END_SRC
+
+** Swiper
+Swiper to replace isearch and show overview of matches.
+#+BEGIN_SRC emacs-lisp
+  (use-package swiper)
+#+END_SRC
+
+* Paper writing and reference management
+** ivy-bibtex
+Search library easily.
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy-bibtex
+    :config
+    (setq bibtex-completion-bibliography '("/home/xavier/Dropbox/library/references.bib"))
+    (setq bibtex-completion-library-path '("/home/xavier/Dropbox/library"))
+    (setq bibtex-completion-notes-path "/home/xavier/Dropbox/notes")
+    (setq bibtex-completion-find-additional-pdfs t))
+    ;; Use evince to open pdfs
+    ;;(setq bibtex-completion-pdf-open-function
+    ;;      (lambda (fpath)
+    ;;        (call-process "evince" nil 0 nil fpath))))
+#+END_SRC
+
+** org-ref
+Org-ref for managing bibliographies and writing in org-mode.
+#+BEGIN_SRC emacs-lisp
+  (use-package org-ref
+    :init
+    (setq org-ref-completion-library 'org-ref-ivy-cite)
+    :config
+    (setq reftex-default-bibliography '("/home/xavier/Dropbox/library/references.bib"))
+    (setq org-ref-bibliography-notes "/home/xavier/Dropbox/notes")
+    (setq org-ref-notes-function 'org-ref-notes-function-many-files)
+    (setq org-ref-default-bibliography '("/home/xavier/Dropbox/library/references.bib"))
+    (setq org-ref-pdf-directory "/home/xavier/Dropbox/library")
+    ;; since we use ivy-bibtex
+    (setq bibtex-completion-bibliography "/home/xavier/Dropbox/library/references.bib"
+	  bibtex-completion-library-path "/home/xavier/Dropbox/library"
+	  bibtex-completion-notes-path "/home/xavier/Dropbox/notes")
+    ;; format how we generate keys
+    (setq bibtex-autokey-year-length 4
+	  bibtex-autokey-name-year-separator "-"
+	  bibtex-autokey-year-title-separator "-"
+	  bibtex-autokey-titleword-separator "-"
+	  bibtex-autokey-titlewords 2
+	  bibtex-autokey-titlewords-stretch 1
+	  bibtex-autokey-titleword-length 5))
+#+END_SRC
+
+* Note management
+** org-roam
+#+BEGIN_SRC emacs-lisp :tangle no
+  (use-package org-roam
+    :config
+    (setq org-roam-directory "/home/xavier/Dropbox/notes/"))
+#+END_SRC
+
+* TODO RSS Feeds
+#+BEGIN_SRC emacs-lisp
+  (use-package elfeed
+    ;;:init
+    ;;(evil-set-initial-state 'elfeed-show-mode 'normal)
+    ;;:general
+    ;;(:keymaps 'elfeed-search-mode-map
+    ;;          :states '(normal)
+    ;;          "RET" 'elfeed-search-show-entry
+    ;;          "S-<return>" 'elfeed-search-browse-url
+    ;;          "q" 'elfeed-search-quit-window)
+    ;;(:keymaps 'elfeed-show-mode-map
+    ;;          :states '(normal)
+    ;;          "q" 'elfeed-kill-buffer)
+    ;; Tag hooks
+    :hook ((elfeed-new-entry . (elfeed-make-tagger :feed-url "youtube\\.com"
+						    :add '(video)))
+	   (elfeed-new-entry . (elfeed-make-tagger :before "2 weeks ago"
+						   :remove 'unread)))
+						 
+    :config
+    (setq elfeed-db-directory "~/.emacs.d/elfeed")
+    ;; Tag hooks
+    ;;(add-hook 'elfeed-new-entry-hook
+    ;;          (elfeed-make-tagger :feed-url "youtube\\.com"
+    ;;                              :add '(video)))
+    ;;(add-hook 'elfeed-new-entry-hook
+    ;;          (elfeed-make-tagger :before "2 weeks ago"
+    ;;                              :remove 'unread))
+
+    ;; use mpv to watch youtube videos
+    (setq browse-url-browser-function
+	  '(("https:\\/\\/www\\.youtu\\.*be." . xcc/browse-url-mpv)
+	    ("." . browse-url-default-browser)))
+
+    (defun xcc/browse-url-mpv (url &optional single)
+      ;;(async-shell-command (format "mpv %s" url)))
+      (start-process "mpv" nil "mpv" url))
+
+    ;; list of feeds with autotags
+    (setq elfeed-feeds
+	  '(;; news
+	    ("https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml" news)
+	    ("https://rss.nytimes.com/services/xml/rss/nyt/World.xml" news)
+	    ("https://rss.nytimes.com/services/xml/rss/nyt/YourMoney.xml" news finance)
+	    ("https://rss.nytimes.com/services/xml/rss/nyt/Business.xml" news finance)
+	    ("https://rss.nytimes.com/services/xml/rss/nyt/EnergyEnvironment.xml" news)
+	    ("https://rss.nytimes.com/services/xml/rss/nyt/Economy.xml" news finance)
+	    ("https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml" news)
+	    ("https://rss.nytimes.com/services/xml/rss/nyt/Science.xml" news)
+	    ("https://www.mcgill.ca/newsroom/channels_item/19/rss" news mcgill)
+	    ;; scientific journals
+	    ("http://feeds.rsc.org/rss/sm" literature)
+	    ("https://feeds.feedburner.com/acs/mamobx" literature)
+	    ("https://feeds.feedburner.com/acs/nalefd" literature)
+	    ("http://feeds.aps.org/rss/recent/pre.xml" literature)
+	    ("http://feeds.aps.org/rss/recent/prl.xml" literature)
+	    ("http://feeds.aps.org/rss/recent/physics.xml" literature)
+	    ("http://feeds.aps.org/rss/presuggestions.xml" literature)
+	    ("http://feeds.aps.org/rss/recent/prlsuggestions.xml" literature)
+	    ("http://feeds.nature.com/ncomms/rss/current" literature)
+	    ("http://feeds.nature.com/nature/rss/current" literature)
+	    ("https://science.sciencemag.org/rss/current.xml" literature)
+	    ("https://science.sciencemag.org/rss/ec.xml" literature)
+	    ;; project updates
+	    ("https://github.com/xcapaldi.private.atom?token=AJIXGKSORO2P4YZ7IJ37VB56CRCUO" github)
+	    ("https://suckless.org/atom.xml")
+	    ;; videos on gaming
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC21uZkfXpT8rPY-gPgMiCwA" gaming)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCfSVMX8vs7xA_hqFcuFqgwQ" gaming)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC2eEGT06FrWFU6VBnPOR9lg" gaming)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC3wxqeB1gIxdw6YKueea5Jg" gaming)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCD6VugMZKRhSyzWEWA9W2fg" gaming)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCKlUrYO3i9MDlL45Ia6j5EA" gaming)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCqJ-Xo29CKyLTjn6z2XwYAw" gaming)
+	    ;; videos on coding
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCKTehwyGCKF-b2wo0RKwrcg"  programming)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCsUalyRg43M8D60mtHe6YcA"  programming)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC9-y-6csu5WGm29I7JiwpnA"  programming)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCW6TXMZ5Pq6yL6_k5NZ2e0Q"  programming)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCvjgXvBlbQiydffZU7m1_aw"  programming)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC-yuWVUplUJZvieEligKBkA"  programming)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCRLEADhMcb8WUdnQ5_Alk7g" programming)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCRLEADhMcb8WUdnQ5_Alk7g" programming)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCyrF_lsKS9kQ3OUKQkgYh3A" programming)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCYNrBrBOgTfHswcz2DdZQFA" programming python)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCaoqVlqPTH78_xjTjTOMcmQ" programming)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCD6ArU-AYbfIj5sx2L4SZAQ" programming)
+	    ;; videos on electronics
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC8uT9cgJorJPWu7ITLGo9Ww" programming electronics)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC6mIxFTvXkWQVEHPsEdflzQ" electronics)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC5I2hjZYiW9gZPVkvzM8_Cw" electronics)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCS0N5baNlQWJCUrhCEo8WlA" electronics)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCUW49KGPezggFi0PGyDvcvg" electronics)
+	    ;; videos on emacs
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCxkMDXQ5qzYOgXPRnOBrp1w" emacs)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC0uTPqBCFIpZxlz_Lv1tk_g" emacs)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCDEtZ7AKmwS0_GNJog01D2g" emacs)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCAiiOTio8Yu69c3XnR7nQBQ" emacs)
+	    ;; videos on vim
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCUR1pFG_3XoZn3JNKjulqZg" vim)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC8ENHE5xdFSwx71u3fDH5Xw" vim)
+	    ;; videos on history
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCWnlQMQ-ACfhpD68yWRsnJw" history)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCMjlDOf0UO9wSijFqPE9wBw" history)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCsaGKqPZnGp_7N80hcHySGQ" history cooking)
+	    ;; cooking
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCYDLmV1b0kvF8jY491dtyHg" cooking)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCMmZEL8jV1B61NKAXcyW87A" cooking)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCmXkJ9ReY5hjvYPcnmBwing" cooking)
+	    ;; music
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCG7AaCh_CiG6pq_rRDNw72A" music)
+	    ;; blogs
+	    ("https://feeds.feedburner.com/TheKitchinResearchGroup" emacs)
+	    ("https://karthinks.com/index.xml" emacs)
+	    ("https://nullprogram.com/feed/" programming)
+	    ("http://pragmaticemacs.com/feed/" emacs)
+	    ("http://esr.ibiblio.org/?feed=rss2")
+	    ("https://www.calnewport.com/blog/feed/")
+	    ;; other
+	    ("https://www.nngroup.com/feed/rss/")
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC7mu94v1zFZU8pgNX13dHsQ" vietnamese)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCipg-xAE_rNtL8kaG4ezFAQ" nanopore)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCDXTQ8nWmx_EhZ2v-kp7QxA" finance)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCtg1eIVmfwXnO0ipN84-a6g" ergonomics)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg")
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCFtOX-21N1earf-K58C7HjQ" keyboard)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCD0y51PJfvkZNe3y3FR5riw" keyboard)
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC2eYFnH61tmytImy1mTYvhA")
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCyRhIGDUKdIOw07Pd8pHxCw")
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCpnkp_D4FLPCiXOmDhoAeYA")
+	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCw03U5DZGLqvv5elJvXvR0Q")
+	    )))
+#+END_SRC
+* Syntax highlighting and visual support
+** Font
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'default-frame-alist
+               '(font . "Fira Mono-10"))
+#+END_SRC
+** Modus themes
+#+BEGIN_SRC emacs-lisp
+  (use-package modus-themes
+    :init
+    ;; add all customizations before loading theme
+
+    ;; load theme files before enabling
+    (modus-themes-load-themes)
+    :config
+    ;; load theme of choice
+    (modus-themes-load-operandi))
+#+END_SRC
+** COMMENT Evil-goggles
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-goggles
+    :config
+    (evil-goggles-mode))
+#+END_SRC
+
+** COMMENT Prism.el
+I think standard syntax highlighting is largely useless.
+When looking closely, you can just read the words and not rely on colors.
+When looking at the document structure, the syntax highlighting is useless.
+I tried my hand at making a minimal colorscheme for vim in the past and it was quite nice but didn't really change the underlying methodology.
+This package by alphapapa effectively highlights code depth.
+This is useful when looking closely because errors will still have highlighting issues.
+It's also very useless when looking at the whole structure to understand the depth of your code.
+Seems to have an issue with the emacs daemon so I set it not to tangle by default.
+Once the daemon is running, you can run this block without problem.
+#+BEGIN_SRC emacs-lisp
+(use-package prism 
+    ;; lisp and C-like languages use prism-mode
+    ;;:ghook ('(emacs-lisp-mode-hook
+    ;;          c-mode-hook))
+    ;; for whitespace languages or those whose depth isn't indicated with parenthesis use prism-whitespace-mode
+    ;;:ghook ('(python-mode-hook
+    ;;          sh-mode-hook)
+    ;;        #'prism-whitespace-mode)
+    :config
+    ;; work with modus themes
+    (setq prism-num-faces 16)
+    (prism-set-colors
+      :desaturations '(0) ; may lower the contrast ratio
+      :lightens '(0)      ; same
+      :colors (modus-themes-with-colors
+                (list fg-main
+                      magenta
+                      cyan-alt-other
+                      magenta-alt-other
+                      blue
+                      magenta-alt
+                      cyan-alt
+                      red-alt-other
+                      green
+                      fg-main
+                      cyan
+                      yellow
+                      blue-alt
+                      red-alt
+                      green-alt-other
+                      fg-special-warm))))
+#+END_SRC
+** dimmer.el
+* Python
+#+BEGIN_SRC emacs-lisp
+  (use-package python 
+    :straight (:type built-in)
+    ;;:mode ("\\.py\\" . python-mode)
+    ;;:interpreter ("python" . python-mode)
+    :config
+    (defhydra hydra-python (:color blue
+                                 :columns 4)
+      "Coding"
+      ("q" hydra-master/body "backlick")))
+#+END_SRC
+* Email
+** Notmuch
+#+BEGIN_SRC emacs-lisp
+  (use-package notmuch
+    :straight (:type built-in))
+#+END_SRC
+
+** msmtp
+We need to ensure msmtp uses the proper email account to send messages.
+This pulls the information from the header of the message we write in emacs.
+#+BEGIN_SRC emacs-lisp
+  (setq mail-specify-envelope-from t)
+  (setq message-sendmail-envelope-from 'header)
+  (setq mail-envelope-from 'header)
+#+END_SRC
+** gnus-alias
+#+BEGIN_SRC emacs-lisp
+  (use-package gnus-alias
+    :hook (message-setup . (list #'gnus-alias-determine-identity))
+    :config
+    (setq gnus-alias-identity-alist
+	  '(("physics"
+	     nil ;; refer to any identity
+	     "Xavier Capaldi <capaldix@physics.mcgill.ca>"
+	     nil ;; organization header
+	     (("Fcc" . "/home/xavier/.mail/path to sent")) ;; extra headers to save outgoing mail
+	     nil ;; extra body text
+	     nil) ;; signature
+	     ("scribo"
+	     nil ;; refer to other identity
+	     "Xavier Capaldi <xcapaldi@scribo.biz>"
+	     nil ;; organization header
+	     (("Fcc" . "/home/xavier/.mail/path to sent")) ;; extra headers to save outgoing mail
+	     nil ;; extra body text
+	     nil) ;; signature
+	     ("giftefleece"
+	      nil ;; refer to other identity
+	      "Xavier Capaldi <beeboy@giftedfleece.com>"
+	      nil ;; organization header
+	      (("Fcc" . "/home/xavier/.mail/path to sent")) ;; extra headers to save outgoing mail
+	      nil ;; extra body text
+	      nil) ;; signature
+	      ("gmail"
+	       nil ;; refer to other identity
+	       "Xavier Capaldi <xavier.capaldi@gmail.com>"
+	       nil ;; organization header
+	       (("Fcc" . "/home/xavier/.mail/path to sent")) ;; extra headers to save outgoing mail
+	       nil ;; extra body text
+	       nil))) ;; signature
+    ;; use "physics" identity by default
+    (setq gnus-alias-default-identity "physics")
+    ;; define rules to match other identities
+    (setq gnus-alias-identity-rules
+	  '(("scribo" ("any"
+		       "xcapaldi@scribo.biz"
+		       both)
+	     "scribo")
+	    ("giftedfleece" ("any"
+			     "beeboy@giftedfleece.com"
+			     both)
+	     "giftedfleece")
+	    ("gmail" ("any"
+		      "xavier.capaldi@gmail.com"
+		      both)
+	     "gmail"))))
+#+END_SRC
