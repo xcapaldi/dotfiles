@@ -860,6 +860,7 @@ Xsession and xinitrc scripts which has been factored out to avoid duplication.
   killall notification-daemon &> /dev/null
   fondle ~/bin/mybar.sh -c "xsetroot -name" &
   stalonetray &
+  emacs --daemon &
 #+END_SRC
 
 *** default window manager
