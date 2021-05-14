@@ -1,0 +1,269 @@
+#+TITLE: Fedora Linux Box
+#+AUTHOR: Xavier Capaldi
+#+PROPERTY: header-args :results silent
+
+I prefer to use [[https://getfedora.org/][Fedora Linux]] as it is a well-behaved modern Linux distribution that is dedicated to open-source.
+In general Fedora packages are kept more up to date than those for Debian while still being quite stable.
+Fedora is also known to push for new innovations in desktop Linux.
+
+This document is a literate org-mode guide for setting up a Fedora system.
+In particular there is a substantial section on setting up a lightweight system from a minimal install.
+The packages for installation are stored in [[file:setup-dnffile][setup-dnffile]] and can be installed in a single transaction with DNF.
+Similarly, the general packages I want on any system (minimal or not) are stored in [[file:dnffile][dnffile]].
+This is a direct analogy to brewfile on Macos.
+These two files are *not* tangled from this config as I didn't want multiple source of truth and didn't need to flexiblity of the literate org document to comment on the standard packages.
+This document also contains other software packaged as Flatpaks or built from Git source.
+There are a few small setup sections that are only necessary for first install.
+
+* Installing a minimal system
+:PROPERTIES:
+:header-args: :dir /sudo::
+:END:
+If you don't want the hassle of such a complex setup, consider intalling the [[https://spins.fedoraproject.org/en/xfce/][XFCE]] or [[https://spins.fedoraproject.org/en/i3/][i3wm]] spins that come preconfigured for their respective window managers.
+
+** Installation
+Start with a [[https://alt.fedoraproject.org/][Fedora network installer]].
+Select the minimal installation with no addons.
+If you're doing this at McGill, you'll need to use ethernet with the following settings:
+
+- IP:              132.206.186.65
+- netmask:         255.255.255.0
+- gateway:         132.206.186.1
+- dns nameservers: 132.206.44.21, 132.216.44.21
+
+Make sure you set a root password and a user with administrative privileges.
+
+*** Disk partitioning
+Be careful with automatic partitioning.
+I've found it won't use the whole hard drive unless instructed.
+
+- Click custom partitioning and click the old partition tree and then the minus.
+- Delete everything.
+- Then click =automatically generate new partitioning scheme.=
+- Look at the details and look at the =/= partition (which is home).
+- It will be very small (15 GiB).
+- Change it to a number larger than your remaining space and it will automatically increase appropriately.
+
+After the install you can log into the tty.
+
+** Install packages
+Force usage of the fastest mirror:
+#+BEGIN_SRC sh
+echo "fastestmirror=True" | tee -a /etc/dnf/dnf.conf
+#+END_SRC
+
+We store the set of packages necessary to setup the system in [[file:setup-dnffile][setup-dnffile]] which we can curl and pass to =dnf shell= to be installed as a single transaction.
+
+#+BEGIN_SRC sh
+curl -0 https://raw.githubusercontent.com/xcapaldi/dotfiles/main/setup-dnffile > setup-dnffile
+dnf shell setup-dnffile
+rm setup-dnffile
+#+END_SRC
+
+** COMMENT Fix wifi
+This no longer is necessary now that I have changed wifi cards.
+My current laptop has many wifi issues so this set of options was the best I could achieve to fix it:
+#+BEGIN_SRC sh
+# dnf -y install iwl7260-firmware
+echo "options iwlwifi 11n_disable=1" >> /etc/modprobe.d/iwlwifi.conf
+echo "options iwlwifi swcrypto=1" >> /etc/modprobe.d/iwlwifi.conf
+echo "options iwlwifi power_save=0" >> /etc/modprobe.d/iwlwifi.conf
+echo "[connection]\nwifi.powersave = 2" > /etc/NetworkManager/conf.d/default-wifi-powersave-on.conf
+#+END_SRC
+
+** Window manager
+In terms of minimal window manager, there are many great choices that all have their own pros and cons.
+
+*** [[https://dwm.suckless.org/][dwm]]
+This is the hardest to work with and configure since you can't install from standard repos and configuration is just modifying the source code.
+However, I really like it's mental model for operation for a simple user who doesn't have a huge monitor.
+In particular multiple tags can be viewed at once so you can keep (for example) Emacs on tag 1 and Firefox on tag 2.
+Normally you work in Emacs full screen but if you need to see them side-by-side, you simply view tags 1 and 2 at once.
+No need to move the actual applications.
+
+Install build dependencies:
+#+BEGIN_SRC sh
+dnf install -y make gcc libX11-devel libXft-devel libXinerama-devel
+#+END_SRC
+
+The proper method of setting up DMW is the following:
+
+#+BEGIN_SRC sh :var user="xavier"
+sudo -u $user git clone git@github.com:xcapaldi/dwm.git /home/$user/Checkout/dwm
+cd /home/$user/Checkout/dwm
+sudo -u $user git remote add upstream https://git.suckless.org/dwm
+make clean install
+#+END_SRC
+
+But if this is just an initial install and you need a graphical system to get started, use the follwing:
+
+#+BEGIN_SRC sh :var user="xavier"
+sudu -u $user git clone https://github.com/xcapaldi/dwm.git
+cd /home/$user/Checkout/dwm
+make clean install
+#+END_SRC
+
+Also install =xterm=, =dmenu= and a browser temporarily.
+Before building you will need to copy =config.def.h= to =config.h=.
+I suggest modifying it to use =xterm= instead of the default =st=.
+
+Once you have dwm installed properly, you can keep it up to date with upstream with the following:
+#+BEGIN_SRC sh :dir ~/Checkout/dwm :tangle nil
+git fetch upstream
+git checkout master
+git rebase upstream/master
+git push origin master --force
+#+END_SRC
+
+You should either install dmenu from the package repository or use your own git branch of it.
+DWM relies on it.
+
+#+BEGIN_SRC sh :var user="xavier"
+sudo -u $user git clone git@github.com:xcapaldi/dmenu.git /home/$user/Checkout/dmenu
+cd /home/$user/Checkout/dmenu
+sudo -u $user git remote add upstream https://git.suckless.org/dmenu
+make clean install
+#+END_SRC
+
+*** COMMENT [[https://www.nongnu.org/ratpoison/][Ratpoison]]
+Surprisingly pleasant window manager that will feel right at home to an Emacs user.
+I actually like the mental model in Ratpoison.
+You just have a single workspace with frames that can hold applications.
+You can cycle applications into frames and just like in Emacs, you can have two frames with an identical application.
+No bar is necessary as it has its own "messaging" system.
+The only downside is that it does not support floating windows and for many applications, this makes them unusable.
+The solution is to invoke a secondary window manager which does support floating.
+I used [[https://joewing.net/projects/jwm/][jwm]] previously but now I will try with twm which is installed by default.
+An alternative is [[https://stumpwm.github.io/][stumpwm]] which has many more features but I was turned off that it requires a whole common lisp-based install and setup.
+
+#+BEGIN_SRC sh
+dnf install -y ratpoison
+#+END_SRC
+
+*** COMMENT [[https://i3wm.org/][i3wm]]
+This window manager made tiling window managers popular in modern desktop Linux.
+It has a lot of features including a built-in bar, tabbed window containers, custom inputs.
+If you want to use it, consider just using Fedora's i3 spin.
+Personally I don't like the binary space partitioning approach for windows but the main advantage of i3 is ease of setup and use.
+For example, it comes with a bar with system tray support so you don't need to fiddle with it.
+The community is large so there is a lot of support too.
+
+#+BEGIN_SRC sh
+dnf install -y i3
+#+END_SRC
+
+*** COMMENT [[https://herbstluftwm.org/][herbstluftwm]]
+bspwm is similar but I like herbstluftwm because it can define arbitrary "screens" which is nice for big monitors.
+This is the only window manager I've seen with such a feature.
+Also the combination of stacking in one frame with pseudotile probably makes this the most versatile for working with programs like ImageJ or Gwyddion.
+One negative is that it has it's own keybinding manager which is a little unusual for the ultra-minimal window managers.
+
+#+BEGIN_SRC sh
+dnf install -y herbsluftwm
+#+END_SRC
+
+** Notifications
+For window managers that come with or use a minimal bar, I prefer my own notification daemon,  [[https://github.com/xcapaldi/fondle][fondle]].
+It basically pipes all notifications through the bar and can handle the updating of some status information.
+Fondle is a python program and has a few dependencies:
+
+#+BEGIN_SRC sh
+dnf install -y make python3-gobject gtk3 xsetroot
+#+END_SRC
+
+Fondle-related installation blocks are not tangled.
+
+#+BEGIN_SRC sh :dir ~/Checkout :tangle nil :var user="xavier"
+sudo -u $user git clone git@github.com:xcapaldi/fondle.git /home/$user/Checkout/fondle
+cd /home/$user/fondle
+make install
+#+END_SRC
+
+* DNF
+Fedora's package manager, DNF, supports transactional operations.
+We can maintain the packages we care about for our system in [[file:dnffile][dnffile]] and pass it to =dnf shell= to be installed as a single transaction.
+First we enable RPM fusion, a nonfree repo, for video codecs:
+
+#+BEGIN_SRC sh :dir /sudo::
+dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+dnf groupupdate multimedia --setop="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin
+#+END_SRC
+
+#+BEGIN_SRC sh :dir /sudo::
+dnf shell dnffile
+#+END_SRC
+
+* Flatpak
+Flatpak is a containerized application system used to distribute software to different Linux distributions without needing to package for each repository.
+Ubuntu has their own clone of this technology called Snap.
+
+Add flathub as the remote repository:
+#+BEGIN_SRC sh
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+#+END_SRC
+
+Install flatpaks:
+#+BEGIN_SRC sh
+flatpak install flathub us.zoom.Zoom \
+                net.gwyddion.Gwyddion \
+                com.valvesoftware.Steam \
+                com.discordapp.Discord
+#+END_SRC
+
+* Git software
+** COMMENT Dragon
+
+#+BEGIN_SRC sh
+dnf install gtk3-devel
+#+END_SRC
+
+#+BEGIN_SRC sh
+git clone https://github.com/mwh/dragon ~/Checkout/dragon
+cd ~/Checkout/dragon
+make && sudo make install
+#+END_SRC
+
+** COMMENT Jumpapp
+
+#+BEGIN_SRC sh :var user="xavier"
+git clone https://github.com/mkropat/jumpapp.git ~/Checkout/jumpapp
+cd ~/Checkout/jumpapp
+make && sudo make install
+#+END_SRC
+* Use posix-compliant shell
+Alias =sh= to =dash= instead of =bash=.
+This should speed up posix-compliant scripts.
+
+#+BEGIN_SRC sh :dir /sudo::
+rm /bin/sh
+ln -s /bin/dash /bin/sh
+#+END_SRC
+
+* COMMENT Setup McGill Physics printers
+This doesn't seem to work anymore.
+Maybe this has to be done on McGill campus.
+
+#+BEGIN_SRC sh
+curl -O http://www.physics.mcgill.ca/~juan/ppd/number17.ppd
+curl -O http://www.physics.mcgill.ca/~juan/ppd/number5.ppd
+curl -O http://www.physics.mcgill.ca/~juan/ppd/phaser9.ppd
+#+END_SRC
+
+#+BEGIN_SRC sh :dir /sudo::
+mv number17.ppd /etc/cups/ppd
+mv number5.ppd /etc/cups/ppd
+mv phaser9.ppd /etc/cups/ppd
+#+END_SRC
+
+#+BEGIN_SRC sh
+lpadmin -p number17 -E -v ipp://printserver.physics.mcgill.ca/printers/number17
+lpadmin -p number5 -E -v ipp://printserver.physics.mcgill.ca/printers/number5
+lpadmin -p phaser9 -E -v ipp://printserver.physics.mcgill.ca/printers/phaser9
+#+END_SRC
+
+Selinux will have an issue with this so:
+#+BEGIN_SRC sh :dir /sudo::
+/sbin/restorecon -v /etc/cups/ppd/number17.ppd
+/sbin/restorecon -v /etc/cups/ppd/number5.ppd
+/sbin/restorecon -v /etc/cups/ppd/phaser9.ppd
+#+END_SRC

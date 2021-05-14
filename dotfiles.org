@@ -1,0 +1,514 @@
+#+TITLE: Configurations for Fedora Linux Box
+#+AUTHOR: Xavier Capaldi
+#+PROPERTY: header-args :results silent
+
+This document contains all my dotfiles except for Emacs because that configuration is an order of magnitude more complex.
+Note that these are all tangled to the correct location (and conditional on which system it is run on) but they are not intelligent.
+If you modify one of the configs outside this literate document and then tangle again, your external changes will be overwritten silently.
+Take note, that you should be modifying things from here.
+
+* dnf                                                                 :linux:
+=fastestmirror= helps the speed significantly.
+
+#+BEGIN_SRC conf :tangle (when (eq system-type 'gnu/linux) "/sudo::/etc/dnf/dnf.conf")
+[main]
+gpgcheck=1
+installonly_limit=3
+clean_requirements_on_remove=True
+best=False
+skip_if_unavailable=True
+fastestmirror=True
+#+END_SRC
+
+* dwm                                                                 :linux:
+dwm doesn't have a configuration in the traditional sense and I maintain my own repo with a patched and modified version of DWM.
+However the =config.h= file serves as a sort of configuration for options that don't constitute patches to the core.
+As such I maintain it here.
+Note that dwm needs to build after this config is tangled to the correct directory.
+
+** include
+#+BEGIN_SRC c :tangle (when (eq system-type 'gnu/linux) "~/Checkout/dwm/config.h")
+#include <X11/XF86keysym.h>
+#+END_SRC
+
+** appearance
+#+BEGIN_SRC c :tangle (when (eq system-type 'gnu/linux) "~/Checkout/dwm/config.h")
+static const unsigned int borderpx  = 1;        /* border pixel of windows */
+static const unsigned int snap      = 32;       /* snap pixel */
+static const unsigned int systraypinning = 0;   /* 0: sloppy systray follows selected monitor, >0: pin systray to monitor X */
+static const unsigned int systrayonleft = 0;    /* 0: systray in the right corner, >0: systray on left of status text */
+static const unsigned int systrayspacing = 2;   /* systray spacing */
+static const int systraypinningfailfirst = 1;   /* 1: if pinning fails, display systray on the first monitor, False: display systray on the last monitor*/
+static const int showsystray        = 1;        /* 0 means no systray */
+static const int showbar            = 1;        /* 0 means no bar */
+static const int topbar             = 1;        /* 0 means bottom bar */
+static const char *fonts[]          = { "Jetbrains Mono:size=10" };
+static const char dmenufont[]       = "Jetbrains Mono:size=10";
+static const char col_gray1[]       = "#222222";
+static const char col_gray2[]       = "#444444";
+static const char col_gray3[]       = "#bbbbbb";
+static const char col_gray4[]       = "#eeeeee";
+static const char col_cyan[]        = "#005577";
+static const char *colors[][3]      = {
+	/*               fg         bg         border   */
+	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
+	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
+};
+#+END_SRC
+
+** tagging
+#+BEGIN_SRC c :tangle (when (eq system-type 'gnu/linux) "~/Checkout/dwm/config.h")
+static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+
+static const Rule rules[] = {
+	/* xprop(1):
+	 ,*	WM_CLASS(STRING) = instance, class
+	 ,*	WM_NAME(STRING) = title
+	 ,*/
+	/* class      instance    title       tags mask     isfloating   monitor */
+	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
+	//{ "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
+};
+#+END_SRC
+
+** layout(s)
+#+BEGIN_SRC c :tangle (when (eq system-type 'gnu/linux) "~/Checkout/dwm/config.h")
+static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
+static const int nmaster     = 1;    /* number of clients in master area */
+static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
+static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
+
+static const Layout layouts[] = {
+	/* symbol     arrange function */
+	{ "[]=",      tile },    /* first entry is default */
+	{ "><>",      NULL },    /* no layout function means floating behavior */
+	{ "[M]",      monocle },
+};
+#+END_SRC
+
+** key definitions
+#+BEGIN_SRC c :tangle (when (eq system-type 'gnu/linux) "~/Checkout/dwm/config.h")
+#define MODKEY Mod4Mask
+#define TAGKEYS(KEY,TAG) \
+	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
+	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
+	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
+	{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
+#+END_SRC
+
+** helper for spawning shell commands in the pre dwm-5.0 fashion
+#+BEGIN_SRC c :tangle (when (eq system-type 'gnu/linux) "~/Checkout/dwm/config.h")
+#define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
+#+END_SRC
+
+** commands
+#+BEGIN_SRC c :tangle (when (eq system-type 'gnu/linux) "~/Checkout/dwm/config.h")
+static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
+static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
+static const char *termcmd[]  = { "xterm", NULL };
+static const char *mutecmd[] = { "pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle", NULL };
+static const char *volupcmd[] = { "pactl", "set-sink-volume", "@DEFAULT_SINK@", "+5%", NULL };
+static const char *voldowncmd[] = { "pactl", "set-sink-volume", "@DEFAULT_SINK@", "-5%", NULL };
+static const char *blupcmd[] = { "light", "-As", "sysfs/backlight/intel_backlight", "10", NULL };
+static const char *bldowncmd[] = { "light", "-Us", "sysfs/backlight/intel_backlight", "10", NULL };
+static const char *systemopcmd[] = { "dmenu_system.sh", NULL };
+
+static const Key keys[] = {
+	/* modifier                     key        function        argument */
+	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
+	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
+	{ MODKEY,                       XK_b,      togglebar,      {0} },
+	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
+	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
+	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
+	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
+	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
+	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
+	{ MODKEY,                       XK_Return, zoom,           {0} },
+	{ MODKEY,                       XK_Tab,    view,           {0} },
+	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
+	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
+	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
+	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
+	{ MODKEY,                       XK_space,  setlayout,      {0} },
+	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
+	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
+	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
+	{ MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
+	{ MODKEY,                       XK_period, focusmon,       {.i = +1 } },
+	{ MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
+	{ MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
+	TAGKEYS(                        XK_1,                      0)
+	TAGKEYS(                        XK_2,                      1)
+	TAGKEYS(                        XK_3,                      2)
+	TAGKEYS(                        XK_4,                      3)
+	TAGKEYS(                        XK_5,                      4)
+	TAGKEYS(                        XK_6,                      5)
+	TAGKEYS(                        XK_7,                      6)
+	TAGKEYS(                        XK_8,                      7)
+	TAGKEYS(                        XK_9,                      8)
+	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
+	{ 0,                            XF86XK_AudioMute,         spawn, {.v = mutecmd } },
+	{ 0,                            XF86XK_AudioLowerVolume,  spawn, {.v = voldowncmd } },
+	{ 0,                            XF86XK_AudioRaiseVolume,  spawn, {.v = volupcmd } },
+	{ 0,                            XF86XK_MonBrightnessUp,   spawn, {.v = blupcmd} },
+	{ 0,                            XF86XK_MonBrightnessDown, spawn, {.v = bldowncmd} },
+	{ MODKEY,                       XK_q,                     spawn, {.v = systemopcmd} },
+};
+#+END_SRC
+
+** button definitions
+#+BEGIN_SRC c :tangle (when (eq system-type 'gnu/linux) "~/Checkout/dwm/config.h")
+/* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
+static const Button buttons[] = {
+	/* click                event mask      button          function        argument */
+	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
+	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
+	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
+	{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },
+	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
+	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
+	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
+	{ ClkTagBar,            0,              Button1,        view,           {0} },
+	{ ClkTagBar,            0,              Button3,        toggleview,     {0} },
+	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
+	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
+};
+#+END_SRC
+
+* fondle                                                              :linux:
+
+#+BEGIN_SRC sh :tangle (when (eq system-type 'gnu/linux) "/sudo::/usr/local/bin/mybar.py") :shebang "#!/usr/bin/env python3"
+from os import system
+from time import localtime, strftime
+
+hour_faces = {0: '🕛', 1: '🕐', 2: '🕑', 3: '🕒', 4: '🕓', 5: '🕔',
+              6: '🕕', 7: '🕖', 8: '🕗', 9: '🕘', 10: '🕙', 11: '🕚'}
+
+half_hour_faces = {0: '🕧', 1: '🕜', 2: '🕝', 3: '🕞', 4: '🕟', 5: '🕠',
+                   6: '🕡', 7: '🕢', 8: '🕣', 9: '🕤', 10: '🕥', 11: '🕦'}
+
+t = localtime()
+
+if t.tm_min < 30:
+    clock = hour_faces[t.tm_hour % 12]
+else:
+    clock = half_hour_faces[t.tm_hour % 12]
+
+system(f'echo {strftime("%a, %d %b", t)} {clock} {strftime("%H:%M", t)}')
+#+END_SRC
+
+* git                                                           :linux:macos:
+
+By default I set git to use my Github-provided noreply email address.
+
+#+BEGIN_SRC conf :tangle ~/.gitconfig
+[user]
+	name = Xavier Capaldi
+	email = 38892330+xcapaldi@users.noreply.github.com
+[core]
+	excludesFiles = ~/.config/git/ignore
+#+END_SRC
+
+I use a global gitignore to ignore most common problems:
+
+#+BEGIN_SRC :tangle ~/.config/git/ignore
+# -*- mode: gitignore; -*-
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Vim #
+# Swap
+[._]*.s[a-v][a-z]
+!*.svg  # comment out if you don't need vector files
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Session
+Session.vim
+Sessionx.vim
+
+# Temporary
+.netrwhist
+*~
+# Auto-generated tag files
+tags
+# Persistent undo
+[._]*.un~
+
+# Emacs #
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Org-mode
+.org-id-locations
+*_archive
+
+# flymake-mode
+*_flymake.*
+
+# eshell files
+/eshell/history
+/eshell/lastdir
+
+# elpa packages
+/elpa/
+
+# reftex files
+*.rel
+
+# AUCTeX auto folder
+/auto/
+
+# cask packages
+.cask/
+dist/
+
+# Flycheck
+flycheck_*.el
+
+# server auth directory
+/server/
+
+# projectiles files
+.projectile
+
+# directory configuration
+.dir-locals.el
+
+# network security
+/network-security.data
+#+END_SRC
+
+* mailcap                                                             :linux:
+We can define how certain attachments are opened in the mailcap file:
+
+#+BEGIN_SRC conf :tangle (when (eq system-type 'gnu/linux) "~/.mailcap")
+image/*; sxiv %s
+text/html; firefox %s
+application/pdf; emacs %s
+application/x-pdf; emacs %s
+#+END_SRC
+
+* OneDrive                                                            :linux:
+
+#+BEGIN_SRC conf :tangle (when (eq system-type 'gnu/linux) "~/.config/onedrive/config")
+# Configuration for OneDrive Linux Client
+# This file contains the list of supported configuration fields
+# with their default values.
+# All values need to be enclosed in quotes
+# When changing a config option below, remove the '#' from the start of the line
+# For explanations of all config options below see docs/USAGE.md or the man page.
+#
+# sync_dir = "~/OneDrive"
+skip_file = ".~*|*.tmp"
+# monitor_interval = "300"
+# skip_dir = ""
+# log_dir = "/var/log/onedrive/"
+# drive_id = ""
+# upload_only = "false"
+# check_nomount = "false"
+# check_nosync = "false"
+# download_only = "false"
+# disable_notifications = "false"
+# disable_upload_validation = "false"
+# enable_logging = "false"
+# force_http_11 = "false"
+# local_first = "false"
+# no_remote_delete = "false"
+# skip_symlinks = "false"
+# debug_https = "false"
+# skip_dotfiles = "false"
+# skip_size = "1000"
+# dry_run = "false"
+# min_notify_changes = "5"
+# monitor_log_frequency = "6"
+# monitor_fullscan_frequency = "12"
+# sync_root_files = "false"
+# classify_as_big_delete = "1000"
+# user_agent = ""
+# remove_source_files = "false"
+# skip_dir_strict_match = "false"
+# application_id = ""
+# resync = "false"
+# resync_auth = "false"
+# bypass_data_preservation = "false"
+# azure_ad_endpoint = ""
+# azure_tenant_id = "common"
+# sync_business_shared_folders = "false"
+# sync_dir_permissions = "700"
+# sync_file_permissions = "600"
+# rate_limit = "131072"
+# operation_timeout = "3600"
+# webhook_enabled = "false"
+# webhook_public_url = ""
+# webhook_listening_host = ""
+# webhook_listening_port = "8888"
+# webhook_expiration_interval = "86400"
+# webhook_renewal_interval = "43200"
+# space_reservation = "50"
+# display_running_config = "false"
+# read_only_auth_scope = "false"
+# cleanup_local_files = "false"
+#+END_SRC
+
+* scripts
+** Use dmenu and udisksctl to mount and unmount drives                :linux:
+This is inspired in part by [[https://www.youtube.com/watch?v=YOpeXETS2z0][Luke Smith's own script for mounting drives]].
+The main distinction is that I use =udisksctl= which is a CLI tool to work with the =udiskd= daemon.
+It allows non-root users and programs to mount drives.
+This is how graphical file managers work.
+Unlike using =mount= directly, =udiskd= decides the mount location on its own, so it is important we relay that information back to the user.
+We use =notify-send= for that.
+
+#+BEGIN_SRC sh :tangle (when (eq system-type 'gnu/linux) "/sudo::/usr/local/bin/dmenu_mount.sh") :shebang "#!/usr/bin/sh"
+mountable=$(lsblk -lp | grep "part $" | awk '{print $1 " (" $4 ")"}')
+[ "$mountable" = "" ] && notify-send "No mountable drives." && exit 1
+chosen=$(echo "$mountable" | dmenu -i -p "Mount drive:" | awk '{print $1}')
+[ "$chosen" = "" ] && notify-send "No drive selected." && exit 1
+notify-send "Attemping to mount $chosen . . ."
+response=$(udisksctl mount -b "$chosen")
+notify-send "$response" && exit 0
+#+END_SRC
+
+Similarly to unmount:
+#+BEGIN_SRC sh :tangle (when (eq system-type 'gnu/linux) "/sudo::/usr/local/bin/dmenu_unmount.sh") :shebang "#!/usr/bin/sh"
+unmountable=$(lsblk -lp | grep "part /run/media/" | awk '{print $1 " (" $4 ")"}')
+[ "$unmountable" = "" ] && notify-send "No unmountable drives." && exit 1
+chosen=$(echo "$unmountable" | dmenu -i -p "Unmount drive:" | awk '{print $1}')
+[ "$chosen" = "" ] && notify-send "No drive selected." && exit 1
+notify-send "Attemping to unmount $chosen . . ."
+response=$(udisksctl unmount -b "$chosen")
+sync
+notify-send "$response" && exit 0
+#+END_SRC
+
+** Use dmenu and systemctl to lock, suspend, shutdown, . . .          :linux:
+#+BEGIN_SRC sh :tangle (when (eq system-type 'gnu/linux) "/sudo::/usr/local/bin/dmenu_system.sh") :shebang "#!/usr/bin/sh"
+operation=$(printf "poweroff\nreboot\nsuspend\nhibernate\nhybrid-sleep\nsuspend-then-hibernate" | dmenu)
+[ "$operation" = "" ] && notify-send "No operation selected." && exit 1
+xlock & systemctl "$operation"
+#+END_SRC
+
+* ssh                                                                 :linux:
+[[https://gist.github.com/nepsilon/45fae11f8d173e3370c3?permalink_comment_id=4333433#gistcomment-4333433][Configure ssh-agent to hold keys.]]
+
+#+BEGIN_SRC conf :tangle (when (eq system-type 'gnu/linux) "~/.ssh/config")
+Host *
+   AddKeysToAgent ask
+#+END_SRC
+
+* xinitrc                                                             :linux:
+This defines what is launched when running =startx=.
+If you want to start with just emacs as your "window manager" use ~startx /usr/bin/emacs~.
+
+#+BEGIN_SRC sh :tangle (when (eq system-type 'gnu/linux) "~/.xinitrc") :shebang #!/usr/bin/bash
+# source common xinit code
+. /etc/X11/xinit/xinitrc-common
+
+# source Xresources -> this is done in xinitrc-common
+#[[[[ -f ~/.Xresources ]]]] && xrdb -merge -I$HOME ~/.Xresources
+
+
+# startup applications
+# kill any prior notification daemon in preparation for fondle to take over
+killall notification-daemon &> /dev/null
+fondle /usr/local/bin/mybar.py -c "xsetroot -name" -r -x python3 -u 10.0 &
+
+#emacs --daemon &
+export _JAVA_AWT_WM_NONREPARENTING=1 &
+
+# system tray icons
+nm-applet &
+pasystray --notify=new &
+battray &
+
+# window manager
+exec dwm
+
+# fallbacks
+if [ -f $HOME/.Xclients ]; then
+    exec $CK_XINIT_SESSION $SSH_AGENT $HOME/.Xclients || \
+    exec $CK_XINIT_SESSION $SSH_AGENT $HOME/.Xclients
+elif [ -f /etc/X11/xinit/Xclients ]; then
+    exec $CK_XINIT_SESSION $SSH_AGENT /etc/X11/xinit/Xclients || \
+    exec $CK_XINIT_SESSION $SSH_AGENT /etc/X11/xinit/Xclients
+else
+    # Failsafe settings.  Although we should never get here
+    # (we provide fallbacks in Xclients as well) it can't hurt.
+    [ -x /usr/bin/xsetroot ] && /usr/bin/xsetroot -solid '#222E45'
+    [ -x /usr/bin/xclock ] && /usr/bin/xclock -geometry 100x100-5+5 &
+    [ -x /usr/bin/xterm ] && xterm -geometry 80x50-50+150 &
+    [ -x /usr/bin/twm ] && /usr/bin/twm
+fi
+#+END_SRC
+
+* xterm                                                               :linux:
+Xterm is configured via Xresources.
+[[https://aduros.com/blog/xterm-its-better-than-you-thought/][Here]] is a good guide for reasonable xterm defaults.
+
+#+BEGIN_SRC conf :tangle (when (eq system-type 'gnu/linux) "~/.Xresources")
+! Sensible defaults
+XTerm.vt100.locale: false
+XTerm.vt100.utf8: true
+XTerm.vt100.scrollTtyOutput: false
+XTerm.vt100.scrollKey: true
+XTerm.vt100.bellIsUrgent: true
+XTerm.vt100.metaSendsEscape: true
+! Styling
+XTerm.vt100.faceName: JetBrains Mono
+XTerm.vt100.boldMode: false
+XTerm.vt100.faceSize: 9
+XTerm.vt100.internalBorder: 10
+XTerm.borderWidth: 0
+XTerm.vt100.scrollBar: false
+! Keybindings
+XTerm.vt100.translations: #override \n\
+Ctrl Shift <Key>N: scroll-back(1, halfpage) \n\
+Ctrl Shift <Key>T: scroll-forw(1, halfpage) \n\
+Ctrl Shift <Key>C: copy-selection(CLIPBOARD) \n\
+Ctrl Shift <Key>V: insert-selection(CLIPBOARD)
+#+END_SRC

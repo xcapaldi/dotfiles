@@ -1,0 +1,42 @@
+# Remove plymouth so we can see boot sequence
+remove plymouth-*
+
+# Wifi
+install NetworkManager NetworkManager-wifi
+# complex configuration requires applet for system tray
+install network-manager-applet
+
+# Graphical display (xorg)
+install xorg-x11-server-Xorg xorg-x11-xinit
+install xorg-x11-drv-intel
+# graphical tool for changing screen resolution
+install arandr
+
+# Compositor (need for screen sharing)
+install xcompmgr
+
+# Audio
+# install alsa-utils
+install pulseaudio pavucontrol pulseaudio-utils
+# system tray icon
+install pasystray
+
+# Power management
+install acpi
+# system tray icon
+install battray
+
+# Backlight
+install light
+
+# System tray (if window manager doesn't come with it)
+#install stalonetray
+
+# Screen locker
+install xlockmore
+
+# SSH
+install x11-ssh-askpass
+
+# Keybindings
+#install xbindkeys
