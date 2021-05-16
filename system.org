@@ -861,6 +861,7 @@ Xsession and xinitrc scripts which has been factored out to avoid duplication.
   fondle ~/bin/mybar.sh -c "xsetroot -name" &
   stalonetray &
   emacs --daemon &
+  export _JAVA_AWT_WM_NONREPARENTING=1 &
 #+END_SRC
 
 *** default window manager
