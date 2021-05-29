@@ -11,7 +11,7 @@ We use it to disable ~package.el~ as we will use ~straight.el~ for package manag
 
 * Source this literate configuration
 #+BEGIN_SRC elisp :tangle init.el
-  (org-babel-load-file "emacs.org")
+  (org-babel-load-file "~/.config/emacs/config.org")
 #+END_SRC
   
 * Package management
@@ -29,6 +29,11 @@ First bootstrap straight.el:
 	(goto-char (point-max))
 	(eval-print-last-sexp)))
     (load bootstrap-file nil 'nomessage))
+#+END_SRC
+
+** Install use-package
+#+BEGIN_SRC emacs-lisp
+  (straight-use-package 'use-package)
 #+END_SRC
 
 ** Integration with use-package
@@ -76,7 +81,7 @@ Don't ask for confirmation following symlinked files
 
 Store backup files in one location and automatically delete old versions.
 #+BEGIN_SRC emacs-lisp
-  (setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
+  (setq backup-directory-alist '(("." . "~/.config/emacs/backup"))
 	backup-by-copying t
 	version-control t
 	delete-old-versions t
@@ -462,6 +467,10 @@ Org-ref for managing bibliographies and writing in org-mode.
 	  bibtex-autokey-titleword-length 5))
 #+END_SRC
 
+** pdf-tools
+#+BEGIN_SRC emacs-lisp
+  (use-package pdf-tools)
+#+END_SRC
 * Note management
 ** org-roam
 #+BEGIN_SRC emacs-lisp :tangle no
@@ -485,13 +494,13 @@ Org-ref for managing bibliographies and writing in org-mode.
     ;;          :states '(normal)
     ;;          "q" 'elfeed-kill-buffer)
     ;; Tag hooks
-    :hook ((elfeed-new-entry . (elfeed-make-tagger :feed-url "youtube\\.com"
-						    :add '(video)))
-	   (elfeed-new-entry . (elfeed-make-tagger :before "2 weeks ago"
-						   :remove 'unread)))
+    ;:hook ((elfeed-new-entry . (elfeed-make-tagger :feed-url "youtube\\.com"
+    ;						    :add '(video)))
+    ;	   (elfeed-new-entry . (elfeed-make-tagger :before "2 weeks ago"
+    ;						   :remove 'unread)))
 						 
     :config
-    (setq elfeed-db-directory "~/.emacs.d/elfeed")
+    (setq elfeed-db-directory "~/.config/emacs/elfeed")
     ;; Tag hooks
     ;;(add-hook 'elfeed-new-entry-hook
     ;;          (elfeed-make-tagger :feed-url "youtube\\.com"
@@ -699,55 +708,60 @@ This pulls the information from the header of the message we write in emacs.
   (setq mail-specify-envelope-from t)
   (setq message-sendmail-envelope-from 'header)
   (setq mail-envelope-from 'header)
+  (setq message-send-mail-function 'message-send-mail-with-sendmail
+        sendmail-program "/bin/msmtp"
+        user-full-name "Xavier Capaldi")
 #+END_SRC
+
 ** gnus-alias
 #+BEGIN_SRC emacs-lisp
   (use-package gnus-alias
-    :hook (message-setup . (list #'gnus-alias-determine-identity))
+    :hook ('message-setup . gnus-alias-determine-identity)
     :config
+    (setq gnus-alias-use-buttonized-from nil)
     (setq gnus-alias-identity-alist
-	  '(("physics"
-	     nil ;; refer to any identity
-	     "Xavier Capaldi <capaldix@physics.mcgill.ca>"
-	     nil ;; organization header
-	     (("Fcc" . "/home/xavier/.mail/path to sent")) ;; extra headers to save outgoing mail
-	     nil ;; extra body text
-	     nil) ;; signature
-	     ("scribo"
-	     nil ;; refer to other identity
-	     "Xavier Capaldi <xcapaldi@scribo.biz>"
-	     nil ;; organization header
-	     (("Fcc" . "/home/xavier/.mail/path to sent")) ;; extra headers to save outgoing mail
-	     nil ;; extra body text
-	     nil) ;; signature
-	     ("giftefleece"
-	      nil ;; refer to other identity
-	      "Xavier Capaldi <beeboy@giftedfleece.com>"
-	      nil ;; organization header
-	      (("Fcc" . "/home/xavier/.mail/path to sent")) ;; extra headers to save outgoing mail
-	      nil ;; extra body text
-	      nil) ;; signature
-	      ("gmail"
-	       nil ;; refer to other identity
-	       "Xavier Capaldi <xavier.capaldi@gmail.com>"
-	       nil ;; organization header
-	       (("Fcc" . "/home/xavier/.mail/path to sent")) ;; extra headers to save outgoing mail
-	       nil ;; extra body text
-	       nil))) ;; signature
+          '(("physics"
+             nil ;; refer to any identity
+             "Xavier Capaldi <capaldix@physics.mcgill.ca>"
+             nil ;; organization header
+             (("Fcc" . "/physics.mcgill/Sent")) ;; extra headers to save outgoing mail
+             nil ;; extra body text
+             nil) ;; signature
+             ("scribo"
+             nil ;; refer to other identity
+             "Xavier Capaldi <xcapaldi@scribo.biz>"
+             nil ;; organization header
+             (("Fcc" . "/scribo/Sent")) ;; extra headers to save outgoing mail
+             nil ;; extra body text
+             nil) ;; signature
+             ("giftedfleece"
+              nil ;; refer to other identity
+              "Xavier Capaldi <beeboy@giftedfleece.com>"
+              nil ;; organization header
+              (("Fcc" . "/giftedfleece/Sent")) ;; extra headers to save outgoing mail
+              nil ;; extra body text
+              nil) ;; signature
+              ("gmail"
+               nil ;; refer to other identity
+               "Xavier Capaldi <xavier.capaldi@gmail.com>"
+               nil ;; organization header
+               (("Fcc" . "/gmail/Sent")) ;; extra headers to save outgoing mail
+               nil ;; extra body text
+               nil))) ;; signature
     ;; use "physics" identity by default
     (setq gnus-alias-default-identity "physics")
     ;; define rules to match other identities
     (setq gnus-alias-identity-rules
-	  '(("scribo" ("any"
-		       "xcapaldi@scribo.biz"
-		       both)
-	     "scribo")
-	    ("giftedfleece" ("any"
-			     "beeboy@giftedfleece.com"
-			     both)
-	     "giftedfleece")
-	    ("gmail" ("any"
-		      "xavier.capaldi@gmail.com"
-		      both)
-	     "gmail"))))
+          '(("scribo" ("any"
+                       "xcapaldi@scribo.biz"
+                       both)
+             "scribo")
+            ("giftedfleece" ("any"
+                             "beeboy@giftedfleece.com"
+                             both)
+             "giftedfleece")
+            ("gmail" ("any"
+                      "xavier.capaldi@gmail.com"
+                      both)
+             "gmail"))))
 #+END_SRC

@@ -35,14 +35,14 @@ After the install you can log into the tty.
 ** remove splash screen
 This is personal preference but I like seeing the boot sequence.
 
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf remove plymouth-*
 #+END_SRC
 
 * git
 Git is necessary to pull the configuration files.
 
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install git
   git config --global user.name "Xavier Capaldi"
   git config --global user.email xcapaldi@scribo.biz
@@ -50,14 +50,14 @@ Git is necessary to pull the configuration files.
 
 Now you can pull the config.
 
-#+BEGIN_SRC sh :dir /home/xavier/.config
+#+BEGIN_SRC sh
   git clone https://github.com/xcapaldi/dotfiles.git emacs
 #+END_SRC
 
 * emacs
 Emacs is the first and most important priority as it allows the running of source blocks from this file.
 
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install emacs
 #+END_SRC
 
@@ -68,14 +68,14 @@ This will allow you to progress through the remainder of the installation in ema
 DNF is a nice package manager but is known for being a little slow.
 We can force it to use the fastest mirrors by modifying its configuration.
 
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   echo "fastestmirror=True" | sudo tee -a /etc/dnf/dnf.conf 
 #+END_SRC
 
 ** RPM Fusion
 A nonfree repo must be added if you want to watch videos.
 
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
   sudo dnf groupupdate multimedia --setop="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin
 #+END_SRC
@@ -84,19 +84,19 @@ A nonfree repo must be added if you want to watch videos.
 Flatpak is a containerized application method used by companies to distribute their software to different linux distros without needing to package for the repos.
 Ubuntu has their own clone of this technology called Snap.
 
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install flatpak
   flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 #+END_SRC
 
 Install apps:
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   flatpak install flathub us.zoom.Zoom
   flatpak install flathub com.valvesoftware.Steam
 #+END_SRC
 
 I'm not sure a local spotify app is really any better than the web version.
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   flatpak install flathub com.spotify.Client
 #+END_SRC
 
@@ -106,19 +106,19 @@ It is a terrible electron app.
 * graphical display
 Install xorg (no wayland for us yet).
 
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install xorg-x11-server-Xorg xorg-x11-xinit
 #+END_SRC
 
 for Intel
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install xorg-x11-drv-intel
 #+END_SRC
 
 ** Changing screen resolutions
 While xrandr is technically sufficient, a graphical method of managing displays is very helpful whenever you might be working in an unusual setting or giving a presentation.
 
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install arandr
 #+END_SRC
 
@@ -130,11 +130,11 @@ Other keybindings can be managed with an additional program.
 
 xbindkeys and sxhkd are both options but xbindkeys can be configured in guile and thus supports much more complex keybindings.
 
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install xbindkeys
 #+END_SRC
 
-Certain binds will be reserved by the window manager (DWM).
+Certain binds will be reserved by the window manager.
 There are also some Mod + mouse button binds.
 
 We will want a few additional binds that are quite simple:
@@ -144,11 +144,10 @@ We will want a few additional binds that are quite simple:
 - minimum volume
 
 We don't really need anything else as any additional keybinds just infringe on our memory for more important things.
-Since our needs are so minimal, we'll just add the new binds directly to the DWM "configuration".
+Since our needs are so minimal, we'll just add the new binds directly to the window manager configuration.
 
 We can also add symlinks to our bin in order to launch more commands from a command palette instead of from memory.
 
-If you want to modify your keybindings often, use xbindkeys as it is much faster than modifying the DWM config.
 ** xbindkeys configuration
 This configuration is [[http://www.gnu.org/software/guile/guile.html][guile]]-based.
 Any functions that work in guile will work here.
@@ -162,41 +161,51 @@ xbindkeys is capable of timed-keybinds and modal keychords (like in i3).
 Honestly, it is amazing and I'd use it heavily in a window manager like herbstluftwm.
 
 * wifi
-#+BEGIN_SRC sh :dir /sudo::
-  sudo dnf install NetworkManager NetworkManager-wifi
+#+BEGIN_SRC sh
+  sudo dnf install NetworkManager NetworkManager-wifi iwl7260-firmware
 #+END_SRC
 
 Complex configuration requires the applet for the system tray:
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install network-manager-applet
 #+END_SRC
 
 Need to modify options on wifi card on current laptop:
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo echo "options iwlwifi 11n_disable=1" >> /etc/modprobe.d/iwlwifi.conf
+  sudo echo "options iwlwifi swcrypto=1" >> /etc/modprobe.d/iwlwifi.conf
+  sudo echo "options iwlwifi power_save=0" >> /etc/modprobe.d/iwlwifi.conf
+  sudo echo "[connection]\nwifi.powersave = 2" > /etc/NetworkManager/conf.d/default-wifi-powersave-on.conf
 #+END_SRC
 
 * audio control
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install alsa-utils
 #+END_SRC
 
 Another option is pulse audio which has much more control.
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install pulseaudio
   sudo dnf install pavucontrol
+  sudo dnf install pulseaudio-utils
 #+END_SRC
 
 You can even add an icon to the system tray.
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install pasystray
 #+END_SRC
 
 * power management
 * external drive management
 * backlight
+You can do this manually but this application makes it very easy:
+#+BEGIN_SRC sh
+  sudo dnf install brightlight
+#+END_SRC
+
+** Manual method
 This is very system dependent so best to do manually
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install xbacklight
   ls /sys/class/backlight # probably have an intel backlight
   xrandr --verbose
@@ -217,11 +226,11 @@ You'll need to reboot for this to take effect.
 * fonts
 I prefer to install a solid fontset which has monospaced and standard fonts.
 Good options are Mozilla's Fira fontset or IBM's Plex fontset.
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
 sudo dnf install mozilla-fira-mono-fonts mozilla-fira-sans-fonts
 #+END_SRC
 
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install ibm-plex-fonts
 #+END_SRC
 
@@ -229,7 +238,7 @@ You should also consider installing an emoji font.
 It's not really crucial for an emacs setup since within emacs you can use emojify. 
 However if you'd like to rice your bar, an emoji font can be very useful.
 Note that just because you have an emoji font does not mean all terminals will support them.
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install google-noto-emoji-fonts google-noto-emoji-color-fonts 
 #+END_SRC
 
@@ -240,13 +249,13 @@ In general I think it is simpler to use these company fonts because they'll have
 
 ** International fonts
 By default Emacs falls back on symbola so that's a good font to install as a backup.
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install gdouros-symbola-fonts
 #+END_SRC
 
 Alternatively, to have good international font coverage, you can install the whole set of google noto sans fonts:
 
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install google-noto-sans-*
 #+END_SRC
 
@@ -256,7 +265,7 @@ Installing the whole set takes ~1Gb of space so you may want to just install the
 * shell
 Alias sh to dash instead of bash.
 This should speed up posix-compliant scripts.
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install dash
   sudo rm /bin/sh
   sudo ln -s /bin/dash /bin/sh
@@ -268,7 +277,7 @@ Check this [[https://anarc.at/blog/2018-05-04-terminal-emulators-2/][review of t
 In addition, xterm is one of the most compatible terminals with anything that is thrown at it.
 This is a desirable trait for a fallback terminal.
 
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install xterm
 #+END_SRC
 
@@ -276,17 +285,17 @@ Xterm is configured via Xresources.
 
 * videos
 These are the best applications for downloading and watching videos.
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install ffmpeg youtube-dl mpv
 #+END_SRC
 
 * printers
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install cups
 #+END_SRC
 
 Setup the printers in the physics department
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   curl -O http://www.physics.mcgill.ca/~juan/ppd/number17.ppd
   curl -O http://www.physics.mcgill.ca/~juan/ppd/number5.ppd
   curl -O http://www.physics.mcgill.ca/~juan/ppd/phaser9.ppd
@@ -301,25 +310,25 @@ Setup the printers in the physics department
 #+END_SRC
 
 Selinux will have an issue with this so:
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo /sbin/restorecon -v /etc/cups/ppd/number17.ppd
   sudo /sbin/restorecon -v /etc/cups/ppd/number5.ppd
   sudo /sbin/restorecon -v /etc/cups/ppd/phaser9.ppd
 #+END_SRC
 
 * text editors
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install vim
 #+END_SRC
 
 * java
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install icedtea-web
 #+END_SRC
 
 * applications
 ** graphics
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install sxiv inkscape gimp ImageMagick
 #+END_SRC
 
@@ -327,33 +336,33 @@ sxiv is amazing and easily rivals image-dired in emacs.
 It is like a dmenu of images and can even pipe images.
 
 ** CAD
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install freecad
 #+END_SRC
 
 ** PCB
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install kicad
 #+END_SRC
 
 * terminal applications
 ** critical
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install unzip
 #+END_SRC
 
 ** other
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install ftp espeak lm_sensors entr task-spooler urlview tree byanz oneko
 #+END_SRC
 
 * internet browsers
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install firefox
 #+END_SRC
 
 * office
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install libreoffice
 #+END_SRC
 
@@ -361,17 +370,17 @@ It is like a dmenu of images and can even pipe images.
 I'll use pdf-tools in emacs but here is documentation for alternatives:
 
 The most minimal is just to use mupdf which is crude at best.
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install mupdf
 #+END_SRC
 
 A step up is zathura which has some nice features included smooth page transitions, color theming and reading from standard input.
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install zathura zathura-pdf-mupdf zathura-djvu
 #+END_SRC
 
 Maybe evince?
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install evince
 #+END_SRC
 
@@ -381,23 +390,543 @@ I usually avoid installing it as much as a I can.
 
 * Dropbox
 I've always installed it from their [[https://www.dropbox.com/install-linux][rpm package on their website]].
+Dropbox doesn't update their repos properly so you'll get constant warning whenever updating or installing packages.
+Use the following configuration to use the latest version if available and otherwise falling back on the fedora 32 version which did work.
+#+BEGIN_SRC conf :tangle "/sudo::/etc/yum.repos.d/dropbox.repo"
+  [dropbox]
+  name=Dropbox Repository
+  baseurl=https://linux.dropbox.com/fedora/$releasever/
+  https://linux.dropbox/fedora/32/
+  failovermethod=priority
+  gpgkey=https://linux.dropbox.com/fedora/rpm-public-key.asc
+#+END_SRC
 
 * system tray
 Stalonetray is in the repos (as apposed to trayer) so I use that.
 
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install stalonetray
 #+END_SRC
 
 * notifications
-I use my own notification daemon, [[https://github.com/xcapaldi/fondle][fondle]].
+** COMMENT Dunst                                                            :config:
+This is pretty much the only choice for a standalone popup notification system on a minimal system.
+I usually don't like popups but I'm trying a system with no bar at all and relying on popups only.
+#+BEGIN_SRC sh
+  sudo dnf install dunst
+#+END_SRC
+
+*** global
+#+BEGIN_SRC conf :tangle ~/.config/dunst/dunstrc
+	[global]
+#+END_SRC
+**** display
+#+BEGIN_SRC conf :tangle ~/.config/dunst/dunstrc
+
+      # Which monitor should the notifications be displayed on.
+      monitor = 0
+
+      # Display notification on focused monitor.  Possible modes are:
+      #   mouse: follow mouse pointer
+      #   keyboard: follow window with keyboard focus
+      #   none: don't follow anything
+      #
+      # "keyboard" needs a window manager that exports the
+      # _NET_ACTIVE_WINDOW property.
+      # This should be the case for almost all modern window managers.
+      #
+      # If this option is set to mouse or keyboard, the monitor option
+      # will be ignored.
+      follow = mouse
+
+      # The geometry of the window:
+      #   [{width}]x{height}[+/-{x}+/-{y}]
+      # The geometry of the message window.
+      # The height is measured in number of notifications everything else
+      # in pixels.  If the width is omitted but the height is given
+      # ("-geometry x2"), the message window expands over the whole screen
+      # (dmenu-like).  If width is 0, the window expands to the longest
+      # message displayed.  A positive x is measured from the left, a
+      # negative from the right side of the screen.  Y is measured from
+      # the top and down respectively.
+      # The width can be negative.  In this case the actual width is the
+      # screen width minus the width defined in within the geometry option.
+      geometry = "300x5-30+20"
+
+      # Turn on the progess bar
+      progress_bar = true
+
+      # Set the progress bar height. This includes the frame, so make sure
+      # it's at least twice as big as the frame width.
+      progress_bar_height = 10
+
+      # Set the frame width of the progress bar
+      progress_bar_frame_width = 1
+
+      # Set the minimum width for the progress bar
+      progress_bar_min_width = 150
+
+      # Set the maximum width for the progress bar
+      progress_bar_max_width = 300
+
+
+      # Show how many messages are currently hidden (because of geometry).
+      indicate_hidden = yes
+
+      # Shrink window if it's smaller than the width.  Will be ignored if
+      # width is 0.
+      shrink = no
+
+      # The transparency of the window.  Range: [0; 100].
+      # This option will only work if a compositing window manager is
+      # present (e.g. xcompmgr, compiz, etc.).
+      transparency = 0
+
+      # The height of the entire notification.  If the height is smaller
+      # than the font height and padding combined, it will be raised
+      # to the font height and padding.
+      notification_height = 0
+
+      # Draw a line of "separator_height" pixel height between two
+      # notifications.
+      # Set to 0 to disable.
+      separator_height = 2
+
+      # Padding between text and separator.
+      padding = 8
+
+      # Horizontal padding.
+      horizontal_padding = 8
+
+      # Padding between text and icon.
+      text_icon_padding = 0
+
+      # Defines width in pixels of frame around the notification window.
+      # Set to 0 to disable.
+      frame_width = 3
+
+      # Defines color of the frame around the notification window.
+      frame_color = "#aaaaaa"
+
+      # Define a color for the separator.
+      # possible values are:
+      #  * auto: dunst tries to find a color fitting to the background;
+      #  * foreground: use the same color as the foreground;
+      #  * frame: use the same color as the frame;
+      #  * anything else will be interpreted as a X color.
+      separator_color = frame
+
+      # Sort messages by urgency.
+      sort = yes
+
+      # Don't remove messages, if the user is idle (no mouse or keyboard input)
+      # for longer than idle_threshold seconds.
+      # Set to 0 to disable.
+      # A client can set the 'transient' hint to bypass this. See the rules
+      # section for how to disable this if necessary
+      idle_threshold = 120
+#+END_SRC
+
+**** text
+#+BEGIN_SRC conf :tangle ~/.config/dunst/dunstrc
+
+      font = Monospace 8
+
+      # The spacing between lines.  If the height is smaller than the
+      # font height, it will get raised to the font height.
+      line_height = 0
+
+      # Possible values are:
+      # full: Allow a small subset of html markup in notifications:
+      #        <b>bold</b>
+      #        <i>italic</i>
+      #        <s>strikethrough</s>
+      #        <u>underline</u>
+      #
+      #        For a complete reference see
+      #        <https://developer.gnome.org/pango/stable/pango-Markup.html>.
+      #
+      # strip: This setting is provided for compatibility with some broken
+      #        clients that send markup even though it's not enabled on the
+      #        server. Dunst will try to strip the markup but the parsing is
+      #        simplistic so using this option outside of matching rules for
+      #        specific applications *IS GREATLY DISCOURAGED*.
+      #
+      # no:    Disable markup parsing, incoming notifications will be treated as
+      #        plain text. Dunst will not advertise that it has the body-markup
+      #        capability if this is set as a global setting.
+      #
+      # It's important to note that markup inside the format option will be parsed
+      # regardless of what this is set to.
+      markup = full
+
+      # The format of the message.  Possible variables are:
+      #   %a  appname
+      #   %s  summary
+      #   %b  body
+      #   %i  iconname (including its path)
+      #   %I  iconname (without its path)
+      #   %p  progress value if set ([  0%] to [100%]) or nothing
+      #   %n  progress value if set without any extra characters
+      #   %%  Literal %
+      # Markup is allowed
+      format = "<b>%s</b>\n%b"
+
+      # Alignment of message text.
+      # Possible values are "left", "center" and "right".
+      alignment = left
+
+      # Vertical alignment of message text and icon.
+      # Possible values are "top", "center" and "bottom".
+      vertical_alignment = center
+
+      # Show age of message if message is older than show_age_threshold
+      # seconds.
+      # Set to -1 to disable.
+      show_age_threshold = 60
+
+      # Split notifications into multiple lines if they don't fit into
+      # geometry.
+      word_wrap = yes
+
+      # When word_wrap is set to no, specify where to make an ellipsis in long lines.
+      # Possible values are "start", "middle" and "end".
+      ellipsize = middle
+
+      # Ignore newlines '\n' in notifications.
+      ignore_newline = no
+
+      # Stack together notifications with the same content
+      stack_duplicates = true
+
+      # Hide the count of stacked notifications with the same content
+      hide_duplicate_count = false
+
+      # Display indicators for URLs (U) and actions (A).
+      show_indicators = yes
+#+END_SRC
+
+**** icons
+#+BEGIN_SRC conf :tangle ~/.config/dunst/dunstrc
+      # Align icons left/right/off
+      icon_position = left
+
+      # Scale small icons up to this size, set to 0 to disable. Helpful
+      # for e.g. small files or high-dpi screens. In case of conflict,
+      # max_icon_size takes precedence over this.
+      min_icon_size = 0
+
+      # Scale larger icons down to this size, set to 0 to disable
+      max_icon_size = 32
+
+      # Paths to default icons.
+      icon_path = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
+#+END_SRC
+
+**** history
+#+BEGIN_SRC conf :tangle ~/.config/dunst/dunstrc
+      # Should a notification popped up from history be sticky or timeout
+      # as if it would normally do.
+      sticky_history = yes
+
+      # Maximum amount of notifications kept in history
+      history_length = 20
+#+END_SRC
+
+**** misc/advanced
+#+BEGIN_SRC conf :tangle ~/.config/dunst/dunstrc
+      # dmenu path.
+      dmenu = /usr/bin/dmenu -p dunst:
+
+      # Browser for opening urls in context menu.
+      browser = /usr/bin/firefox -new-tab
+
+      # Always run rule-defined scripts, even if the notification is suppressed
+      always_run_script = true
+
+      # Define the title of the windows spawned by dunst
+      title = Dunst
+
+      # Define the class of the windows spawned by dunst
+      class = Dunst
+
+      # Print a notification on startup.
+      # This is mainly for error detection, since dbus (re-)starts dunst
+      # automatically after a crash.
+      startup_notification = false
+
+      # Manage dunst's desire for talking
+      # Can be one of the following values:
+      #  crit: Critical features. Dunst aborts
+      #  warn: Only non-fatal warnings
+      #  mesg: Important Messages
+      #  info: all unimportant stuff
+      # debug: all less than unimportant stuff
+      verbosity = mesg
+
+      # Define the corner radius of the notification window
+      # in pixel size. If the radius is 0, you have no rounded
+      # corners.
+      # The radius will be automatically lowered if it exceeds half of the
+      # notification height to avoid clipping text and/or icons.
+      corner_radius = 0
+
+      # Ignore the dbus closeNotification message.
+      # Useful to enforce the timeout set by dunst configuration. Without this
+      # parameter, an application may close the notification sent before the
+      # user defined timeout.
+      ignore_dbusclose = false
+#+END_SRC
+
+**** COMMENT wayland
+#+BEGIN_SRC conf :tangle ~/.config/dunst/dunstrc
+      # These settings are Wayland-specific. They have no effect when using X11
+
+      # Uncomment this if you want to let notications appear under fullscreen
+      # applications (default: overlay)
+      # layer = top
+
+      # Set this to true to use X11 output on Wayland.
+      force_xwayland = false
+#+END_SRC
+
+**** legacy
+#+BEGIN_SRC conf :tangle ~/.config/dunst/dunstrc
+      # Use the Xinerama extension instead of RandR for multi-monitor support.
+      # This setting is provided for compatibility with older nVidia drivers that
+      # do not support RandR and using it on systems that support RandR is highly
+      # discouraged.
+      #
+      # By enabling this setting dunst will not be able to detect when a monitor
+      # is connected or disconnected which might break follow mode if the screen
+      # layout changes.
+      force_xinerama = false
+#+END_SRC
+
+**** mouse
+#+BEGIN_SRC conf :tangle ~/.config/dunst/dunstrc
+      # Defines list of actions for each mouse event
+      # Possible values are:
+      # * none: Don't do anything.
+      # * do_action: If the notification has exactly one action, or one is marked as default,
+      #              invoke it. If there are multiple and no default, open the context menu.
+      # * close_current: Close current notification.
+      # * close_all: Close all notifications.
+      # These values can be strung together for each mouse event, and
+      # will be executed in sequence.
+      mouse_left_click = close_current
+      mouse_middle_click = do_action, close_current
+      mouse_right_click = close_all
+#+END_SRC
+
+*** experimental
+Experimental features that may or may not work correctly.
+Do not expect them to have a consisten behavior across releases.
+#+BEGIN_SRC conf :tangle ~/.config/dunst/dunstrc
+  [experimental]
+      # Calculate the dpi to use on a per-monitor basis.
+      # If this setting is enabled the Xft.dpi value will be ignored and instead
+      # dunst will attempt to calculate an appropriate dpi value for each monitor
+      # using the resolution and physical size. This might be useful in setups
+      # where there are multiple screens with very different dpi values.
+      per_monitor_dpi = false
+#+END_SRC
+
+*** shortcuts
+The internal keyboard shorcut support in dunst is now considered deprecated and should be replaced by dunstctl calls
+You can use the configuration of your WM or DE to bind these to shortcuts of your choice.
+Check the dunstctl manual page for more info.
+#+BEGIN_SRC conf :tangle ~/.config/dunst/dunstrc
+  [shortcuts]
+
+      # Shortcuts are specified as [modifier+][modifier+]...key
+      # Available modifiers are "ctrl", "mod1" (the alt-key), "mod2",
+      # "mod3" and "mod4" (windows-key).
+      # Xev might be helpful to find names for keys.
+
+      # Close notification. Equivalent dunstctl command:
+      # dunstctl close
+      # close = ctrl+space
+
+      # Close all notifications. Equivalent dunstctl command:
+      # dunstctl close-all
+      # close_all = ctrl+shift+space
+
+      # Redisplay last message(s). Equivalent dunstctl command:
+      # dunstctl history-pop
+      # history = ctrl+grave
+
+      # Context menu. Equivalent dunstctl command:
+      # dunstctl context
+      # context = ctrl+shift+period
+#+END_SRC
+
+*** urgency
+**** low
+#+BEGIN_SRC conf :tangle ~/.config/dunst/dunstrc
+  [urgency_low]
+      # IMPORTANT: colors have to be defined in quotation marks.
+      # Otherwise the "#" and following would be interpreted as a comment.
+      background = "#222222"
+      foreground = "#888888"
+      timeout = 10
+      # Icon for notifications with low urgency, uncomment to enable
+      #icon = /path/to/icon
+#+END_SRC
+
+**** normal
+#+BEGIN_SRC conf :tangle ~/.config/dunst/dunstrc
+  [urgency_normal]
+      background = "#285577"
+      foreground = "#ffffff"
+      timeout = 10
+      # Icon for notifications with normal urgency, uncomment to enable
+      #icon = /path/to/icon
+#+END_SRC
+
+**** critical
+#+BEGIN_SRC conf :tangle ~/.config/dunst/dunstrc
+  [urgency_critical]
+      background = "#900000"
+      foreground = "#ffffff"
+      frame_color = "#ff0000"
+      timeout = 0
+      # Icon for notifications with critical urgency, uncomment to enable
+      #icon = /path/to/icon
+#+END_SRC
+
+*** rules
+Every section that isn't one of the above is interpreted as a rules to
+override settings for certain messages.
+
+Messages can be matched by
+   appname (discouraged, see desktop_entry)
+   body
+   category
+   desktop_entry
+   icon
+   match_transient
+   msg_urgency
+   stack_tag
+   summary
+
+and you can override the
+   background
+   foreground
+   format
+   frame_color
+   fullscreen
+   new_icon
+   set_stack_tag
+   set_transient
+   timeout
+   urgency
+
+Shell-like globbing will get expanded.
+
+Instead of the appname filter, it's recommended to use the desktop_entry filter.
+GLib based applications export their desktop-entry name.
+In comparison to the appname, the desktop-entry won't get localized.
+
+**** scripting
+You can specify a script that gets run when the rule matches by
+setting the "script" option.
+The script will be called as follows:
+  script appname summary body icon urgency
+where urgency can be "LOW", "NORMAL" or "CRITICAL".
+
+NOTE: if you don't want a notification to be displayed, set the format to "".
+NOTE: It might be helpful to run dunst -print in a terminal in order to find fitting options for rules.
+
+*** transient notifications
+Disable the transient hint so that idle_threshold cannot be bypassed from the client:
+#+BEGIN_SRC conf :tangle ~/.config/dunst/dunstrc
+  #[transient_disable]
+  #    match_transient = yes
+  #    set_transient = no
+#+END_SRC
+
+Make the handling of transient notifications more strict by making them not be placed in history:
+#+BEGIN_SRC conf :tangle ~/.config/dunst/dunstrc
+  #[transient_history_ignore]
+  #    match_transient = yes
+  #    history_ignore = yes
+#+END_SRC
+
+*** fullscreen values
+show: show the notifications, regardless if there is a fullscreen window opened
+delay: displays the new notification, if there is no fullscreen window active
+       If the notification is already drawn, it won't get undrawn.
+pushback: same as delay, but when switching into fullscreen, the notification will get withdrawn from screen again and will get delayed like a new notification
+
+#+BEGIN_SRC conf :tangle ~/.config/dunst/dunstrc
+  #[fullscreen_delay_everything]
+  #    fullscreen = delay
+  #[fullscreen_show_critical]
+  #    msg_urgency = critical
+  #    fullscreen = show
+#+END_SRC
+
+*** misc
+#+BEGIN_SRC conf :tangle ~/.config/dunst/dunstrc
+  #[espeak]
+  #    summary = "*"
+  #    script = dunst_espeak.sh
+
+  #[script-test]
+  #    summary = "*script*"
+  #    script = dunst_test.sh
+
+  #[ignore]
+  #    # This notification will not be displayed
+  #    summary = "foobar"
+  #    format = ""
+
+  #[history-ignore]
+  #    # This notification will not be saved in history
+  #    summary = "foobar"
+  #    history_ignore = yes
+
+  #[skip-display]
+  #    # This notification will not be displayed, but will be included in the history
+  #    summary = "foobar"
+  #    skip_display = yes
+
+  #[signed_on]
+  #    appname = Pidgin
+  #    summary = "*signed on*"
+  #    urgency = low
+  #
+  #[signed_off]
+  #    appname = Pidgin
+  #    summary = *signed off*
+  #    urgency = low
+  #
+  #[says]
+  #    appname = Pidgin
+  #    summary = *says*
+  #    urgency = critical
+  #
+  #[twitter]
+  #    appname = Pidgin
+  #    summary = *twitter.com*
+  #    urgency = normal
+  #
+  #[stack-volumes]
+  #    appname = "some_volume_notifiers"
+  #    set_stack_tag = "volume"
+#+END_SRC
+
+** Fondle
+For window managers that come with a minimal bar, I prefer my own notification daemon, [[https://github.com/xcapaldi/fondle][fondle]].
+It basically pipes all notifications through the bar and can handle the updating of some status information.
 Fondle is a python program and has a few dependencies:
 #+BEGIN_SRC sh :dir /sudo::
-  sudo dnf install python3-gobject gtk3
+  sudo dnf install make python3-gobject gtk3
 #+END_SRC
 
 Clone the repository:
-#+BEGIN_SRC sh :dir /home/xavier/src
+#+BEGIN_SRC sh
   git clone https://github.com/xcapaldi/fondle.git
 #+END_SRC
 
@@ -410,15 +939,15 @@ Fondle is configured via flags at runtime so all the options can be set in [[*xi
 
 * screenlock
 This is the most amazing and trippy screen locker I've seen.
-#+BEGIN_SRC sh :dir /sudo::
-  sudo dnf install xlock
+#+BEGIN_SRC sh
+  sudo dnf install xlockmore
 #+END_SRC
 
 * password management
 Pass is really sexy but it isn't easily portable and it seems a bit like reinventing the wheel. 
 Keepassxc is a graphical tool with a command-line interface.
 It is cross-platform compatible with all operating systems and the password store can be transported as a single database.
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install keepassxc
 #+END_SRC
 
@@ -432,15 +961,20 @@ I'll add my references to this section later.
 In short, my master key is kept on an offline security drive.
 Most actions are performed with my temporary subkeys which I use on the machine. 
 To move to a new computer, you can just copy your .gnupg directory over.
+Once copied, run the following to set the proper permissions:
+#+BEGIN_SRC sh
+  chown -R $(whoami) ~/.gnupg/
+  chmod 700 ~/.gnupg
+#+END_SRC
 
 * email
-#+BEGIN_SRC sh :dir /sudo::
-  sudo dnf install mbsync msmtp notmuch emacs-notmuch
+#+BEGIN_SRC sh
+  sudo dnf install isync msmtp notmuch emacs-notmuch
 #+END_SRC
 
 We will use a gtk pinentry application.
 Maybe later we will try to use emacs for this.
-#+BEGIN_SRC sh :dir /sudo::
+#+BEGIN_SRC sh
   sudo dnf install pinentry-gtk
 #+END_SRC
 
@@ -459,7 +993,7 @@ IMAPAccount mail.mcgill
 # Address to connect to
 Host outlook.office365.com
 User xavier.capaldi@mail.mcgill.ca
-PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.config/emacs/mail/mail.mcgill.ca.gpg"
+PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.email/passwords/mcgill.gpg"
 #
 # Use SSL
 SSLType IMAPS
@@ -478,8 +1012,8 @@ Path ~/.mail/mail.mcgill/
 Inbox ~/.mail/mail.mcgill/INBOX
 
 Channel mail.mcgill
-Master :mail.mcgill-remote:
-Slave :mail.mcgill-local:
+Far :mail.mcgill-remote:
+Near :mail.mcgill-local:
 # Exclude everything under the internal [Gmail] folder, except the interesting folders
 #Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail"
 # Or include everything
@@ -533,7 +1067,7 @@ IMAPAccount physics.mcgill
 # Address to connect to
 Host imap.physics.mcgill.ca
 User capaldix
-PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.config/emacs/mail/physics.mcgill.ca.gpg"
+PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.mail/passwords/physics.gpg"
 #
 # Use SSL
 SSLType IMAPS
@@ -552,8 +1086,8 @@ Path ~/.mail/physics.mcgill/
 Inbox ~/.mail/physics.mcgill/INBOX
 
 Channel physics.mcgill
-Master :physics.mcgill-remote:
-Slave :physics.mcgill-local:
+Far :physics.mcgill-remote:
+Near :physics.mcgill-local:
 # Exclude everything under the internal [Gmail] folder, except the interesting folders
 #Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail"
 # Or include everything
@@ -570,7 +1104,7 @@ IMAPAccount scribo
 # Address to connect to
 Host mail.lonex.com
 User xcapaldi@scribo.biz
-PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.config/emacs/mail/scribo.biz.gpg"
+PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.mail/passwords/scribo.gpg"
 #
 # Use SSL
 SSLType IMAPS
@@ -589,8 +1123,8 @@ Path ~/.mail/scribo/
 Inbox ~/.mail/scribo/INBOX
 
 Channel scribo
-Master :scribo-remote:
-Slave :scribo-local:
+Far :scribo-remote:
+Near :scribo-local:
 # Exclude everything under the internal [Gmail] folder, except the interesting folders
 #Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail"
 # Or include everything
@@ -607,7 +1141,7 @@ IMAPAccount giftedfleece
 # Address to connect to
 Host mail.lonex.com
 User beeboy@giftedfleece.com
-PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.config/emacs/mail/giftedfleece.com.gpg"
+PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.mail/passwords/giftedfleece.gpg"
 #
 # Use SSL
 SSLType IMAPS
@@ -626,12 +1160,12 @@ Path ~/.mail/giftedfleece/
 Inbox ~/.mail/giftedfleece/INBOX
 
 Channel giftedfleece
-Master :giftedfleece-remote:
-Slave :giftedfleece-local:
+Far :giftedfleece-remote:
+Near :giftedfleece-local:
 # Exclude everything under the internal [Gmail] folder, except the interesting folders
 #Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail"
 # Or include everything
-Patterns !junk* !sent* !trash* !drafts*
+Patterns * !junk* !sent* !trash* !drafts*
 # Automatically create missing mailboxes, both locally and on the server
 Create Both
 # Save the synchronization state files in the relevant directory
@@ -644,7 +1178,7 @@ IMAPAccount gmail
 # Address to connect to
 Host imap.gmail.com
 User xavier.capaldi@gmail.com
-PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.config/emacs/mail/gmail.com.gpg"
+PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.mail/passwords/gmail.gpg"
 #
 # Use SSL
 SSLType IMAPS
@@ -663,10 +1197,10 @@ Path ~/.mail/gmail/
 Inbox ~/.mail/gmail/Inbox
 
 Channel gmail
-Master :gmail-remote:
-Slave :gmail-local:
+Far :gmail-remote:
+Near :gmail-local:
 # Exclude everything under the internal [Gmail] folder, except the interesting folders
-Patterns * !"Inbox/Sync Issues"* !"[Gmail]/All Mail"* !"[Gmail]/Starred"* !"[Gmail]/Important"* !archive* !drafts* !flagged* !important* !sent* !spam* !trash*
+Patterns * !"Inbox/Sync Issues"* !"[Gmail]/All Mail"* !"[Gmail]/Starred"* !"[Gmail]/Important"* !"[Gmail]/Sent Mail"* !archive* !drafts* !flagged* !important* !sent* !spam* !trash*
 # Or include everything
 #Patterns *
 # Automatically create missing mailboxes, both locally and on the server
@@ -715,7 +1249,7 @@ ignore	A list (separated by ';') of file and directory names that will not be se
 
 #+BEGIN_SRC sh :tangle ~/.notmuch-config
 [new]
-tags=unread;inbox;
+tags=new;
 ignore=
 #+END_SRC
 
@@ -753,6 +1287,91 @@ The "notmuch new" command will notice flag changes in filenames and update tags,
 synchronize_flags=true
 #+END_SRC
 
+*** hooks
+**** pre-new
+Invoked before scanning or adding new entries to the database.
+In our case, we'll just use it to pull down new messages before running ~notmuch new~.
+#+BEGIN_SRC sh :tangle ~/.mail/.notmuch/hooks/pre-new
+  #!/bin/sh
+
+  mbsync -a
+#+END_SRC
+
+Make executable:
+#+BEGIN_SRC sh
+  chmod +x ~/.mail/.notmuch/hooks/pre-new
+#+END_SRC
+
+**** post-new
+Invoked after new emails have been added to the database and received initial tags.
+#+BEGIN_SRC sh :tangle ~/.mail/.notmuch/hooks/post-new
+  #!/bin/sh
+
+  # tag items in sent folders as sent
+  notmuch tag +sent -new -- tag:new and folder:/physics.mcgill/Sent/
+  notmuch tag +sent -new -- tag:new and folder:/scribo/Sent/
+  notmuch tag +sent -new -- tag:new and folder:/giftedfleece/Sent/
+  notmuch tag +sent -new -- tag:new and folder:/gmail/Sent/
+
+  # immediately remove new tag from all messages from "me"
+  notmuch tag -new -- tag:new and from:capaldix@physics.mcgill.ca
+  notmuch tag -new -- tag:new and from:xavier.capaldi@mail.mcgill.ca
+  notmuch tag -new -- tag:new and from:xcapaldi@scribo.biz
+  notmuch tag -new -- tag:new and from:beeboy@giftedfleece.com
+  notmuch tag -new -- tag:new and from:xavier.capaldi@gmail.com
+
+  # delete all messages from a spammer:
+  # notmuch tag +deleted -new -- tag:new and from:spam@spam.com
+  # Walter often accidentally adds this events to the group calendar
+  notmuch tag +deleted -new -- tag:new and from:wwreisner@gmail.com and "(subject:New event:* or subject:Canceled event:*)" 
+
+  notmuch tag +spam -new -- tag:new and from:KeyenceCanadaENews@keyence.com
+  notmuch tag +spam -new -- tag:new and from:cineplex@ecampaigns.cineplex.com
+  notmuch tag +spam -new -- tag:new and from:director@dragonboat.ca
+
+
+  # tag all message from notmuch mailing list
+  # notmuch tag +notmuch -- tag:new and to:notmuch@notmuchmail.org
+
+  # tag feed messages for review
+  notmuch tag +feed -new -- tag:new and from:scholaralerts-noreply@google.com
+  notmuch tag +feed -new -- tag:new and from:mcgillstaff.mro@mcgill.ca
+
+  # add messages from important people to the inbox
+  notmuch tag +inbox +unread -new -- tag:new and from:reisner@physics.mcgill.ca
+  notmuch tag +inbox +unread -new -- tag:new and from:wwreisner@gmail.com
+  notmuch tag +inbox +unread -new -- tag:new and from:zezhou.liu@mail.mcgill.ca
+  notmuch tag +inbox +unread -new -- tag:new and from:seyed.isaachosseini@mail.mcgill.ca
+  notmuch tag +inbox +unread -new -- tag:new and from:i.eshagh@gmail.com
+  notmuch tag +inbox +unread -new -- tag:new and from:lili.zeng@mail.mcgill.ca
+  notmuch tag +inbox +unread -new -- tag:new and from:thomas.st-denis@mail.mcgill.ca
+  notmuch tag +inbox +unread -new -- tag:new and from:khadija.yazda@mail.mcgill.ca
+  notmuch tag +inbox +unread -new -- tag:new and from:an.vuong@mail.mcgill.ca
+  notmuch tag +inbox +unread -new -- tag:new and from:preethi.ravikumar@mail.mcgill.ca
+  notmuch tag +inbox +unread -new -- tag:new and from:mahmoud.abdalla@mail.mcgill.ca
+  notmuch tag +inbox +unread -new -- tag:new and from:rob.sladek@mcgill.ca
+  notmuch tag +inbox +unread -new -- tag:new and from:Aniket.Bhattacharya@ucf.edu
+  notmuch tag +inbox +unread -new -- tag:new and from:bill@nooma.bio
+  notmuch tag +inbox +unread -new -- tag:new and from:roland@nooma.bio
+  notmuch tag +inbox +unread -new -- tag:new and from:swarnadeep@knights.ucf.edu
+  notmuch tag +inbox +unread -new -- tag:new and from:philip@nooma.bio
+  notmuch tag +inbox +unread +inrs -new -- tag:new and from:Patrick.Soucy@inrs.ca
+  notmuch tag +inbox +unread +inrs -new -- tag:new and from:Boris.LeDrogoff@inrs.ca
+
+  # scans from mcgill
+  notmuch tag +scans +unread -new -- tag:new and subject:Scanned from a McGill uPrint Device
+
+  # finally, retag all "new" messages "ham" and "unread"
+  notmuch tag +ham +unread -new -- tag:new
+#+END_SRC
+
+Make executable:
+#+BEGIN_SRC sh :dir
+  chmod +x ~/.mail/.notmuch/hooks/post-new
+#+END_SRC
+
+**** post-insert
+Used to add additional query-based tags to messages after being added to the database.
 ** msmtp                                                             :config:
 This application takes care of sending our emails.
 The passwords are all stored in GPG-encrypted files and decryted on demand when sending mail.
@@ -768,82 +1387,484 @@ We need to symlink the sendmail command to msmtp:
 #+END_SRC
 
 *** default values
-#+BEGIN_SRC sh :tangle ~/.config/msmtp/config
-defaults
-protocol smtp
-auth  on
-tls   on
-tls_starttls on
-tls_trust_file /etc/ssl/certs/ca-bundle.crt
-#logfile ~/.msmtp.log
+#+BEGIN_SRC conf :tangle ~/.config/msmtp/config
+  defaults
+  protocol smtp
+  auth  on
+  tls   on
+  tls_starttls on
+  tls_trust_file /etc/ssl/certs/ca-bundle.crt
+  #logfile ~/.msmtp.log
 #+END_SRC
 
 *** mail.mcgill
-#+BEGIN_SRC sh :tangle no
-account       mail.mcgill.ca
-host          smtp.office365.com
-port          587
-from          xavier.capaldi@mail.mcgill.ca
-user          xavier.capaldi@mail.mcgill.ca
-passwordeval  "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.config/emacs/mail/mail.mcgill.ca.gpg"
+#+BEGIN_SRC conf :tangle no
+  account       mail.mcgill.ca
+  host          smtp.office365.com
+  port          587
+  from          xavier.capaldi@mail.mcgill.ca
+  user          xavier.capaldi@mail.mcgill.ca
+  passwordeval  "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.mail/passwords/mcgill.gpg"
 #+END_SRC
 
 *** mcgill
-#+BEGIN_SRC sh :tangle no
-account      mcgill.ca
-host         smtp.office365.com
-port         587
-from         xavier.capaldi@mcgill.ca
-user         xavier.capaldi@mcgill.ca
-passwordeval  "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.config/emacs/mail/mcgill.ca.gpg"
+#+BEGIN_SRC conf :tangle no
+  account      mcgill.ca
+  host         smtp.office365.com
+  port         587
+  from         xavier.capaldi@mcgill.ca
+  user         xavier.capaldi@mcgill.ca
+  passwordeval  "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.config/emacs/mail/mcgill.ca.gpg"
 #+END_SRC
 
 *** physics.mcgill
-#+BEGIN_SRC sh :tangle ~/.config/msmtp/config
-account      physics.mcgill.ca
-host         mailhost.physics.mcgill.ca
-port         587
-from         capaldix@physics.mcgill.ca
-user         capaldix@physics.mcgill.ca
-passwordeval  "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.config/emacs/mail/physics.mcgill.ca.gpg"
+#+BEGIN_SRC conf :tangle ~/.config/msmtp/config
+  account      physics.mcgill.ca
+  host         mailhost.physics.mcgill.ca
+  port         587
+  from         capaldix@physics.mcgill.ca
+  user         capaldix@physics.mcgill.ca
+  passwordeval  "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.mail/passwords/physics.gpg"
 #+END_SRC
 
 *** giftedfleece
-#+BEGIN_SRC sh :tangle ~/.config/msmtp/config
-account      giftedfleece.com
-host         mail.lonex.com
-port         465
-from         beeboy@giftedfleece.com
-user         beeboy@giftedfleece.com
-passwordeval  "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.config/emacs/mail/giftedfleece.com.gpg"
-tls_starttls off
+#+BEGIN_SRC conf :tangle ~/.config/msmtp/config
+  account      giftedfleece.com
+  host         mail.lonex.com
+  port         465
+  from         beeboy@giftedfleece.com
+  user         beeboy@giftedfleece.com
+  passwordeval  "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.mail/passwords/giftedfleece.gpg"
+  tls_starttls off
 #+END_SRC
 
 *** scribo
-#+BEGIN_SRC sh :tangle ~/.config/msmtp/config
-account      scribo.biz
-host         mail.lonex.com
-port         465
-from         xcapaldi@scribo.biz
-user         xcapaldi@scribo.biz
-passwordeval  "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.config/emacs/mail/scribo.biz.gpg"
-tls_starttls off
+#+BEGIN_SRC conf :tangle ~/.config/msmtp/config
+  account      scribo.biz
+  host         mail.lonex.com
+  port         465
+  from         xcapaldi@scribo.biz
+  user         xcapaldi@scribo.biz
+  passwordeval  "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.mail/passwords/scribo.gpg"
+  tls_starttls off
 #+END_SRC
 
 *** gmail
-Make sure you allow less secure apps to access your gmail account or this will not work
-#+BEGIN_SRC sh :tangle ~/.config/msmtp/config
-account      gmail.com
-host         smtp.gmail.com
-port         587
-from         xavier.capaldi@gmail.com
-user         xavier.capaldi@gmail.com
-passwordeval  "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.config/emacs/mail/gmail.com.gpg"
+Make sure you allow less secure apps to access your gmail account or this will not work.
+#+BEGIN_SRC conf :tangle ~/.config/msmtp/config
+  account      gmail.com
+  host         smtp.gmail.com
+  port         587
+  from         xavier.capaldi@gmail.com
+  user         xavier.capaldi@gmail.com
+  passwordeval  "gpg --quiet --for-your-eyes-only --no-tty --decrypt ~/.mail/passwords/gmail.gpg"
 #+END_SRC
 
+** mailcap                                                          :config:
+We can define how certain attachments are opened in the mailcap file:
+#+BEGIN_SRC conf :tangle ~/.mailcap
+  image/*; sxiv %s
+  text/html; firefox %s
+#+END_SRC
 * window manager
-I will use dwm for now so the configuration is a separate git repo.
-* xinitrc                                                           :config:
+I wanted to use DWM but have some issues on Fedora 34 with the compilation.
+Spectrwm works quite well as a replacement but I also really wanted to try Herbstluftwm which I think would have a superior workflow for multiple monitors.
+After using briefly, I'm not sure the required configuration and added complexity is really worth it.
+** COMMENT herbstluftwm                                             :config:
+#+BEGIN_SRC sh
+  sudo dnf install herbstluftwm
+#+END_SRC
+
+*** header
+#+BEGIN_SRC sh :tangle ~/.config/herbstluftwm/autostart
+  #!/usr/bin/bash
+
+  hc() {
+      herbstclient "$@"
+  }
+
+  hc emit_hook reload
+#+END_SRC
+
+*** keybindings
+Remove all prior keybindings first:
+#+BEGIN_SRC sh :tangle ~/.config/herbstluftwm/autostart
+  hc keyunbind --all
+#+END_SRC
+
+Set the mod key to super:
+#+BEGIN_SRC sh :tangle ~/.config/herbstluftwm/autostart
+  Mod=Mod4
+#+END_SRC
+
+**** window manager basic binds
+#+BEGIN_SRC sh :tangle ~/.config/herbstluftwm/autostart
+  hc keybind $Mod-Shift-q quit
+  hc keybind $Mod-Shift-r reload
+  hc keybind $Mod-Shift-c close
+  hc keybind $Mod-Return spawn "${TERMINAL:-xterm}" # xterm is a backup
+#+END_SRC
+
+**** basic movement in tiling and floating mode
+***** focusing clients
+#+BEGIN_SRC sh :tangle ~/.config/herbstluftwm/autostart
+  hc keybind $Mod-Left  focus left
+  hc keybind $Mod-Down  focus down
+  hc keybind $Mod-Up    focus up
+  hc keybind $Mod-Right focus right
+  hc keybind $Mod-h     cycle_frame -1
+  hc keybind $Mod-j     cycle 1
+  hc keybind $Mod-k     cycle -1
+  hc keybind $Mod-l     cycle_frame 1
+#+END_SRC
+
+***** moving clients in tiling and floating mode
+#+BEGIN_SRC sh :tangle ~/.config/herbstluftwm/autostart
+  hc keybind $Mod-Shift-Left  shift left
+  hc keybind $Mod-Shift-Down  shift down
+  hc keybind $Mod-Shift-Up    shift up
+  hc keybind $Mod-Shift-Right shift right
+  hc keybind $Mod-Shift-h     shift left
+  hc keybind $Mod-Shift-j     shift down
+  hc keybind $Mod-Shift-k     shift up
+  hc keybind $Mod-Shift-l     shift right
+#+END_SRC
+
+***** splitting frames
+Create an empty frame in direction:
+#+BEGIN_SRC sh :tangle ~/.config/herbstluftwm/autostart
+  hc keybind $Mod-u       split   bottom  0.5
+  hc keybind $Mod-o       split   right   0.5
+#+END_SRC
+
+Let current frame explode into subframes:
+#+BEGIN_SRC sh :tangle ~/.config/herbstluftwm/autostart
+  hc keybind $Mod-Control-space split explode
+#+END_SRC
+
+***** resizing frames and floating clients
+#+BEGIN_SRC sh :tangle ~/.config/herbstluftwm/autostart
+  resizestep=0.02
+  hc keybind $Mod-Control-h       resize left +$resizestep
+  hc keybind $Mod-Control-j       resize down +$resizestep
+  hc keybind $Mod-Control-k       resize up +$resizestep
+  hc keybind $Mod-Control-l       resize right +$resizestep
+  hc keybind $Mod-Control-Left    resize left +$resizestep
+  hc keybind $Mod-Control-Down    resize down +$resizestep
+  hc keybind $Mod-Control-Up      resize up +$resizestep
+  hc keybind $Mod-Control-Right   resize right +$resizestep
+#+END_SRC
+
+**** tags
+#+BEGIN_SRC sh :tangle ~/.config/herbstluftwm/autostart
+  tag_names=( {1..9} )
+  tag_keys=( {1..9} )
+
+  hc rename default "${tag_names[0]}" || true
+  for i in "${!tag_names[@]}" ; do
+      hc add "${tag_names[$i]}"
+      key="${tag_keys[$i]}"
+      if ! [ -z "$key" ] ; then
+          hc keybind "$Mod-$key" use_index "$i"
+          hc keybind "$Mod-Shift-$key" move_index "$i"
+      fi
+  done
+#+END_SRC
+
+Cycle through the tags:
+#+BEGIN_SRC sh :tangle ~/.config/herbstluftwm/autostart
+  hc keybind $Mod-period use_index +1 --skip-visible
+  hc keybind $Mod-comma  use_index -1 --skip-visible
+#+END_SRC
+
+**** layouting
+#+BEGIN_SRC sh :tangle ~/.config/herbstluftwm/autostart
+  hc keybind $Mod-r remove
+  hc keybind $Mod-s floating toggle
+  hc keybind $Mod-f fullscreen toggle
+  hc keybind $Mod-Shift-f set_attr clients.focus.floating toggle
+  hc keybind $Mod-p pseudotile toggle
+  # The following cycles through the available layouts within a frame, but skips
+  # layouts, if the layout change wouldn't affect the actual window positions.
+  # I.e. if there are two windows within a frame, the grid layout is skipped.
+  hc keybind $Mod-space                                                           \
+              or , and . compare tags.focus.curframe_wcount = 2                   \
+                       . cycle_layout +1 vertical horizontal max vertical grid    \
+                 , cycle_layout +1
+#+END_SRC
+
+**** mouse
+#+BEGIN_SRC sh :tangle ~/.config/herbstluftwm/autostart
+  hc mouseunbind --all
+  hc mousebind $Mod-Button1 move
+  hc mousebind $Mod-Button2 zoom
+  hc mousebind $Mod-Button3 resize
+#+END_SRC
+
+**** focus
+#+BEGIN_SRC sh :tangle ~/.config/herbstluftwm/autostart
+  hc keybind $Mod-BackSpace   cycle_monitor
+  hc keybind $Mod-Tab         cycle_all +1
+  hc keybind $Mod-Shift-Tab   cycle_all -1
+  hc keybind $Mod-c cycle
+  hc keybind $Mod-i jumpto urgent
+#+END_SRC
+
+*** theme
+#+BEGIN_SRC sh :tangle ~/.config/herbstluftwm/autostart
+  hc attr theme.tiling.reset 1
+  hc attr theme.floating.reset 1
+  hc set frame_border_active_color '#222222'
+  hc set frame_border_normal_color '#101010'
+  hc set frame_bg_normal_color '#565656'
+  hc set frame_bg_active_color '#345F0C'
+  hc set frame_border_width 1
+  hc set always_show_frame on
+  hc set frame_bg_transparent on
+  hc set frame_transparent_width 5
+  hc set frame_gap 4
+
+  hc attr theme.active.color '#9fbc00'
+  hc attr theme.normal.color '#454545'
+  hc attr theme.urgent.color orange
+  hc attr theme.inner_width 1
+  hc attr theme.inner_color black
+  hc attr theme.border_width 3
+  hc attr theme.floating.border_width 4
+  hc attr theme.floating.outer_width 1
+  hc attr theme.floating.outer_color black
+  hc attr theme.active.inner_color '#3E4A00'
+  hc attr theme.active.outer_color '#3E4A00'
+  hc attr theme.background_color '#141414'
+
+  hc set window_gap 0
+  hc set frame_padding 0
+  hc set smart_window_surroundings off
+  hc set smart_frame_surroundings on
+  hc set mouse_recenter_gap 0
+#+END_SRC
+
+*** rules
+#+BEGIN_SRC sh :tangle ~/.config/herbstluftwm/autostart
+  hc unrule -F
+  #hc rule class=XTerm tag=3 # move all xterms to tag 3
+  hc rule focus=on # normally focus new clients
+  # this tries to place new floating windows so they don't overlap
+  hc rule floatplacement=smart
+  #hc rule focus=off # normally do not focus new clients
+  # give focus to most common terminals
+  #hc rule class~'(.*[Rr]xvt.*|.*[Tt]erm|Konsole)' focus=on
+  hc rule windowtype~'_NET_WM_WINDOW_TYPE_(DIALOG|UTILITY|SPLASH)' floating=on
+  hc rule windowtype='_NET_WM_WINDOW_TYPE_DIALOG' focus=on
+  hc rule windowtype~'_NET_WM_WINDOW_TYPE_(NOTIFICATION|DOCK|DESKTOP)' manage=off
+
+  hc set tree_style '╾│ ├└╼─┐'
+#+END_SRC
+
+*** unlock
+Unlock, just to be sure:
+#+BEGIN_SRC sh :tangle ~/.config/herbstluftwm/autostart
+  hc unlock
+#+END_SRC
+
+*** monitors
+#+BEGIN_SRC sh :tangle ~/.config/herbstluftwm/autostart
+  # hc set_monitors 1280x1024+0+0 1280x1024+1280+0
+  # or simply:
+  hc detect_monitors
+#+END_SRC
+
+*** COMMENT panel
+We won't use a panel:
+#+BEGIN_SRC sh :tangle ~/.config/herbstluftwm/autostart
+  panel=~/.config/herbstluftwm/panel.sh
+  [ -x "$panel" ] || panel=/etc/xdg/herbstluftwm/panel.sh
+  for monitor in $(hc list_monitors | cut -d: -f1) ; do
+      # start it on each monitor
+      "$panel" "$monitor" &
+  done
+#+END_SRC
+
+*** autostart privileges
+You need the autostart to be executable:
+#+BEGIN_SRC sh
+  chmod +x ~/.config/herbstluftwm/autostart
+#+END_SRC
+
+** spectrwm                                                         :config:
+Spectrwm is basically an enhanced version of DWM.
+It adds several new "features" and is generally more compliant with misbehaving windows.
+In addition it is configured via a config file.
+*** basics
+#+BEGIN_SRC conf :tangle ~/.config/spectrwm/spectrwm.conf
+  focus_mode            = default
+  focus_close           = previous
+  focus_close_wrap      = 1
+  focus_default         = first
+  spawn_position        = first
+  warp_focus            = 1
+  warp_pointer          = 1
+
+  # Distance window must be dragged/resized beyond the region edge before it is allowed outside the region.
+  boundary_width                = 50
+#+END_SRC
+
+*** window decoration
+#+BEGIN_SRC conf :tangle ~/.config/spectrwm/spectrwm.conf
+  border_width          = 2
+  color_focus           = red
+  color_focus_maximized = yellow
+  color_unfocus         = rgb:88/88/88
+  color_unfocus_maximized       = rgb:88/88/00
+  region_padding        = 0
+  tile_gap              = -2
+
+  # Remove window border when bar is disabled and there is only one window in workspace
+  disable_border        = 1
+
+  # Dialog box size ratio when using TRANSSZ quirk; 0.3 < dialog_ratio <= 1.0
+  dialog_ratio          = 0.6
+#+END_SRC
+
+*** bar settings
+#+BEGIN_SRC conf :tangle ~/.config/spectrwm/spectrwm.conf
+  bar_enabled           = 1
+  #  bar_enabled_ws[1]     = 1
+  bar_border_width      = 2
+  bar_border[1]         = rgb:00/80/80
+  bar_border_unfocus[1] = rgb:00/40/40
+  bar_color[1]          = black
+  bar_color_selected[1] = rgb:00/80/80
+  bar_font_color[1]     = rgb:a0/a0/a0
+  bar_font_color_selected       = black
+  bar_font              = Fira Mono:style=Regular:pixelsize=14:antialias=true,NotoColorEmoji:style=Regular:pixelsize=14:antialias=true
+  # bar_font_pua          = Typicons:pixelsize=14:antialias=true
+  bar_action            = /home/xavier/bin/baraction.sh
+  bar_action_expand     = 1
+  bar_justify           = left
+  bar_format            = +N:+I +S <+D>+4<%a %b %d %R %Z %Y+8<+A+4<+V
+  # workspace_indicator   = listcurrent,listactive,markcurrent,printnames
+  # bar_at_bottom         = 1
+  # stack_enabled         = 1
+  # clock_enabled         = 1
+  # clock_format          = %a %b %d %R %Z %Y
+  # iconic_enabled        = 0
+  maximize_hide_bar     = 1
+  # window_class_enabled  = 0
+  # window_instance_enabled       = 0
+  # window_name_enabled   = 0
+  # verbose_layout                = 1
+  urgent_enabled        = 1
+  # urgent_collapse       = 0
+#+END_SRC
+
+*** monitors and regions
+#+BEGIN_SRC conf :tangle ~/.config/spectrwm/spectrwm.conf
+  # Split a non-RandR dual head setup into one region per monitor
+  # (non-standard driver-based multihead is not seen by spectrwm)
+  # region                = screen[1]:1280x1024+0+0
+  # region                = screen[1]:1280x1024+1280+0
+#+END_SRC
+
+*** autoruns
+#+BEGIN_SRC conf :tangle ~/.config/spectrwm/spectrwm.conf
+	autorun               = ws[1]:sh -c "killall notification-daemon &> /dev/null"
+  autorun               = ws[1]:emacs --daemon
+  autorun               = ws[1]:emacsclient -c
+  autorun               = ws[6]:stalonetray
+  autorun               = ws[6]:dropbox start
+  autorun               = ws[6]:nm-applet
+  # autorun               = ws[2]:xombrero http://www.openbsd.org
+#+END_SRC
+
+*** workspaces
+Can have a max of 22 workspaces.
+#+BEGIN_SRC conf :tangle ~/.config/spectrwm/spectrwm.conf
+  workspace_limit     = 6
+  # workspace_clamp     = 1
+
+  # Customize workspace layout at start
+  # layout                = ws[1]:4:0:0:0:vertical
+  # layout                = ws[2]:0:0:0:0:horizontal
+  # layout                = ws[3]:0:0:0:0:fullscreen
+  # layout                = ws[4]:4:0:0:0:vertical_flip
+  # layout                = ws[5]:0:0:0:0:horizontal_flip
+
+  # Set workspace name at start
+  name                  = ws[1]:emacs
+  name                  = ws[2]:www
+  # name                  = ws[3]:Browse
+  name                  = ws[6]:key
+#+END_SRC
+
+*** programs
+#+BEGIN_SRC conf :tangle ~/.config/spectrwm/spectrwm.conf
+  program[lock]         = xlock
+  program[xterm]        = xterm
+  # program[term]         = emacsclient -c --eval '(term "/bin/bash")'
+  program[term]       = emacsclient -c --eval '(eshell)'
+  program[menu]         = dmenu_run $dmenu_bottom -fn $bar_font -nb $bar_color -nf $bar_font_color -sb $bar_color_selected -sf $bar_font_color_selected
+  program[search]       = dmenu $dmenu_bottom -i -fn $bar_font -nb $bar_color -nf $bar_font_color -sb $bar_color_selected -sf $bar_font_color_selected
+  program[name_workspace]       = dmenu $dmenu_bottom -p Workspace -fn $bar_font -nb $bar_color -nf $bar_font_color -sb $bar_color_selected -sf $bar_font_color_selected
+  program[inc_vol]      = sh -c "pactl set-sink-volume 0 +5% && pactl set-sink-mute 0 0"
+  program[max_vol]      = sh -c "pactl set-sink-volume 0 100% && pactl set-sink-mute 0 0"
+  program[dec_vol]      = sh -c "pactl set-sink-volume 0 -5% && pactl set-sink-mute 0 0"
+  program[min_vol]      = sh -c "pactl set-sink-volume 0 0% && pactl set-sink-mute 0 0"
+  program[mute]         = sh -c "pactl set-sink-mute 0 1"
+  program[inc_bright]   = sh -c "brightlight -p -i 5"
+  program[dec_bright]   = sh -c "brightlight -p -d 5"
+#+END_SRC
+
+*** binds
+#+BEGIN_SRC conf :tangle ~/.config/spectrwm/spectrwm.conf
+  modkey = Mod4
+
+  # This allows you to include pre-defined key bindings for your keyboard layout.
+  # keyboard_mapping = ~/.spectrwm_us.conf
+
+  # To disable validation of the above, free the respective binding(s):
+  bind[]                = MOD+Shift+Delete      # disable lock
+  # bind[]                = MOD+Shift+Return      # disable term
+  # bind[]                = MOD+p                 # disable menu
+
+  # Optional default programs that will only be validated if you override:
+  # program[screenshot_all]       = screenshot.sh full    # optional
+  # program[screenshot_wind]      = screenshot.sh window  # optional
+  # program[initscr]      = initscreen.sh                 # optional
+
+  # EXAMPLE: Define 'firefox' action and bind to key.
+  # program[firefox]      = firefox http://spectrwm.org/
+  # bind[firefox]         = MOD+Shift+b
+
+  #bind[inc_vol]          = MOD+.
+  #bind[max_vol]          = MOD+Shift+.
+  #bind[dec_vol]          = MOD+,
+  #bind[min_vol]          = MOD+Shift+,
+  #bind[mute]             = MOD+/
+  # bind[bright_menu]      = MOD+Shift+/
+#+END_SRC
+
+*** quirks
+#+BEGIN_SRC conf :tangle ~/.config/spectrwm/spectrwm.conf
+  # Default quirks, remove with: quirk[class:name] = NONE
+  # quirk[MPlayer:xv]                     = FLOAT + FULLSCREEN + FOCUSPREV
+  # quirk[OpenOffice.org 2.4:VCLSalFrame] = FLOAT
+  # quirk[OpenOffice.org 3.0:VCLSalFrame] = FLOAT
+  # quirk[OpenOffice.org 3.1:VCLSalFrame] = FLOAT
+  # quirk[Firefox-bin:firefox-bin]                = TRANSSZ
+  # quirk[Firefox:Dialog]                 = FLOAT
+  # quirk[Gimp:gimp]                      = FLOAT + ANYWHERE
+  quirk[XTerm:xterm]                    = XTERM_FONTADJ
+  # quirk[xine:Xine Window]                       = FLOAT + ANYWHERE
+  # quirk[Xitk:Xitk Combo]                        = FLOAT + ANYWHERE
+  # quirk[xine:xine Panel]                        = FLOAT + ANYWHERE
+  # quirk[Xitk:Xine Window]                       = FLOAT + ANYWHERE
+  # quirk[xine:xine Video Fullscreen Window] = FULLSCREEN + FLOAT
+  # quirk[pcb:pcb]                                = FLOAT
+  quirk[Stalonetray]                      = FLOAT + NOFOCUSCYCLE + MINIMALBORDER + NOFOCUSONMAP + WS[6]
+#+END_SRC
+
+* COMMENT xinitrc                                                           :config:
 This defines what is launched when running startx.
 If you want to run emacs alone, you need to run ~startx /usr/bin/emacs~.
 
@@ -858,15 +1879,14 @@ Xsession and xinitrc scripts which has been factored out to avoid duplication.
 *** startup applications
 #+BEGIN_SRC sh :tangle ~/.xinitrc
   killall notification-daemon &> /dev/null
-  fondle ~/bin/mybar.sh -c "xsetroot -name" &
-  stalonetray &
   emacs --daemon &
+  dropbox start &
   export _JAVA_AWT_WM_NONREPARENTING=1 &
 #+END_SRC
 
 *** default window manager
 #+BEGIN_SRC sh :tangle ~/.xinitrc
-  exec dwm
+  exec spectrwm
 #+END_SRC
 
 *** system fallbacks
@@ -889,8 +1909,23 @@ fall back to system defaults.
   fi
 #+END_SRC
 * scripts                                                            :config:
+** baraction.sh
+#+BEGIN_SRC sh :tangle ~/bin/baraction.sh
+  #!/bin/sh
+
+  fondle ~/bin/mybar.sh
+#+END_SRC
+
 ** mybar.sh
 #+BEGIN_SRC sh :tangle ~/bin/mybar.sh
-  #!/usr/bin/sh
-  date
+  #!/bin/sh
+
+  echo " "
+#+END_SRC
+* privileges
+#+BEGIN_SRC sh
+  chmod +x ~/bin/baraction.sh
+  chmod +x ~/bin/mybar.sh
+  chmod +x ~/.mail/.notmuch/hooks/pre-new
+  chmod +x ~/.mail/.notmuch/hooks/post-new
 #+END_SRC
