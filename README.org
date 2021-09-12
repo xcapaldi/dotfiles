@@ -9,3 +9,87 @@ The Fedora system installation and configuration.
 
 * config.org
 The emacs-specific configuration.
+Whenever possible packages (outside the foundational packages) should be independent so that particular blocks can be disabled or activated without conflict.
+I also try, within reason, to use built-in emacs functionality whenever possible.
+
+** Foundational packages
+- [[https://github.com/raxod502/straight.el][straight.el]] for package management
+- [[https://github.com/jwiegley/use-package][use-package]] for modular/isolated system configuration
+- [[https://github.com/abo-abo/hydra][hydra]] for grouped and persistent keybindings
+- [[https://github.com/abo-abo/swiper][ivy/counsel/swiper]] completion framework with related tools (there are several impressive alternatives but currently ivy-bibtex is the only tool that fulfills my needs with my literature database)
+
+** Evil packages
+- [[https://github.com/emacs-evil/evil][evil]] for vim modal editing in emacs
+- [[https://github.com/noctuid/general.el][general]] for more convenient keybindings when using evil
+
+** Organization packages
+- org-mode for planning, habit tracking, time tracking, . . .
+
+** Appearance
+- [[https://gitlab.com/protesilaos/modus-themes/][modus-themes]] for the best accessible themes in emacs
+  
+** Literature/knowledge management packages
+- [[https://github.com/tmalsburg/helm-bibtex][ivy-bibtex]] for rapidly searching papers in library
+- [[https://github.com/jkitchin/org-ref][org-ref]] for citing in org-mode and automatically generating bibtex references
+- [[https://github.com/politza/pdf-tools][pdf-tools]] for improved pdf-viewer and editor
+- [[https://github.com/org-roam/org-roam][org-roam]] for slipbox-style linked knowledge nodes
+- [[https://github.com/org-roam/org-roam-bibtex][org-roam-bibtex]] integration with org-ref to allow notes on papers
+  
+** Email
+- [[https://notmuchmail.org/][notmuch]] for a search-based email interface
+- [[https://www.emacswiki.org/emacs/GnusAlias][gnus-alias]] for switching between email accounts
+  
+** Programming
+- [[https://github.com/joaotavora/eglot][eglot]] for using LSP to handle almost everything
+
+** To check
+- [[https://company-mode.github.io/][company-mode]] for fancy completion at point
+- [[https://joaotavora.github.io/yasnippet/][yasnippet]] as an alternative to skeleton for snippets
+- [[https://github.com/alphapapa/prism.el][prism.el]] for syntax highlighting based on depth
+- [[https://github.com/magit/magit][magit]] as a powerful git porcelain in emacs
+- [[https://github.com/bbatsov/projectile][projectile]] for project management (built in project also option)
+- [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]] to manage python virtual environments (maybe in conjunction with [[https://github.com/pyenv/pyenv][pyenv]])
+- [[https://github.com/gonewest818/dimmer.el][dimmer.el]] to highlight which buffer is active
+- [[https://github.com/raxod502/blackout][blackout]] to cleanup modeline
+- [[https://github.com/abo-abo/lispy][lispy]] for modal editing of lisps
+- [[https://github.com/clojure-emacs/cider][cider]] for interactive development of clojure in emacs
+- [[https://github.com/karthink/popper][popper]] to handle small buffers
+- [[https://github.com/abo-abo/avy][avy]] rapidly jump to regions in buffer
+- [[https://github.com/oantolin/embark/][embark]] for contextual actions
+
+* TODO mac-config.org
+Emacs configuration for mac system.
+
+** Foundational packages
+- [[https://github.com/raxod502/straight.el][straight.el]] for package management
+- [[https://github.com/jwiegley/use-package][use-package]] for modular/isolated system configuration
+- [[https://github.com/abo-abo/hydra][hydra]] for grouped and persistent keybindings
+- [[https://github.com/abo-abo/swiper][ivy/counsel/swiper]] completion framework with related tools (there are several impressive alternatives but currently ivy-bibtex is the only tool that fulfills my needs with my literature database)
+
+** Evil packages
+- [[https://github.com/emacs-evil/evil][evil]] for vim modal editing in emacs
+- [[https://github.com/noctuid/general.el][general]] for more convenient keybindings when using evil
+
+** Organization packages
+- org-mode for planning, habit tracking, time tracking, . . .
+
+** Appearance
+- [[https://gitlab.com/protesilaos/modus-themes/][modus-themes]] for the best accessible themes in emacs
+  
+** Programming
+- [[https://github.com/joaotavora/eglot][eglot]] for using LSP to handle almost everything
+
+** To check
+- [[https://company-mode.github.io/][company-mode]] for fancy completion at point
+- [[https://joaotavora.github.io/yasnippet/][yasnippet]] as an alternative to skeleton for snippets
+- [[https://github.com/alphapapa/prism.el][prism.el]] for syntax highlighting based on depth
+- [[https://github.com/magit/magit][magit]] as a powerful git porcelain in emacs
+- [[https://github.com/bbatsov/projectile][projectile]] for project management (built in project also option)
+- [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]] to manage python virtual environments (maybe in conjunction with [[https://github.com/pyenv/pyenv][pyenv]])
+- [[https://github.com/gonewest818/dimmer.el][dimmer.el]] to highlight which buffer is active
+- [[https://github.com/raxod502/blackout][blackout]] to cleanup modeline
+- [[https://github.com/abo-abo/lispy][lispy]] for modal editing of lisps
+- [[https://github.com/clojure-emacs/cider][cider]] for interactive development of clojure in emacs
+- [[https://github.com/karthink/popper][popper]] to handle small buffers
+- [[https://github.com/abo-abo/avy][avy]] rapidly jump to regions in buffer
+- [[https://github.com/oantolin/embark/][embark]] for contextual actions
