@@ -475,18 +475,6 @@ Org-ref for managing bibliographies and writing in org-mode.
     (setq-default pdf-view-display-size 'fit-width))
 #+END_SRC
 * Note management
-** org-roam
-This package provides a pseudo-slipbox notetaking method which is quite sophisticated compared to alternatives.
-Each file in the notes directory is a note node and within that file, headings can also be defined as nodes.
-These nodes can all be linked together in a sort of mindmap.
-
-#+BEGIN_SRC emacs-lisp :tangle no
-    (use-package org-roam
-      :config
-      (setq org-roam-directory "/home/xavier/Dropbox/notes/")
-      (setq org-roam-v2-ack t))
-#+END_SRC
-
 I have two use cases or types of notes that I want to store in the same database:
 **** Bibliographic notes
 I want to store a single note file for each paper in my literature library.
@@ -497,6 +485,27 @@ Other topics may not be split by reference.
 For example a topic on object oriented programming in python might just be an aggregate of my own experience and notes and thus it isn't important to maintain the same cohesion.
 That could be one large note, several smaller notes or several smaller notes that I later summarize in a large note.
 Since everything is plain text, refactoring later should not be terrible.
+** org-roam
+This package provides a pseudo-slipbox notetaking method which is quite sophisticated compared to alternatives.
+Each file in the notes directory is a note node and within that file, headings can also be defined as nodes.
+These nodes can all be linked together in a sort of mindmap.
+
+#+BEGIN_SRC emacs-lisp
+    (use-package org-roam
+      :config
+      (setq org-roam-directory "/home/xavier/Dropbox/notes/")
+      (setq org-roam-v2-ack t))
+#+END_SRC
+
+** org-roam-bibtex
+Previously I preferred avoiding this package but version 2 of org-roam requires generated header IDs that will be generated automatically with this package.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-roam-bibtex
+    :after org-roam
+    :config
+    (require 'org-ref))
+#+END_SRC
 * RSS Feeds
 #+BEGIN_SRC emacs-lisp
   (use-package elfeed
