@@ -46,7 +46,7 @@ I also try, within reason, to use built-in emacs functionality whenever possible
 - [[https://company-mode.github.io/][company-mode]] for fancy completion at point
 - 💀 [[https://joaotavora.github.io/yasnippet/][yasnippet]] as an alternative to skeleton for snippets
 - [[https://github.com/alphapapa/prism.el][prism.el]] for syntax highlighting based on depth
-- 🫖 [[https://github.com/magit/magit][magit]] as a powerful git porcelain in emacs
+- 🍵 [[https://github.com/magit/magit][magit]] as a powerful git porcelain in emacs
 - [[https://github.com/bbatsov/projectile][projectile]] for project management (built in project also option)
 - [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]] to manage python virtual environments (maybe in conjunction with [[https://github.com/pyenv/pyenv][pyenv]])
 - [[https://github.com/gonewest818/dimmer.el][dimmer.el]] to highlight which buffer is active
@@ -83,7 +83,7 @@ Emacs configuration for mac system.
 - [[https://company-mode.github.io/][company-mode]] for fancy completion at point
 - 💀 [[https://joaotavora.github.io/yasnippet/][yasnippet]] as an alternative to skeleton for snippets
 - [[https://github.com/alphapapa/prism.el][prism.el]] for syntax highlighting based on depth
-- 🫖 [[https://github.com/magit/magit][magit]] as a powerful git porcelain in emacs
+- 🍵 [[https://github.com/magit/magit][magit]] as a powerful git porcelain in emacs
 - [[https://github.com/bbatsov/projectile][projectile]] for project management (built in project also option)
 - [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]] to manage python virtual environments (maybe in conjunction with [[https://github.com/pyenv/pyenv][pyenv]])
 - [[https://github.com/gonewest818/dimmer.el][dimmer.el]] to highlight which buffer is active
