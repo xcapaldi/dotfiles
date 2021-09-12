@@ -20,7 +20,7 @@ I also try, within reason, to use built-in emacs functionality whenever possible
 
 ** Evil packages
 - 😈 [[https://github.com/emacs-evil/evil][evil]] for vim modal editing in emacs
-- 🪖 [[https://github.com/noctuid/general.el][general]] for more convenient keybindings when using evil
+- 🎖️ [[https://github.com/noctuid/general.el][general]] for more convenient keybindings when using evil
 
 ** Organization packages
 - 📅 org-mode for planning, habit tracking, time tracking, . . .
@@ -68,7 +68,7 @@ Emacs configuration for mac system.
 
 ** Evil packages
 - 😈 [[https://github.com/emacs-evil/evil][evil]] for vim modal editing in emacs
-- 🪖 [[https://github.com/noctuid/general.el][general]] for more convenient keybindings when using evil
+- 🎖️ [[https://github.com/noctuid/general.el][general]] for more convenient keybindings when using evil
 
 ** Organization packages
 - 📅 org-mode for planning, habit tracking, time tracking, . . .
