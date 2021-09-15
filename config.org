@@ -451,20 +451,22 @@ Org-ref for managing bibliographies and writing in org-mode.
     (setq reftex-default-bibliography '("/home/xavier/Dropbox/library/references.bib"))
     (setq org-ref-bibliography-notes "/home/xavier/Dropbox/notes")
     (setq org-ref-notes-function 'org-ref-notes-function-many-files)
+    ;; don't create notes by default when adding files to library
+    (setq doi-utils-make-notes t)
     (setq org-ref-default-bibliography '("/home/xavier/Dropbox/library/references.bib"))
     (setq org-ref-pdf-directory "/home/xavier/Dropbox/library")
     ;; since we use ivy-bibtex
     (setq bibtex-completion-bibliography "/home/xavier/Dropbox/library/references.bib"
-	  bibtex-completion-library-path "/home/xavier/Dropbox/library"
-	  bibtex-completion-notes-path "/home/xavier/Dropbox/notes")
+          bibtex-completion-library-path "/home/xavier/Dropbox/library"
+          bibtex-completion-notes-path "/home/xavier/Dropbox/notes")
     ;; format how we generate keys
     (setq bibtex-autokey-year-length 4
-	  bibtex-autokey-name-year-separator "-"
-	  bibtex-autokey-year-title-separator "-"
-	  bibtex-autokey-titleword-separator "-"
-	  bibtex-autokey-titlewords 2
-	  bibtex-autokey-titlewords-stretch 1
-	  bibtex-autokey-titleword-length 5))
+          bibtex-autokey-name-year-separator "-"
+          bibtex-autokey-year-title-separator "-"
+          bibtex-autokey-titleword-separator "-"
+          bibtex-autokey-titlewords 2
+          bibtex-autokey-titlewords-stretch 1
+          bibtex-autokey-titleword-length 5))
 #+END_SRC
 
 ** pdf-tools
@@ -491,10 +493,12 @@ Each file in the notes directory is a note node and within that file, headings c
 These nodes can all be linked together in a sort of mindmap.
 
 #+BEGIN_SRC emacs-lisp
-    (use-package org-roam
-      :config
-      (setq org-roam-directory "/home/xavier/Dropbox/notes/")
-      (setq org-roam-v2-ack t))
+  (use-package org-roam
+    :init
+    (setq org-roam-v2-ack t)
+    :config
+    (setq org-roam-directory "/home/xavier/Dropbox/notes/"))
+
 #+END_SRC
 
 ** org-roam-bibtex
