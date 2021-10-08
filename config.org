@@ -167,7 +167,7 @@ Later, I can dynamically add hydras using defhydra+ with external packages.
 Unfortunately every hydra must contain one binding which I just use to go back to the prior hydra
 #+BEGIN_SRC emacs-lisp
   (use-package hydra
-    :bind ("C-c SPC" . hydra-master/body))
+    :bind ("C-SPC" . hydra-master/body))
 #+END_SRC
 
 ** hydra-master
@@ -198,6 +198,47 @@ We want this to be context dependant.
       (t (message "No hydra for this major mode: %s" major-mode))))
 #+END_SRC
 
+* Skeleton
+Skeleton is a built in templating tool.
+It has the bare minimum of features but seems more than sufficient for my needs.
+The one major missing capability is the lack of being able to jump from field to field.
+I use emacs markers to add this capability.
+#+BEGIN_SRC emacs-lisp
+  (use-package skeleton
+    :straight (:type built-in)
+    ;; whenever you run a new skeleton, reset the index
+    :hook (skeleton-end . skeleton-make-markers)
+    :bind ("C-c n" . skeleton-next-marker)
+    :config
+    ;; make a local variable to store the index of the skeleton list
+    (defvar skeleton-index 1)
+    (make-local-variable 'skeleton-index)
+    ;; and another variable to store markers
+    (defvar skeleton-markers nil)
+    (make-local-variable 'skeleton-markers)
+
+    (defun skeleton-make-markers ()
+      (setq skeleton-markers nil)
+      (save-excursion ;; because we want to go back to start at the end
+        (dolist (pos skeleton-positions)
+          (goto-char pos) ;; go to first position
+          (setq skeleton-markers (push (point-marker) skeleton-markers))));; save position as a mark
+      (setq skeleton-index 1)) ;; save our starting index
+    ;; this assumes the first point is also where you have the cursor begin at the end of skeleton entry
+
+    (defun skeleton-next-marker ()
+      (interactive)
+      (goto-char (marker-position (nth (% skeleton-index (length skeleton-positions)) skeleton-markers)))
+      ;; update index
+      (setq skeleton-index (+ skeleton-index 1)))
+
+    ;; sample skeleton with two set positions (@)
+    (define-skeleton skel-defun
+      "Insert a defun template."
+      "Name: "
+      "(defun " str " (" @ - ")" \n
+      "  (" @ _ ")" \n))
+#+END_SRC
 * Org
 This block *must* fall before any blocks that requires org-mode because they will cause Straight.el to install the latest version of org-mode which will cause conflicts.
 ** Organization
@@ -529,7 +570,7 @@ Previously I preferred avoiding this package but version 2 of org-roam requires 
     ;						    :add '(video)))
     ;	   (elfeed-new-entry . (elfeed-make-tagger :before "2 weeks ago"
     ;						   :remove 'unread)))
-						 
+
     :config
     (setq elfeed-db-directory "~/.config/emacs/elfeed")
     ;; Tag hooks
@@ -542,8 +583,8 @@ Previously I preferred avoiding this package but version 2 of org-roam requires 
 
     ;; use mpv to watch youtube videos
     (setq browse-url-browser-function
-	  '(("https:\\/\\/www\\.youtu\\.*be." . xcc/browse-url-mpv)
-	    ("." . browse-url-default-browser)))
+          '(("https:\\/\\/www\\.youtu\\.*be." . xcc/browse-url-mpv)
+            ("." . browse-url-default-browser)))
 
     (defun xcc/browse-url-mpv (url &optional single)
       ;;(async-shell-command (format "mpv %s" url)))
@@ -551,98 +592,98 @@ Previously I preferred avoiding this package but version 2 of org-roam requires 
 
     ;; list of feeds with autotags
     (setq elfeed-feeds
-	  '(;; news
-	    ("https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml" news)
-	    ("https://rss.nytimes.com/services/xml/rss/nyt/World.xml" news)
-	    ("https://rss.nytimes.com/services/xml/rss/nyt/YourMoney.xml" news finance)
-	    ("https://rss.nytimes.com/services/xml/rss/nyt/Business.xml" news finance)
-	    ("https://rss.nytimes.com/services/xml/rss/nyt/EnergyEnvironment.xml" news)
-	    ("https://rss.nytimes.com/services/xml/rss/nyt/Economy.xml" news finance)
-	    ("https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml" news)
-	    ("https://rss.nytimes.com/services/xml/rss/nyt/Science.xml" news)
-	    ("https://www.mcgill.ca/newsroom/channels_item/19/rss" news mcgill)
-	    ;; scientific journals
-	    ("http://feeds.rsc.org/rss/sm" literature)
-	    ("https://feeds.feedburner.com/acs/mamobx" literature)
-	    ("https://feeds.feedburner.com/acs/nalefd" literature)
-	    ("http://feeds.aps.org/rss/recent/pre.xml" literature)
-	    ("http://feeds.aps.org/rss/recent/prl.xml" literature)
-	    ("http://feeds.aps.org/rss/recent/physics.xml" literature)
-	    ("http://feeds.aps.org/rss/presuggestions.xml" literature)
-	    ("http://feeds.aps.org/rss/recent/prlsuggestions.xml" literature)
-	    ("http://feeds.nature.com/ncomms/rss/current" literature)
-	    ("http://feeds.nature.com/nature/rss/current" literature)
-	    ("https://science.sciencemag.org/rss/current.xml" literature)
-	    ("https://science.sciencemag.org/rss/ec.xml" literature)
-	    ;; project updates
-	    ("https://github.com/xcapaldi.private.atom?token=AJIXGKSORO2P4YZ7IJ37VB56CRCUO" github)
-	    ("https://suckless.org/atom.xml")
-	    ;; videos on gaming
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC21uZkfXpT8rPY-gPgMiCwA" gaming)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCfSVMX8vs7xA_hqFcuFqgwQ" gaming)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC2eEGT06FrWFU6VBnPOR9lg" gaming)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC3wxqeB1gIxdw6YKueea5Jg" gaming)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCD6VugMZKRhSyzWEWA9W2fg" gaming)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCKlUrYO3i9MDlL45Ia6j5EA" gaming)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCqJ-Xo29CKyLTjn6z2XwYAw" gaming)
-	    ;; videos on coding
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCKTehwyGCKF-b2wo0RKwrcg"  programming)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCsUalyRg43M8D60mtHe6YcA"  programming)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC9-y-6csu5WGm29I7JiwpnA"  programming)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCW6TXMZ5Pq6yL6_k5NZ2e0Q"  programming)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCvjgXvBlbQiydffZU7m1_aw"  programming)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC-yuWVUplUJZvieEligKBkA"  programming)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCRLEADhMcb8WUdnQ5_Alk7g" programming)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCRLEADhMcb8WUdnQ5_Alk7g" programming)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCyrF_lsKS9kQ3OUKQkgYh3A" programming)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCYNrBrBOgTfHswcz2DdZQFA" programming python)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCaoqVlqPTH78_xjTjTOMcmQ" programming)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCD6ArU-AYbfIj5sx2L4SZAQ" programming)
-	    ;; videos on electronics
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC8uT9cgJorJPWu7ITLGo9Ww" programming electronics)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC6mIxFTvXkWQVEHPsEdflzQ" electronics)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC5I2hjZYiW9gZPVkvzM8_Cw" electronics)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCS0N5baNlQWJCUrhCEo8WlA" electronics)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCUW49KGPezggFi0PGyDvcvg" electronics)
-	    ;; videos on emacs
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCxkMDXQ5qzYOgXPRnOBrp1w" emacs)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC0uTPqBCFIpZxlz_Lv1tk_g" emacs)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCDEtZ7AKmwS0_GNJog01D2g" emacs)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCAiiOTio8Yu69c3XnR7nQBQ" emacs)
-	    ;; videos on vim
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCUR1pFG_3XoZn3JNKjulqZg" vim)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC8ENHE5xdFSwx71u3fDH5Xw" vim)
-	    ;; videos on history
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCWnlQMQ-ACfhpD68yWRsnJw" history)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCMjlDOf0UO9wSijFqPE9wBw" history)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCsaGKqPZnGp_7N80hcHySGQ" history cooking)
-	    ;; cooking
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCYDLmV1b0kvF8jY491dtyHg" cooking)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCMmZEL8jV1B61NKAXcyW87A" cooking)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCmXkJ9ReY5hjvYPcnmBwing" cooking)
-	    ;; music
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCG7AaCh_CiG6pq_rRDNw72A" music)
-	    ;; blogs
-	    ("https://feeds.feedburner.com/TheKitchinResearchGroup" emacs)
-	    ("https://karthinks.com/index.xml" emacs)
-	    ("https://nullprogram.com/feed/" programming)
-	    ("http://pragmaticemacs.com/feed/" emacs)
-	    ("http://esr.ibiblio.org/?feed=rss2")
-	    ("https://www.calnewport.com/blog/feed/")
-	    ;; other
-	    ("https://www.nngroup.com/feed/rss/")
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC7mu94v1zFZU8pgNX13dHsQ" vietnamese)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCipg-xAE_rNtL8kaG4ezFAQ" nanopore)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCDXTQ8nWmx_EhZ2v-kp7QxA" finance)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCtg1eIVmfwXnO0ipN84-a6g" ergonomics)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg")
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCFtOX-21N1earf-K58C7HjQ" keyboard)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCD0y51PJfvkZNe3y3FR5riw" keyboard)
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UC2eYFnH61tmytImy1mTYvhA")
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCyRhIGDUKdIOw07Pd8pHxCw")
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCpnkp_D4FLPCiXOmDhoAeYA")
-	    ("https://www.youtube.com/feeds/videos.xml?channel_id=UCw03U5DZGLqvv5elJvXvR0Q")
-	    )))
+          '(;; news
+            ("https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml" news)
+            ("https://rss.nytimes.com/services/xml/rss/nyt/World.xml" news)
+            ("https://rss.nytimes.com/services/xml/rss/nyt/YourMoney.xml" news finance)
+            ("https://rss.nytimes.com/services/xml/rss/nyt/Business.xml" news finance)
+            ("https://rss.nytimes.com/services/xml/rss/nyt/EnergyEnvironment.xml" news)
+            ("https://rss.nytimes.com/services/xml/rss/nyt/Economy.xml" news finance)
+            ("https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml" news)
+            ("https://rss.nytimes.com/services/xml/rss/nyt/Science.xml" news)
+            ("https://www.mcgill.ca/newsroom/channels_item/19/rss" news mcgill)
+            ;; scientific journals
+            ("http://feeds.rsc.org/rss/sm" literature)
+            ("https://feeds.feedburner.com/acs/mamobx" literature)
+            ("https://feeds.feedburner.com/acs/nalefd" literature)
+            ("http://feeds.aps.org/rss/recent/pre.xml" literature)
+            ("http://feeds.aps.org/rss/recent/prl.xml" literature)
+            ("http://feeds.aps.org/rss/recent/physics.xml" literature)
+            ("http://feeds.aps.org/rss/presuggestions.xml" literature)
+            ("http://feeds.aps.org/rss/recent/prlsuggestions.xml" literature)
+            ("http://feeds.nature.com/ncomms/rss/current" literature)
+            ("http://feeds.nature.com/nature/rss/current" literature)
+            ("https://science.sciencemag.org/rss/current.xml" literature)
+            ("https://science.sciencemag.org/rss/ec.xml" literature)
+            ;; project updates
+            ("https://github.com/xcapaldi.private.atom?token=AJIXGKSORO2P4YZ7IJ37VB56CRCUO" github)
+            ("https://suckless.org/atom.xml")
+            ;; videos on gaming
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UC21uZkfXpT8rPY-gPgMiCwA" gaming)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCfSVMX8vs7xA_hqFcuFqgwQ" gaming)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UC2eEGT06FrWFU6VBnPOR9lg" gaming)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UC3wxqeB1gIxdw6YKueea5Jg" gaming)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCD6VugMZKRhSyzWEWA9W2fg" gaming)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCKlUrYO3i9MDlL45Ia6j5EA" gaming)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCqJ-Xo29CKyLTjn6z2XwYAw" gaming)
+            ;; videos on coding
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCKTehwyGCKF-b2wo0RKwrcg"  programming)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCsUalyRg43M8D60mtHe6YcA"  programming)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UC9-y-6csu5WGm29I7JiwpnA"  programming)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCW6TXMZ5Pq6yL6_k5NZ2e0Q"  programming)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCvjgXvBlbQiydffZU7m1_aw"  programming)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UC-yuWVUplUJZvieEligKBkA"  programming)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCRLEADhMcb8WUdnQ5_Alk7g" programming)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCRLEADhMcb8WUdnQ5_Alk7g" programming)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCyrF_lsKS9kQ3OUKQkgYh3A" programming)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCYNrBrBOgTfHswcz2DdZQFA" programming python)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCaoqVlqPTH78_xjTjTOMcmQ" programming)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCD6ArU-AYbfIj5sx2L4SZAQ" programming)
+            ;; videos on electronics
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UC8uT9cgJorJPWu7ITLGo9Ww" programming electronics)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UC6mIxFTvXkWQVEHPsEdflzQ" electronics)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UC5I2hjZYiW9gZPVkvzM8_Cw" electronics)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCS0N5baNlQWJCUrhCEo8WlA" electronics)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCUW49KGPezggFi0PGyDvcvg" electronics)
+            ;; videos on emacs
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCxkMDXQ5qzYOgXPRnOBrp1w" emacs)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UC0uTPqBCFIpZxlz_Lv1tk_g" emacs)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCDEtZ7AKmwS0_GNJog01D2g" emacs)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCAiiOTio8Yu69c3XnR7nQBQ" emacs)
+            ;; videos on vim
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCUR1pFG_3XoZn3JNKjulqZg" vim)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UC8ENHE5xdFSwx71u3fDH5Xw" vim)
+            ;; videos on history
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCWnlQMQ-ACfhpD68yWRsnJw" history)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCMjlDOf0UO9wSijFqPE9wBw" history)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCsaGKqPZnGp_7N80hcHySGQ" history cooking)
+            ;; cooking
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCYDLmV1b0kvF8jY491dtyHg" cooking)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCMmZEL8jV1B61NKAXcyW87A" cooking)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCmXkJ9ReY5hjvYPcnmBwing" cooking)
+            ;; music
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCG7AaCh_CiG6pq_rRDNw72A" music)
+            ;; blogs
+            ("https://feeds.feedburner.com/TheKitchinResearchGroup" emacs)
+            ("https://karthinks.com/index.xml" emacs)
+            ("https://nullprogram.com/feed/" programming)
+            ("http://pragmaticemacs.com/feed/" emacs)
+            ("http://esr.ibiblio.org/?feed=rss2")
+            ("https://www.calnewport.com/blog/feed/")
+            ;; other
+            ("https://www.nngroup.com/feed/rss/")
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UC7mu94v1zFZU8pgNX13dHsQ" vietnamese)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCipg-xAE_rNtL8kaG4ezFAQ" nanopore)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCDXTQ8nWmx_EhZ2v-kp7QxA" finance)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCtg1eIVmfwXnO0ipN84-a6g" ergonomics)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg")
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCFtOX-21N1earf-K58C7HjQ" keyboard)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCD0y51PJfvkZNe3y3FR5riw" keyboard)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UC2eYFnH61tmytImy1mTYvhA")
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCyRhIGDUKdIOw07Pd8pHxCw")
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCpnkp_D4FLPCiXOmDhoAeYA")
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCw03U5DZGLqvv5elJvXvR0Q")
+            )))
 #+END_SRC
 * Syntax highlighting and visual support
 ** Font
@@ -719,6 +760,8 @@ Once the daemon is running, you can run this block without problem.
     :straight (:type built-in)
     ;;:mode ("\\.py\\" . python-mode)
     ;;:interpreter ("python" . python-mode)
+    :bind (:map python-mode-map
+                ("C-c SPC" . hydra-python/body))
     :config
     (defhydra hydra-python (:color blue
                                  :columns 4)
