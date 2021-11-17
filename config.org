@@ -220,15 +220,24 @@ I use emacs markers to add this capability.
     (defun skeleton-make-markers ()
       (setq skeleton-markers nil)
       (save-excursion ;; because we want to go back to start at the end
-        (dolist (pos skeleton-positions)
+        (dolist
+            (pos skeleton-positions)
           (goto-char pos) ;; go to first position
-          (setq skeleton-markers (push (point-marker) skeleton-markers))));; save position as a mark
+          (setq skeleton-markers
+                (push
+                 (point-marker)
+                 skeleton-markers))));; save position as a mark
       (setq skeleton-index 1)) ;; save our starting index
     ;; this assumes the first point is also where you have the cursor begin at the end of skeleton entry
 
     (defun skeleton-next-marker ()
       (interactive)
-      (goto-char (marker-position (nth (% skeleton-index (length skeleton-positions)) skeleton-markers)))
+      (goto-char
+       (marker-position
+        (nth
+         (% skeleton-index
+            (length skeleton-positions))
+         skeleton-markers)))
       ;; update index
       (setq skeleton-index (+ skeleton-index 1)))
 
@@ -701,7 +710,8 @@ Previously I preferred avoiding this package but version 2 of org-roam requires 
     (modus-themes-load-themes)
     :config
     ;; load theme of choice
-    (modus-themes-load-operandi))
+    (modus-themes-load-operandi)
+    (setq modus-themes-org-blocks 'gray-background))
 #+END_SRC
 ** COMMENT Evil-goggles
 #+BEGIN_SRC emacs-lisp
@@ -709,7 +719,6 @@ Previously I preferred avoiding this package but version 2 of org-roam requires 
     :config
     (evil-goggles-mode))
 #+END_SRC
-
 ** COMMENT Prism.el
 I think standard syntax highlighting is largely useless.
 When looking closely, you can just read the words and not rely on colors.
@@ -766,7 +775,76 @@ Once the daemon is running, you can run this block without problem.
     (defhydra hydra-python (:color blue
                                  :columns 4)
       "Coding"
-      ("q" hydra-master/body "backlick")))
+      ("q" hydra-master/body "backlick"))
+    (define-skeleton skel-python-function
+        "Insert a function template."
+        "Name: "
+        "def " str "(" @ - "):" \n
+        "\"\"\"" @ "\"\"\"" \n
+        @ _ )
+
+
+    (define-abbrev python-mode-abbrev-table "def" "" 'skel-python-function))
+#+END_SRC
+** COMMENT Example abbrev and skeletons
+#+BEGIN_SRC emacs-lisp
+  (use-package python
+    :straight (:type built-in)
+    ;;:mode ("\\.py\\" . python-mode)
+    ;;:interpreter ("python" . python-mode)
+    :bind (:map python-mode-map
+                ("C-c SPC" . hydra-python/body))
+    :abbrev (:table python-mode-abbrev-table
+                    ("def" "" 'skel-python-function)
+                    ("hw" "hello world"))
+    :abbrev ((python-mode . ("def" "" 'skel-python-function))
+	         (go-mode . ("func" "" 'skel-go-function)))
+    :hydra ((:color blue
+                    :columns 4)
+
+            "Coding"
+            ("q" hydra-master/body "backlick"))
+    :skeleton ((skel-python-function
+                "Insert a function template."
+                "Name: "
+                "def " str "(" @ - "):" \n
+                "\"\"\"" @ "\"\"\"" \n
+                @ _ ))
+    :config)
+#+END_SRC
+** COMMENT use-package notes
+#+BEGIN_SRC emacs-lisp
+  (defun use-package-normalize-binder (name keyword args)
+    (let ((arg args)
+          args*)
+      (while arg
+        (let ((x (car arg)))
+          (cond
+           ;; (KEY . COMMAND)
+           ((and (consp x)
+                 (or (stringp (car x))
+                     (vectorp (car x)))
+                 (or (use-package-recognize-function (cdr x) t #'stringp)))
+            (setq args* (nconc args* (list x)))
+            (setq arg (cdr arg)))
+           ;; KEYWORD
+           ;;   :table STRING
+           ((and (eq x :table) (symbolp (cadr arg)))
+              ;; so (symbolp (cadr arg)) checks if the second element in arg is a symbol
+	          ;; so we are checking if x is :map and second element in arg is a symbol
+            (setq args* (nconc args* (list x (cadr arg))))
+            (setq arg (cddr arg)))
+           ((listp x)
+            (setq args*
+                  (nconc args* (use-package-normalize-binder name keyword x)))
+            (setq arg (cdr arg)))
+           (t
+            ;; Error!
+            (use-package-error
+             (concat (symbol-name name)
+                     " wants arguments acceptable to the `define-abbrev' function,"
+                     " or a list of such values"))))))
+      args*))
 #+END_SRC
 * Email
 ** Notmuch
