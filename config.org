@@ -9,14 +9,10 @@ We use it to disable ~package.el~ as we will use ~straight.el~ for package manag
   (setq package-enable-at-startup nil)
 #+END_SRC
 
-* Source this literate configuration
-#+BEGIN_SRC elisp :tangle init.el
-  (org-babel-load-file "~/.config/emacs/config.org")
-#+END_SRC
-  
 * Package management
-First bootstrap straight.el:
-#+BEGIN_SRC emacs-lisp
+First bootstrap straight.el.
+Normally we could do this in our normal config but if we want to install the latest version of org-mode, we need to load everything before using org-babel to load the literate config.
+#+BEGIN_SRC emacs-lisp :tangle init.el
   (defvar bootstrap-version)
   (let ((bootstrap-file
 	 (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -32,17 +28,32 @@ First bootstrap straight.el:
 #+END_SRC
 
 ** Install use-package
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle init.el
   (straight-use-package 'use-package)
 #+END_SRC
 
 ** Integration with use-package
 We can tell use-package to invoke ~straight.el~ by default.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle init.el
   (setq straight-use-package-by-default 1)
 #+END_SRC
 
+* Install org-mode
+Emacs ships with org-mode but unfortunately certain packages need a more recent version.
+Straight.el can install a more recent version but there are all sort of issues conflicting with the built-in package.
+If we want this to work, we need to install the new version before org-mode is loaded by anything in emacs.
+In theory the first use of org-mode is using org-babel to load this literate config so unfortunately our org-mode installation will reside in init.el.
+
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (use-package org)
+#+END_SRC
+
+* Source this literate configuration
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (org-babel-load-file "~/.config/emacs/config.org")
+#+END_SRC
+  
 * General emacs configuration
 Wrap lines instead of extending past view.
 #+BEGIN_SRC emacs-lisp
@@ -96,6 +107,18 @@ This is crucial to work well with a dmenu script or rofi.
   (setq-default frame-title-format '("%b [%m]"))
 #+END_SRC
 
+** Browser issues
+~browse-url~ uses your default browser; firefox in my case.
+For some reason firefox isn't working with remotely opened links.
+I suspect this might have to do with ratpoison but I need to check later.
+In the meantime, I'll set from ~browse-url-generic~ to ~eww-browse-url~ which will work within emacs.
+I should follow up later to see if it is fixed.
+Actually this can be solved by using ~browse-url-firefox~.
+#+BEGIN_SRC emacs-lisp
+  (setq browse-url-browser-function 'browse-url-firefox)
+  (setq browse-url-generic-program "firefox")
+#+END_SRC
+
 Define the menu key as the hyper key.
 With this bound, you can use Hyper as a modifier with H-
 Also if we still use space as our leader key, we can access it with H-<space> or Hyperspace.
@@ -104,57 +127,40 @@ So using emacs in the terminal will completely block your ability to use your hy
 #+BEGIN_SRC emacs-lisp :tangle no
   (define-key key-translation-map (kbd "<menu>") 'event-apply-hyper-modifier)
 #+END_SRC
-* Foundational packages
-** COMMENT Evil                                                               :dirty:
-Evil-mode for vi emulation.
-I'll leave this out for now as I'm trying to learn the default emacs bindings.
+
+* Extensible Vi Layer for Emacs 
+Evil-mode for Vim emulation.
+Viper-mode is an alternative vi emulation built into emacs but I really like block selection in Vim and Evil integrates very nicely.
 #+BEGIN_SRC emacs-lisp
   (use-package evil
-    :straight t
-    :init
-    (evil-mode))
+;;    :config
+;;    (defalias 'evil-insert-state 'evil-insert-state)
+    :bind (:map evil-emacs-state-map
+		("<escape>" . evil-normal-state))
+;;    :hook ('evil-emacs-state-exit . evil-cleanup-insert-state)
+    :custom
+    (evil-emacs-state-cursor 'bar))
 #+END_SRC
 
-** COMMENT General                                                            :dirty:
+** Evil-goggles
+Helpful highlighting of evil actions.
+Not really necessary but the visual is quite nice.
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-goggles
+    :after (modus-themes)
+    :config
+    (evil-goggles-mode))
+#+END_SRC
+
+** COMMENT General
 I only consider this package to be required if you are using Evil since it adds a lot of nice functionality.
 In particular, it allows you to bind keys specific to a certain Evil state.
 My method of stacking hydras replaces the need for a leader key and almost all the other functionality is in ~use-package~.
-For these reasons, this will also be ommitted until (if) I enable Evil again.
 #+BEGIN_SRC emacs-lisp
-  (use-package general
-    :straight t)
+  (use-package general)
 #+END_SRC
 
-*** option 1
-Set caps lock to menu -> hyper.
-Then bind it to evil-normal-state in insert and visual modes.
-Bind hyper + space or alt + hyper to leader-def for general.
-In normal and emacs modes, bind hyper to leader-def.
-Use hyper to access quick commands and hydras:
-H a -> avy-goto
-H A -> avy-hydra
-H f -> find-file
-H F -> file-hydra
-H p -> programming hydra
-
-Advantages are that you can access frequent commands in two presses.
-Disadvantage is that pressing hyper alone won't bring up a contextual menu displaying info.
-Maybe this is faster?
-
-*** option 2
-Set caps lock to menu -> hyper.
-Then bind it to evil-normal-state in insert and visual modes.
-Bind hyper + space or alt + hyper to hyper-hydra.
-In normal and emacs modes, bind hyper to hyper-hydra.
-
-Advantages are contextual menu
-Maybe slower?
-Space is better for ergonomics but means in emacs mode you always need to combine with a modifier.
-
-*** option 3
-None of the above were possible with the hacked together hyper key, so I ended up just falling back on space to launch my main hydra.
-
-** Hydra                                                              :dirty:
+* COMMENT Hydra
 Hydra for keybinding menus
 This is the most important and most powerful package to make emacs amazing.
 In particular, I create nested hydras which can be modified when an external package is loaded.
@@ -167,7 +173,8 @@ Later, I can dynamically add hydras using defhydra+ with external packages.
 Unfortunately every hydra must contain one binding which I just use to go back to the prior hydra
 #+BEGIN_SRC emacs-lisp
   (use-package hydra
-    :bind ("C-SPC" . hydra-master/body))
+    ;;:bind ("C-SPC" . hydra-master/)
+    )
 #+END_SRC
 
 ** hydra-master
@@ -248,10 +255,9 @@ I use emacs markers to add this capability.
       "(defun " str " (" @ - ")" \n
       "  (" @ _ ")" \n))
 #+END_SRC
+
 * Org
-This block *must* fall before any blocks that requires org-mode because they will cause Straight.el to install the latest version of org-mode which will cause conflicts.
-** Organization
-*** Worker methodology
+** Methodology: manager and worker
 My planner philosophy is heavy tailored to my work in graduate school.
 My work is very diverse and usually (non-COVID) requires moving around from lab to lab.
 I have used the Franklin Covey planner and planning method since I was 16 (10 years).
@@ -262,7 +268,8 @@ I can meet anyone impromptu and still be fully capable of planning my week.
 I'm not tied to my phone or a computer.
 I can make notes during meetings and record important information for permanent record.
 It makes an impression.
-Carrying a faux-leather-bound thicc-boi planner really makes a statement and several people have remarked.
+Carrying a thick faux-leather-bound planner really makes a statement and several people have remarked.
+
 *** Limitations of the Franklin
 I really think it is the ideal planner for a worker.
 What I mean is that, if I had a job, almost any job, where I wasn't planning large projects or managing other people, this planner would be sufficient.
@@ -271,10 +278,10 @@ There are also some other limitations.
 In particular, it can be hard to track delegated tasks.
 Notes in particular meetings can get lost and are hard to reference because they must go by date.
 The planning space is fundamentally limited which means you must omit smaller tasks.
-Time-tracking is tedious and the daily tracker is designed for an era where you didnt' receive hundreds of emails.
+Time-tracking is tedious and the daily tracker is designed for an era where you didn't receive hundreds of emails.
 Repeat tasks are tedious to implement.
 In general I find it very hard to structure a large project.
-If I try to plan in advance, invariably the plan changes and I either have to go back and erase the entire plan, if I had the foresight to use pencil, or I have a permanent irrelevant plan cluttering things up.
+If I try to plan in advance, invariably the plan changes and I either have to go back and erase the entire plan (if I had the foresight to use pencil) or I have a permanent irrelevant plan cluttering things up.
 The Franklin system seems to work best, in my position, when used to track and plan about 2 - 3 weeks ahead.
 That being said, I still really like and will continue to use it in my day-to-day.
 So how then do I organize everything else?
@@ -284,6 +291,7 @@ The manager can dispatch tasks to the worker at regular intervals (every morning
 Then the working takes over and operates from the Franklin all day.
 At the end of the day, the worker reports to manager and the manager can then plan the next day.
 In principle, there could be multiple workers but for now that functionality will be limited.
+
 *** Manager methodologies
 Since I've already discussed the worker's Franklin system I will talk about the manager.
 There are many planning methodologies, most of which simply don't work for me.
@@ -296,12 +304,11 @@ However, despite the name, agile methodologies aren't a good fit.
 In the agile system, a discrete and complete subproject is set as a short-term sprint goal and then the entire team works to reach that goal.
 The idea, combined with burndown charts, is attractive but my research can get held up suddenly at any point which means the sprint turns into a marathon.
 In addition, it relies on estimating effort which is very hard.
-Finally a have to push in several different directions in my life: 1-2 research projects, teaching, home work, preparing to get a job, volunteer.
+Finally I have to push in several different directions in my life: 1-2 research projects, teaching, home work, preparing to get a job, volunteer.
 Agile is suited toward focusing on one goal.
 Kanbam is another method which relies on electronic boards with cards to track task progress and completion.
 It's very flexible and doesn't require a particular methodology.
 Probably if I were another person, this would be the best option in my situation.
-I just find kanbam very disgusting.
 I prefer keeping my planning in a format that I can manage.
 I don't like using a proprietary service.
 I find a densely filled kanbam board to be terrible for actually working on a project.
@@ -311,6 +318,7 @@ They were designed originally to streamline the munitions pipeline in WWII.
 The idea is that you can pick your deadline and then work backwards based on time to complete tasks, worker allocations and dependencies to create a clear image of the entire project.
 In it's original form, this won't work either because we can't really estimate time to complete tasks and oftentimes the PI will add work which means restructuring the entire tree.
 However, something like this is what I am aiming for and I think org-mode can be well-suited toward it.
+
 *** Org-mode planning
 There are several agenda files, each of which will fill different roles and implement different features in Org.
 
@@ -341,12 +349,11 @@ It isn't possible to specify dependencies across files.
 
 **** archive.org
 This file isn't parsed for org agenda and serves as an archive of items from personal.org.
-Since archiving doesn't allow for precise positioning, it is only really record but can't be used to generate time records.
+Since archiving doesn't allow for precise positioning, it is only a record but can't be used to generate time records.
 
 ** Configuration
 #+BEGIN_SRC emacs-lisp
   (use-package org
-    :straight (:type built-in)
     :bind (:map org-mode-map
 		;; These commands would normally add current org file to agenda.
 		;; Better do assign them manually with org-agenda-files
@@ -355,45 +362,47 @@ Since archiving doesn't allow for precise positioning, it is only really record 
     ;; Use virtual identation
     :hook ((org-mode . org-indent-mode))
     :config
+    ;; Habits
+    (add-to-list 'org-modules 'org-habit)
+
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((shell . t)))
+
+    :custom
     ;; Don't indent text by default
     ;; Technically this is disabled automatically with org-indent-mode
-    (setq org-adapt-indentation nil)
-    ;; Define all project files or files that contain dates
-    (setq org-agenda-files
-	  '("/home/xavier/Dropbox/org/personal.org"
-	    "/home/xavier/Dropbox/org/archive.org"
-	    "/home/xavier/Dropbox/org/phd.org"
-	    "/home/xavier/Dropbox/org/birthdays.org"))
-    ;; 
-    (setq org-agenda-start-with-log-mode t)
-    (setq org-deadline-warning-days 14)
-    (setq org-log-done 'time)
-    (setq org-log-into-drawer t)
+    (org-adapt-indentation nil)
 
-    (setq org-todo-keywords
-	  '((sequence "TODO(t)" "|" "DONE(d!)")
-	    (sequence "EMAIL(e)" "WAIT(w@/!)" "HOLD(h@/!)" "MEETING(m)" "|" "CANCELLED(c@/!)")))
+    ;; Define all project files or files that contain dates
+    (org-agenda-files
+     '("/home/xavier/Dropbox/org/personal.org"
+       "/home/xavier/Dropbox/org/archive.org"
+       "/home/xavier/Dropbox/org/phd.org"
+       "/home/xavier/Dropbox/org/birthdays.org"))
+
+    (org-agenda-start-with-log-mode t)
+    (org-deadline-warning-days 14)
+    (org-log-done 'time)
+    (org-log-into-drawer t)
+
+    (org-todo-keywords
+     '((sequence "TODO(t)" "|" "DONE(d!)")
+       (sequence "EMAIL(e)" "WAIT(w@/!)" "HOLD(h@/!)" "MEETING(m)" "|" "CANCELLED(c@/!)")))
     ;; select a todo from any in the above list quickly
-    (setq org-use-fast-todo-selection t)
+    (org-use-fast-todo-selection t)
 
     ;; Enforce todo dependencies
     ;; Parent nodes can only be finished if all children are finished
-    (setq org-enforce-todo-dependencies t)
-    (setq org-enforce-todo-checkbox-dependencies t)
+    (org-enforce-todo-dependencies t)
+    (org-enforce-todo-checkbox-dependencies t)
     ;; Tasks which have unfulfilled dependencies (children or those linked by org-edna) will remain invisible on the agenda
-    (setq org-agenda-dim-blocked-tasks 'invisible)
+    (org-agenda-dim-blocked-tasks 'invisible)
 
-    ;; Habits
-    ;;(require 'org-habit)
-    (add-to-list 'org-modules 'org-habit)
-
-    (setq org-file-apps '((auto-mode . emacs)
-			  ("\\.mm\\'" . default)
-			  ("\\.x?html?\\'" . default)
-			  ("\\.pdf\\'" . "evince %s")))
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '((shell . t))))
+    (org-file-apps '((auto-mode . emacs)
+		     ("\\.mm\\'" . default)
+		     ("\\.x?html?\\'" . default)
+		     ("\\.pdf\\'" . default))))
 
     ;; Custom agenda view
     ;; Many of my tasks are blocked in my projects but some still have deadlines
@@ -435,9 +444,11 @@ Normal org mode can only specify hierarchical dependencies while org edna will a
     :hook (org-mode-hook))
 #+END_SRC
 
-* Managing frames and windows
+* COMMENT Managing frames and windows
 ** COMMENT frames-only-mode
 Use frames instead of windows whenever possible.
+This is great if you prefer to manage emacs windows with your window manager.
+However now, I prefer to practice emacs as a self-contained tool (in the chance I need to work on another system).
 #+BEGIN_SRC emacs-lisp
   (use-package frames-only-mode
     :init
@@ -445,78 +456,111 @@ Use frames instead of windows whenever possible.
 #+END_SRC
 
 * Search and completion framework
-** Ivy
-Ivy completion mechanism
+** COMMENT MCT
+This is causing issues right now.
+I will test again later
 #+BEGIN_SRC emacs-lisp
-  (use-package ivy)
-    ;;:general
-    ;;(:keymaps 'ivy-minibuffer-map
-    ;;          "H-<return>" 'ivy-dispatching-done)
-    ;;:config)
-    ;;(ivy-mode 1))
+  (use-package mct)
+;;    :init (mct-mode 1))
 #+END_SRC
 
-** Counsel
-Counsel to improve basic emacs commands.
+** Vertico
+This puts completions directly into the minibuffer instead of a completions buffer.
 #+BEGIN_SRC emacs-lisp
-  (use-package counsel)
-    ;;:general
-    ;; This option gives some nice information about the file location and type
-    ;; ("C-x b" 'counsel-ibuffer)
-    ;; But this option gives a file preview
-    ;;("C-x b" 'counsel-switch-buffer)
-    ;;:config
-    ;;(counsel-mode 1))
+  (use-package vertico
+    :init (vertico-mode))
 #+END_SRC
 
-** Swiper
-Swiper to replace isearch and show overview of matches.
+** Marginalia
+This adds marginalia to minibuffer or completions buffer results.
 #+BEGIN_SRC emacs-lisp
-  (use-package swiper)
+  (use-package marginalia
+    :bind (:map minibuffer-local-map
+                ("M-A" . marginalia-cycle))
+
+    :init (marginalia-mode))
+#+END_SRC
+
+** Consult
+Similar to Ivy's Counsel, Consult improves many basic emacs commands.
+Really should check documentation to figure out the configuration.
+#+BEGIN_SRC emacs-lisp
+  (use-package consult
+    ;; Enable automatic preview at point in the *Completions* buffer.
+    ;; This is relevant when you use the default completion UI,
+    ;; and not necessary for Vertico, Selectrum, etc.
+    :hook (completion-list-mode . consult-preview-at-point-mode))
+#+END_SRC
+
+** Embark
+Contextual actions?
+There is a lot to unpack here
+#+BEGIN_SRC emacs-lisp
+  (use-package embark)
+#+END_SRC
+
+*** Embark-Consult
+#+BEGIN_SRC emacs-lisp
+  (use-package embark-consult
+    :after (embark consult))
+#+END_SRC
+
+** Orderless
+This is an optional completion style which allows out of order completions.
+For example: "emacs-lisp" could be matched with "lisp mac".
+#+BEGIN_SRC emacs-lisp
+  (use-package orderless
+    :init
+    (setq completion-styles '(orderless)
+          completion-category-defaults nil
+          completion-category-overrides '((file (styles partial-completion)))))
 #+END_SRC
 
 * Paper writing and reference management
-** ivy-bibtex
-Search library easily.
+Previously I used a combination of ivy-bibtex, pdf-tools, org-ref, org-roam and org-roam-bibtex to handle my notes (literature-based and otherwise).
+Citar, in combination with modern vertical completing-read packages, allows me simplify the whole setup.
+Citar replaces the functionality of ivy-bibtex and even goes further beyond by allowing the inclusion of an org-id to each note.
+This is required for org-roam to work properly and previously I needed org-roam-bibtex just to handle this functionality.
+Now with citar I can remove ivy-bibtex and org-roam bibtex.
+I'll still keep org-ref for now purely because it can generate nice bibtex entries from a variety of sources.
+Luckily org-ref removed dependencies on helm.
+
+** citar
+This is an alternative to ivy-bibtex.
+A few key limitations that I should patch:
+
 #+BEGIN_SRC emacs-lisp
-  (use-package ivy-bibtex
-    :config
-    (setq bibtex-completion-bibliography '("/home/xavier/Dropbox/library/references.bib"))
-    (setq bibtex-completion-library-path '("/home/xavier/Dropbox/library"))
-    (setq bibtex-completion-notes-path "/home/xavier/Dropbox/notes")
-    (setq bibtex-completion-find-additional-pdfs t))
-    ;; Use evince to open pdfs
-    ;;(setq bibtex-completion-pdf-open-function
-    ;;      (lambda (fpath)
-    ;;        (call-process "evince" nil 0 nil fpath))))
+  (use-package citar
+    :after vertico ;; or some other vertical completion
+    :custom
+    (citar-bibliography '("/home/xavier/Dropbox/library/references.bib"))
+    (citar-library-paths '("/home/xavier/Dropbox/library/"))
+    (citar-notes-paths '("/home/xavier/Dropbox/notes/"))
+    (citar-file-note-org-include '(org-id)) ;; required for org-roam
+    (citar-file-find-additional-files t))
 #+END_SRC
 
 ** org-ref
-Org-ref for managing bibliographies and writing in org-mode.
+Org-ref purely for generating bibtex entries nicely.
+Check out `org-ref-bibtex-hydra` as well to nicely navigate and edit a bibtex file.
+Good ideas from that ...
 #+BEGIN_SRC emacs-lisp
   (use-package org-ref
-    :init
-    (setq org-ref-completion-library 'org-ref-ivy-cite)
-    :config
-    (setq reftex-default-bibliography '("/home/xavier/Dropbox/library/references.bib"))
-    (setq org-ref-bibliography-notes "/home/xavier/Dropbox/notes")
-    (setq org-ref-notes-function 'org-ref-notes-function-many-files)
+    :custom
     ;; don't create notes by default when adding files to library
-    (setq doi-utils-make-notes t)
-    (setq org-ref-default-bibliography '("/home/xavier/Dropbox/library/references.bib"))
-    (setq org-ref-pdf-directory "/home/xavier/Dropbox/library")
+    (doi-utils-make-notes t)
     ;; since we use ivy-bibtex
-    (setq bibtex-completion-bibliography "/home/xavier/Dropbox/library/references.bib"
-          bibtex-completion-library-path "/home/xavier/Dropbox/library"
-          bibtex-completion-notes-path "/home/xavier/Dropbox/notes")
+    (bibtex-completion-bibliography "/home/xavier/Dropbox/library/references.bib")
+    (bibtex-completion-library-path "/home/xavier/Dropbox/library")
+    (bibtex-completion-notes-path "/home/xavier/Dropbox/notes")
     ;; format how we generate keys
-    (setq bibtex-autokey-year-length 4
-          bibtex-autokey-name-year-separator "-"
-          bibtex-autokey-year-title-separator "-"
-          bibtex-autokey-titleword-separator "-"
-          bibtex-autokey-titlewords 2
-          bibtex-autokey-titlewords-stretch 1
-          bibtex-autokey-titleword-length 5))
+    (bibtex-autokey-year-length 4)
+    (bibtex-autokey-name-year-separator "-")
+    (bibtex-autokey-year-title-separator "-")
+    (bibtex-autokey-titleword-separator "-")
+    (bibtex-autokey-titlewords 2)
+    (bibtex-autokey-titlewords-stretch 1)
+    (bibtex-autokey-titleword-length 5))
 #+END_SRC
 
 ** pdf-tools
@@ -526,17 +570,21 @@ Org-ref for managing bibliographies and writing in org-mode.
     (pdf-tools-install)
     (setq-default pdf-view-display-size 'fit-width))
 #+END_SRC
+
 * Note management
 I have two use cases or types of notes that I want to store in the same database:
-**** Bibliographic notes
+
+** Bibliographic notes
 I want to store a single note file for each paper in my literature library.
 This will allow me to read and share notes on a particular paper since they are all gathered in one spot.
 However I still want to be able to link particular notes on a paper with other notes so I will make extensive use of the node linking.
-**** Other topic notes
+
+** Other topic notes
 Other topics may not be split by reference.
 For example a topic on object oriented programming in python might just be an aggregate of my own experience and notes and thus it isn't important to maintain the same cohesion.
 That could be one large note, several smaller notes or several smaller notes that I later summarize in a large note.
 Since everything is plain text, refactoring later should not be terrible.
+
 ** org-roam
 This package provides a pseudo-slipbox notetaking method which is quite sophisticated compared to alternatives.
 Each file in the notes directory is a note node and within that file, headings can also be defined as nodes.
@@ -548,19 +596,27 @@ These nodes can all be linked together in a sort of mindmap.
     (setq org-roam-v2-ack t)
     :config
     (setq org-roam-directory "/home/xavier/Dropbox/notes/"))
-
 #+END_SRC
 
-** org-roam-bibtex
-Previously I preferred avoiding this package but version 2 of org-roam requires generated header IDs that will be generated automatically with this package.
-
+*** COMMENT org-roam-ui
+Nice graphical representation of notes.
 #+BEGIN_SRC emacs-lisp
-  (use-package org-roam-bibtex
-    :after org-roam
-    :config
-    (require 'org-ref))
+  (use-package org-roam-ui
+      :after org-roam
+  ;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+  ;;         a hookable mode anymore, you're advised to pick something yourself
+  ;;         if you don't care about startup time, use
+  ;;  :hook (after-init . org-roam-ui-mode)
+      :config
+      (setq org-roam-ui-sync-theme t
+	    org-roam-ui-follow t
+	    org-roam-ui-update-on-save t
+	    org-roam-ui-open-on-start t))
+
+
 #+END_SRC
-* RSS Feeds
+
+* COMMENT RSS Feeds
 #+BEGIN_SRC emacs-lisp
   (use-package elfeed
     ;;:init
@@ -683,7 +739,6 @@ Previously I preferred avoiding this package but version 2 of org-roam requires 
             ("https://www.nngroup.com/feed/rss/")
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UC7mu94v1zFZU8pgNX13dHsQ" vietnamese)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCipg-xAE_rNtL8kaG4ezFAQ" nanopore)
-            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCDXTQ8nWmx_EhZ2v-kp7QxA" finance)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCtg1eIVmfwXnO0ipN84-a6g" ergonomics)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg")
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCFtOX-21N1earf-K58C7HjQ" keyboard)
@@ -694,50 +749,54 @@ Previously I preferred avoiding this package but version 2 of org-roam requires 
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCw03U5DZGLqvv5elJvXvR0Q")
             )))
 #+END_SRC
+
 * Syntax highlighting and visual support
 ** Font
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'default-frame-alist
                '(font . "Fira Mono-9"))
 #+END_SRC
+
 ** Modus themes
 #+BEGIN_SRC emacs-lisp
   (use-package modus-themes
     :init
     ;; add all customizations before loading theme
-
     ;; load theme files before enabling
     (modus-themes-load-themes)
     :config
     ;; load theme of choice
     (modus-themes-load-operandi)
-    (setq modus-themes-org-blocks 'gray-background))
+    :custom
+    (modus-themes-org-blocks 'gray-background))
 #+END_SRC
-** COMMENT Evil-goggles
+
+** Beacon
+Emacs has a built-in ~pulse.el~ which works well enough.
+If you want to try it, check out [[https://karthinks.com/software/batteries-included-with-emacs/#pulse--pulse-dot-el][Karthink's blog]].
+However beacon works quite well out of the box and the color can be styled without modifying the source directly.
 #+BEGIN_SRC emacs-lisp
-  (use-package evil-goggles
-    :config
-    (evil-goggles-mode))
+  (use-package beacon
+    :init (beacon-mode 1))
 #+END_SRC
-** COMMENT Prism.el
+
+** Prism.el
 I think standard syntax highlighting is largely useless.
 When looking closely, you can just read the words and not rely on colors.
 When looking at the document structure, the syntax highlighting is useless.
 I tried my hand at making a minimal colorscheme for vim in the past and it was quite nice but didn't really change the underlying methodology.
 This package by alphapapa effectively highlights code depth.
 This is useful when looking closely because errors will still have highlighting issues.
-It's also very useless when looking at the whole structure to understand the depth of your code.
-Seems to have an issue with the emacs daemon so I set it not to tangle by default.
-Once the daemon is running, you can run this block without problem.
+It's also very useful when looking at the whole structure to understand the depth of your code.
 #+BEGIN_SRC emacs-lisp
-(use-package prism 
+  (use-package prism 
+    :hook
     ;; lisp and C-like languages use prism-mode
-    ;;:ghook ('(emacs-lisp-mode-hook
-    ;;          c-mode-hook))
+    ((emacs-lisp-mode
+     c-mode) . prism-mode)
     ;; for whitespace languages or those whose depth isn't indicated with parenthesis use prism-whitespace-mode
-    ;;:ghook ('(python-mode-hook
-    ;;          sh-mode-hook)
-    ;;        #'prism-whitespace-mode)
+    ((python-mode
+     sh-mode) . prism-whitespace-mode)
     :config
     ;; work with modus themes
     (setq prism-num-faces 16)
@@ -745,25 +804,68 @@ Once the daemon is running, you can run this block without problem.
       :desaturations '(0) ; may lower the contrast ratio
       :lightens '(0)      ; same
       :colors (modus-themes-with-colors
-                (list fg-main
-                      magenta
-                      cyan-alt-other
-                      magenta-alt-other
-                      blue
-                      magenta-alt
-                      cyan-alt
-                      red-alt-other
-                      green
-                      fg-main
-                      cyan
-                      yellow
-                      blue-alt
-                      red-alt
-                      green-alt-other
-                      fg-special-warm))))
+		(list fg-main
+		      magenta
+		      cyan-alt-other
+		      magenta-alt-other
+		      blue
+		      magenta-alt
+		      cyan-alt
+		      red-alt-other
+		      green
+		      fg-main
+		      cyan
+		      yellow
+		      blue-alt
+		      red-alt
+		      green-alt-other
+		      fg-special-warm))))
 #+END_SRC
+
 ** dimmer.el
-* Python
+
+* COMMENT Language Server Protocol
+Rather than installing a million packages for each programming language, the principle of the Language Server Protocol or LSP is that a centralized server can take care of a lot of the nice features with minimal effort.
+I think simplicity is a nice advantage here although of course, without internet you are basically coding on your own again.
+That could be seen as a perk if you like working minimally sometimes or for some projects.
+There are two methods of using LSP in emacs: ~lsp-mode~ or ~eglot~.
+~lsp-mode~ is a batteries-included tool while ~eglot~ is minimal and only relies on built-in emacs functionality.
+Of course, I will be working with ~eglot~.
+You will also need to install the appropriate language server for the languages you will be working with.
+For Golang on Fedora I can install via dnf: ~sudo dnf install golang-x-tools-gopls~.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package eglot)
+#+END_SRC
+
+* Go
+Because typically I launch emacs via my window manager, it doesn't properly source my ~.bash_profile~.
+This means I need to set the paths for Go in my config here.
+#+BEGIN_SRC emacs-lisp
+  (use-package go-mode
+    :init
+    (setenv "GOPATH" "/home/xavier/go")
+    (setenv "PATH" (concat (getenv "PATH") ":" (getenv "GOPATH") "/bin"))
+    :custom
+    (exec-path (append exec-path (list (expand-file-name "/home/xavier/go/bin/")))))
+#+END_SRC
+
+** godef
+You'll need to install godef via the go package manager: ~go get github.com/rogpeppe/godef~
+This should be installed in ~$HOME/go/bin~.
+It is easiest to source from emacs directly as can be seen in the above block.
+
+** goflymake
+Install this via go package manager: ~go get -u github.com/dougm/goflymake~
+
+#+BEGIN_SRC emacs-lisp
+  (use-package go-flymake
+    :straight (:host github :repo "dougm/goflymake"
+               :branch "master")
+    :after go-mode)
+#+END_SRC
+
+* COMMENT Python
 #+BEGIN_SRC emacs-lisp
   (use-package python 
     :straight (:type built-in)
@@ -786,6 +888,7 @@ Once the daemon is running, you can run this block without problem.
 
     (define-abbrev python-mode-abbrev-table "def" "" 'skel-python-function))
 #+END_SRC
+
 ** COMMENT Example abbrev and skeletons
 #+BEGIN_SRC emacs-lisp
   (use-package python
@@ -812,45 +915,21 @@ Once the daemon is running, you can run this block without problem.
                 @ _ ))
     :config)
 #+END_SRC
-** COMMENT use-package notes
-#+BEGIN_SRC emacs-lisp
-  (defun use-package-normalize-binder (name keyword args)
-    (let ((arg args)
-          args*)
-      (while arg
-        (let ((x (car arg)))
-          (cond
-           ;; (KEY . COMMAND)
-           ((and (consp x)
-                 (or (stringp (car x))
-                     (vectorp (car x)))
-                 (or (use-package-recognize-function (cdr x) t #'stringp)))
-            (setq args* (nconc args* (list x)))
-            (setq arg (cdr arg)))
-           ;; KEYWORD
-           ;;   :table STRING
-           ((and (eq x :table) (symbolp (cadr arg)))
-              ;; so (symbolp (cadr arg)) checks if the second element in arg is a symbol
-	          ;; so we are checking if x is :map and second element in arg is a symbol
-            (setq args* (nconc args* (list x (cadr arg))))
-            (setq arg (cddr arg)))
-           ((listp x)
-            (setq args*
-                  (nconc args* (use-package-normalize-binder name keyword x)))
-            (setq arg (cdr arg)))
-           (t
-            ;; Error!
-            (use-package-error
-             (concat (symbol-name name)
-                     " wants arguments acceptable to the `define-abbrev' function,"
-                     " or a list of such values"))))))
-      args*))
-#+END_SRC
+
 * Email
+Email is synced using mbsync and msmtp is used to send messages.
+Notmuch is my preferred email manager and client.
 ** Notmuch
+I install the notmuch client via standard repositories and just source it here.
 #+BEGIN_SRC emacs-lisp
   (use-package notmuch
     :straight (:type built-in))
+#+END_SRC
+
+*** Consult-Notmuch
+#+BEGIN_SRC emacs-lisp
+  (use-package consult-notmuch
+    :after (consult notmuch))
 #+END_SRC
 
 ** msmtp
@@ -866,54 +945,56 @@ This pulls the information from the header of the message we write in emacs.
 #+END_SRC
 
 ** gnus-alias
+This is a hidden gem package that is poorly documented.
+It allows me to switch between multiple mail identities in a fluid and intuitive manner.
 #+BEGIN_SRC emacs-lisp
   (use-package gnus-alias
     :hook ('message-setup . gnus-alias-determine-identity)
-    :config
-    (setq gnus-alias-use-buttonized-from nil)
-    (setq gnus-alias-identity-alist
-          '(("physics"
-             nil ;; refer to any identity
-             "Xavier Capaldi <capaldix@physics.mcgill.ca>"
-             nil ;; organization header
-             (("Fcc" . "/physics.mcgill/Sent")) ;; extra headers to save outgoing mail
-             nil ;; extra body text
-             nil) ;; signature
-             ("scribo"
-             nil ;; refer to other identity
-             "Xavier Capaldi <xcapaldi@scribo.biz>"
-             nil ;; organization header
-             (("Fcc" . "/scribo/Sent")) ;; extra headers to save outgoing mail
-             nil ;; extra body text
-             nil) ;; signature
-             ("giftedfleece"
-              nil ;; refer to other identity
-              "Xavier Capaldi <beeboy@giftedfleece.com>"
-              nil ;; organization header
-              (("Fcc" . "/giftedfleece/Sent")) ;; extra headers to save outgoing mail
-              nil ;; extra body text
-              nil) ;; signature
-              ("gmail"
-               nil ;; refer to other identity
-               "Xavier Capaldi <xavier.capaldi@gmail.com>"
-               nil ;; organization header
-               (("Fcc" . "/gmail/Sent")) ;; extra headers to save outgoing mail
-               nil ;; extra body text
-               nil))) ;; signature
+    :custom
+    (gnus-alias-use-buttonized-from nil)
+    (gnus-alias-identity-alist
+     '(("physics"
+	nil ;; refer to any identity
+	"Xavier Capaldi <capaldix@physics.mcgill.ca>"
+	nil ;; organization header
+	(("Fcc" . "/physics.mcgill/Sent")) ;; extra headers to save outgoing mail
+	nil ;; extra body text
+	nil) ;; signature
+       ("scribo"
+	nil ;; refer to other identity
+	"Xavier Capaldi <xcapaldi@scribo.biz>"
+	nil ;; organization header
+	(("Fcc" . "/scribo/Sent")) ;; extra headers to save outgoing mail
+	nil ;; extra body text
+	nil) ;; signature
+       ("giftedfleece"
+	nil ;; refer to other identity
+	"Xavier Capaldi <beeboy@giftedfleece.com>"
+	nil ;; organization header
+	(("Fcc" . "/giftedfleece/Sent")) ;; extra headers to save outgoing mail
+	nil ;; extra body text
+	nil) ;; signature
+       ("gmail"
+	nil ;; refer to other identity
+	"Xavier Capaldi <xavier.capaldi@gmail.com>"
+	nil ;; organization header
+	(("Fcc" . "/gmail/Sent")) ;; extra headers to save outgoing mail
+	nil ;; extra body text
+	nil))) ;; signature
     ;; use "physics" identity by default
-    (setq gnus-alias-default-identity "physics")
+    (gnus-alias-default-identity "physics")
     ;; define rules to match other identities
-    (setq gnus-alias-identity-rules
-          '(("scribo" ("any"
-                       "xcapaldi@scribo.biz"
-                       both)
-             "scribo")
-            ("giftedfleece" ("any"
-                             "beeboy@giftedfleece.com"
-                             both)
-             "giftedfleece")
-            ("gmail" ("any"
-                      "xavier.capaldi@gmail.com"
-                      both)
-             "gmail"))))
+    (gnus-alias-identity-rules
+     '(("scribo" ("any"
+		  "xcapaldi@scribo.biz"
+		  both)
+	"scribo")
+       ("giftedfleece" ("any"
+			"beeboy@giftedfleece.com"
+			both)
+	"giftedfleece")
+       ("gmail" ("any"
+		 "xavier.capaldi@gmail.com"
+		 both)
+	"gmail"))))
 #+END_SRC

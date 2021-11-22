@@ -453,7 +453,7 @@ This is the most amazing and trippy screen locker I've seen.
 #+END_SRC
 
 * password management
-Pass is really sexy but it isn't easily portable and it seems a bit like reinventing the wheel. 
+nnPass is really sexy but it isn't easily portable and it seems a bit like reinventing the wheel. 
 Keepassxc is a graphical tool with a command-line interface.
 It is cross-platform compatible with all operating systems and the password store can be transported as a single database.
 #+BEGIN_SRC sh :dir /sudo::
@@ -1282,4 +1282,11 @@ If you want to run emacs alone, you need to run ~startx /usr/bin/emacs~.
 ** mybar.sh
 #+BEGIN_SRC sh :tangle ~/bin/mybar.sh :shebang #!/bin/sh
   echo " "
+#+END_SRC
+
+* TODO golang
+#+BEGIN_SRC sh
+  echo 'export GOROOT=/usr/local/go' >> ~/.bash_profile
+  echo 'export GOPATH=$HOME/go' >> ~/.bash_profile
+  echo 'export PATH=$GOPATH/bin:$GOROOT/bin:$PATH' >> ~/.bash_profile
 #+END_SRC
