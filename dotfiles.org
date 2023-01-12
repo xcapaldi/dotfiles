@@ -202,12 +202,28 @@ system(f'echo {strftime("%a, %d %b", t)} {clock} {strftime("%H:%M", t)}')
 
 By default I set git to use my Github-provided noreply email address.
 
-#+BEGIN_SRC conf :tangle ~/.gitconfig
+#+BEGIN_SRC conf :tangle (when (eq system-type 'gnu/linux) "~/.gitconfig")
 [user]
 	name = Xavier Capaldi
 	email = 38892330+xcapaldi@users.noreply.github.com
 [core]
 	excludesFiles = ~/.config/git/ignore
+[pull]
+	ff = only
+[merge]
+	conflictstyle = diff3
+#+END_SRC
+
+#+BEGIN_SRC conf :tangle (when (eq system-type 'darwin) "~/.gitconfig")
+[user]
+	name = Xavier Capaldi
+	email = xavier.capaldi@optable.co
+[core]
+	excludesFiles = ~/.config/git/ignore
+[pull]
+	ff = only
+[merge]
+	conflictstyle = diff3
 #+END_SRC
 
 I use a global gitignore to ignore most common problems:
