@@ -1835,11 +1835,16 @@ We replace the ~C-z~ default binding of suspending the frame since it is rarely 
 #+END_SRC
 
 * Syntax highlighting and visual support
-** COMMENT dimmer
+** dimmer
 
 #+BEGIN_SRC emacs-lisp
 (use-package dimmer
-  :init (dimmer-mode 1))
+  :config
+  (setq dimmer-fraction 0.3)
+  (setq dimmer-adjustment-mode :foreground)
+  (setq dimmer-use-colorspace :rgb)
+
+  (dimmer-mode 1))
 #+END_SRC
 
 ** focus
@@ -1998,7 +2003,7 @@ This package extends ~pulse.el~ and is a bit more minimalistic than ~beacon~ whi
      outline-backward-same-level
      outline-forward-same-level
      outline-next-visible-heading
-     outline-previous-visible-heading
+     outppline-previous-visible-heading
      outline-up-heading))
   (pulsar-pulse-on-window-change t)
   (pulsar-pulse t)
@@ -2057,8 +2062,10 @@ Highlight undo and redo actions
   (whitespace-display-mappings
    '(
      ;;(space-mark 32 [183] [46]) ; SPACE 32 「 」, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
-     ;;(newline-mark 10 [182 10]) ; LINE FEED,
-     (tab-mark 9 [166 9] [92 9]) ; tab
+     ;;(newline-mark 10 [8595 10]) ; LINE FEED,
+     (tab-mark 9 [9482 9] [92 9]) ; tab BOX DRAWINGS LIGHT QUADRUPLE DASH VERTICAL 「┊」
+     ;;(tab-mark 9 [9500 9472 9472 9472]) ; tab BOX DRAWINGS LIGHT VERTICAL AND RIGHT 「├」 BOX DRAWINGS LIGHT HORIZONTAL 「─」
+     ;;(tab-mark 9 (vconcat [9500] (make-vector tab-width 9472)))
      )))
 #+END_SRC
 
@@ -2109,8 +2116,9 @@ _Z_: undo only
 ** vundo
 #+BEGIN_SRC emacs-lisp
 (use-package vundo
+  :straight (vundo :type git :host github :repo "casouri/vundo")
   :commands (vundo)
-  :straight (vundo :type git :host github :repo "casouri/vundo"))
+  :bind ("C-c u" . vundo))
 #+END_SRC
 
 * Version control
