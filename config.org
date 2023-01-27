@@ -82,7 +82,7 @@ The use-package extension actually solves this issue quite nicely and extends it
 
 (global-visual-line-mode 0)            ; Don't always wrap lines instead of extending past view
 (global-hl-line-mode 0)                ; Highlight current line
-(display-fill-column-indicator-mode 1) ; add indicator for the fill line
+(display-fill-column-indicator-mode 0) ; add indicator for the fill line
 (column-number-mode 1)                 ; Show the column number
 (fset 'yes-or-no-p 'y-or-n-p)          ; Replace yes/no prompts with y/n
 (tool-bar-mode -1)                     ; Hide the toolbar
@@ -135,8 +135,7 @@ For org-mode in theory the first use of org-mode is using org-babel to load this
 This is only required on the linux box currently which is still running emacs 27.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(use-package org
-  :demand t)
+(use-package org)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle no
@@ -144,12 +143,9 @@ This is only required on the linux box currently which is still running emacs 27
     (progn
 ;;      (use-package org
 ;;        :demand t)
-      (use-package flymake
-        :demand t)
-      (use-package project
-        :demand t)
-      (use-package xref
-        :demand t)))
+      (use-package flymake)
+      (use-package project)
+      (use-package xref)))
 #+END_SRC
 
 * Source system specific configuration
@@ -974,13 +970,17 @@ For files like PDF or image files we can open directly in the browser and print 
 For text buffers we can ~htmlfontify-buffer~ and browse that buffer in the browser.
 We could probably infer the printing method using [[https://emacsredux.com/blog/2020/06/14/checking-the-major-mode-in-emacs-lisp/][derived-mode-p]].
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :noweb yes
 (use-package printing
   :straight (:type built-in)
   :after hydra
   :bind ("C-c p" . printing-hydra/body)
   :config
-  (defhydra printing-hydra (:color blue)
+  <<HYDRA_PRINT>>)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref HYDRA_PRINT
+(defhydra printing-hydra (:color blue)
     "PRINTING HYDRA"
     ("q" nil "quit hydra" :color blue :column nil)
     ("r" browse-url-of-buffer "raw")
@@ -989,7 +989,7 @@ We could probably infer the printing method using [[https://emacsredux.com/blog/
     ("o" (progn (org-html-export-as-html) (browse-url-of-buffer))
      "org buffer")
     ("f" browse-url-of-file "file")
-    ("p" pr-interface "printing interface")))
+    ("p" pr-interface "printing interface"))
 #+END_SRC
 
 ** TODO consider adding support to citar for pdf and embark
@@ -1544,9 +1544,9 @@ I decided against using it because I actually don't need that level of control a
      ("http://pragmaticemacs.com/feed/" emacs)
      ("https://protesilaos.com/codelog.xml" emacs)
 
-     ("http://esr.ibiblio.org/?feed=rss2")     
+     ("http://esr.ibiblio.org/?feed=rss2")
      ("https://www.calnewport.com/blog/feed/")
-     
+
      ;; other
      ("https://www.nngroup.com/feed/rss/" ux)
      ("https://suckless.org/atom.xml")
@@ -1933,7 +1933,7 @@ It's also very useful when looking at the whole structure to understand the dept
   :mode ("\\Tiltfile\\'" . prism-mode))
 #+END_SRC
 
-#+BEGIN_SRC :tangle no
+#+BEGIN_SRC emacs-lisp :tangle no
 :hook
   ;; lisp and C-like languages use prism-mode
   ((emacs-lisp-mode c-mode) . prism-mode)
@@ -1964,53 +1964,56 @@ It's also very useful when looking at the whole structure to understand the dept
 		    fg-special-warm))))
 #+END_SRC
 
-** COMMENT pulsar.el
+** pulsar.el
 Emacs has a built-in ~pulse.el~ which works well enough.
 If you want to try it, check out [[https://karthinks.com/software/batteries-included-with-emacs/#pulse--pulse-dot-el][Karthink's blog]].
 This package extends ~pulse.el~ and is a bit more minimalistic than ~beacon~ which offers similar functionality.
 
 #+BEGIN_SRC emacs-lisp
 (use-package pulsar
+  :bind (("C-c h p" . pulsar-pulse-line)
+         ("C-c h h" . pulsar-highlight-dwim))
   :init (pulsar-global-mode 1)
   :custom
-  (pulsar-pulse-functions
-   '(recenter-top-bottom
-     move-to-window-line-top-bottom
-     reposition-window
-     bookmark-jump
-     other-window
-     delete-window
-     delete-other-windows
-     forward-page
-     backward-page
-     scroll-up-command
-     scroll-down-command
-     ;; windmove-right
-     ;; windmove-left
-     ;; windmove-up
-     ;; windmove-down
-     ;; windmove-swap-states-right
-     ;; windmove-swap-states-left
-     ;; windmove-swap-states-up
-     ;; windmove-swap-states-down
-     ;; tab-new
-     ;; tab-close
-     ;; tab-next
-     org-next-visible-heading
-     org-previous-visible-heading
-     org-forward-heading-same-level
-     org-backward-heading-same-level
-     outline-backward-same-level
-     outline-forward-same-level
-     outline-next-visible-heading
-     outppline-previous-visible-heading
-     outline-up-heading))
-  (pulsar-pulse-on-window-change t)
   (pulsar-pulse t)
   (pulsar-delay 0.055)
   (pulsar-iterations 10)
   (pulsar-face 'pulsar-magenta)
-  (pulsar-highlight-face 'pulsar-yellow))
+  (pulsar-highlight-face 'pulsar-yellow)
+  (pulsar-pulse-functions '(recenter-top-bottom
+                            move-to-window-line-top-bottom
+                            reposition-window
+                            bookmark-jump
+                            other-window
+                            ace-window
+                            delete-window
+                            delete-other-windows
+                            forward-page
+                            backward-page
+                            scroll-up-command
+                            scroll-down-command
+                            windmove-right
+                            windmove-left
+                            windmove-up
+                            windmove-down
+                            windmove-swap-states-right
+                            windmove-swap-states-left
+                            windmove-swap-states-up
+                            windmove-swap-states-down
+                            tab-new
+                            tab-close
+                            tab-next
+                            org-next-visible-heading
+                            org-previous-visible-heading
+                            org-forward-heading-same-level
+                            org-backward-heading-same-level
+                            outline-backward-same-level
+                            outline-forward-same-level
+                            outline-next-visible-heading
+                            outline-previous-visible-heading
+                            outline-up-heading))
+
+  (pulsar-global-mode 1))
 #+END_SRC
 
 ** rainbow-delimiters
@@ -2154,4 +2157,3 @@ If there are only two windows, it falls back to ~other-window~.
 (use-package wgrep
   :straight (wgrep :type git :host github :repo "mhayashi1120/Emacs-wgrep"))
 #+END_SRC
-
