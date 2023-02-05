@@ -91,6 +91,7 @@ The use-package extension actually solves this issue quite nicely and extends it
 (scroll-bar-mode -1)                   ; Hide the scrollbar
 (blink-cursor-mode 0)                  ; Don't blink the cursor
 (show-paren-mode 1)                    ; Show matching parens
+(global-auto-revert-mode t)            ; If file changes on disk, update the buffer automatically
 #+END_SRC
 
 Store backup files in one location and automatically delete old versions.
@@ -454,7 +455,8 @@ There is a lot to unpack here
   (("C-." . embark-act)
    ("M-." . embark-dwim))
   :custom
-  (embark-prompter 'embark-completing-read-prompter))
+  (embark-prompter 'embark-keymap-prompter))
+  ;;(embark-prompter 'embark-completing-read-prompter))
 #+END_SRC
 
 *** Embark-Consult
@@ -474,6 +476,7 @@ There is a lot to unpack here
 ** kind-icon
 #+BEGIN_SRC emacs-lisp
 (use-package kind-icon
+  :if (eq system-type 'gnu/linux)
   :after corfu
   :custom
   (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
@@ -1082,7 +1085,7 @@ Probably the much easier solution is to make such commands not transient which m
 	     ("C-c h" . csv-transient))
 
   :config
-  (define-transient-command csv-transient ()
+  (transient-define-prefix csv-transient ()
     "CSV Transient Title"
     :transient-non-suffix 'transient--do-stay
     ["All"
@@ -1099,7 +1102,16 @@ Probably the much easier solution is to make such commands not transient which m
      ("TAB" "Tab" csv-tab-command :transient t)
      ("y" "Yank field" csv-yank-fields :transient t)
      ("a" "Align field" csv-align-fields :transient t)
-     ("n" "Next line..." next-line :transient t)]]))
+     ("n" "Next line..." next-line :transient t)]])
+  (transient-define-suffix csv-test-suffix ()
+      "This is a test suffix"
+      :description "line stuff"
+      (interactive)
+      (message "heyo"))
+  (transient-append-suffix 'csv-transient '(0 -1) ;; after the first group
+    ["My group"
+     ("x" csv-test-suffix)
+     ]))
 #+END_SRC
 
 ** D2
@@ -1866,7 +1878,7 @@ For some reason the font is miniscule on Mac so I have to set the font size much
            (setq line-spacing 0.2))
   (progn (set-face-attribute 'default nil
                              :family "JetBrains Mono"
-                             :height 140
+                             :height 150
                              :weight 'regular)
          (setq line-spacing 0.2)))
 #+END_SRC
