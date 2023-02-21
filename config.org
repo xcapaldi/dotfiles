@@ -91,7 +91,7 @@ The use-package extension actually solves this issue quite nicely and extends it
 (scroll-bar-mode -1)                   ; Hide the scrollbar
 (blink-cursor-mode 0)                  ; Don't blink the cursor
 (show-paren-mode 1)                    ; Show matching parens
-(global-auto-revert-mode t)            ; If file changes on disk, update the buffer automatically
+(global-auto-revert-mode 1)            ; If file changes on disk, update the buffer automatically
 #+END_SRC
 
 Store backup files in one location and automatically delete old versions.
@@ -1362,11 +1362,21 @@ pip install pyright
   ;;:hook (sql-interactive-mode . (toggle-truncate-lines t))
   :custom
   (sql-connection-alist
-   '((local-tilt (sql-product 'postgres)
-		 (sql-port 5432)
-		 (sql-server "localhost")
-		 (sql-user "postgres")
-		 (sql-database "admin")))))
+   '((admindb (sql-product 'postgres)
+                    (sql-port 5432)
+                    (sql-server "localhost")
+                    (sql-user "postgres")
+                    (sql-database "admin"))
+     (controllerdb (sql-product 'postgres)
+                   (sql-port 5432)
+                   (sql-server "localhost")
+                   (sql-user "postgres")
+                   (sql-database "controller"))
+     (cleanroomdb (sql-product 'postgres)
+                  (sql-port 5432)
+                  (sql-server "localhost")
+                  (sql-user "postgres")
+                  (sql-database "cleanroom")))))
 #+END_SRC
 
 ** Terraform                                                           :work:
