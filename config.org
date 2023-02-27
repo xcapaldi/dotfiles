@@ -96,8 +96,8 @@ The use-package extension actually solves this issue quite nicely and extends it
 
 Store backup files in one location and automatically delete old versions.
 
-#+BEGIN_SRC emacs-lisp :tangle no
-(setq backup-directory-alist `(("." . "~/.backups/"))
+#+BEGIN_SRC emacs-lisp
+(setq backup-directory-alist `(("." . "/home/xavier/.config/emacs/backups/"))
       backup-by-copying t
       version-control t
       delete-old-versions nil
