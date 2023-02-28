@@ -337,23 +337,26 @@ I use emacs markers to add this capability.
   :bind ("C-x C-b" . ibuffer))
 #+END_SRC
 
-* COMMENT Comint
+* Comint
 Mac uses zsh which echoes back every input command creating a lot of blank space in shell mode.
 None of the following worked to remove them.
 
 #+BEGIN_SRC emacs-lisp
 (setq explicit-shell-file-name "/bin/zsh")
-(setq shell-file-name "zsh")
-(setq explicit-zsh-args '("--login" "--interactive"))
-(defun zsh-shell-mode-setup ()
-  (setq-local comint-process-echoes t))
-(add-hook 'shell-mode-hook #'zsh-shell-mode-setup)
+(setq explicit-zsh-args '("--interactive" "--login"))
+
+(setq comint-process-echoes t)
+;;(setq explicit-shell-file-name "/bin/zsh")
+;;(setq shell-file-name "zsh")
+;;(setq explicit-zsh-args '("--login" "--interactive"))
+;;(defun zsh-shell-mode-setup ()
+;;  (setq-local comint-process-echoes t))
+;;(add-hook 'shell-mode-hook #'zsh-shell-mode-setup)
 
 
 ;;(use-package comint
 ;;  :straight (:type built-in)
 ;;  :hook (comint-mode . (setq comint-process-echoes t)))
-  
 ;;  :config
 ;;  (setq comint-process-echoes t)
 ;;  (setq explicit-zsh-args '("--interactive" "--login")))
