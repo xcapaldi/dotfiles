@@ -2167,6 +2167,27 @@ Highlight todos in magit interface.
 ** TODO forge
 Work with git forges with Github and Gitlab
 
+** COMMENT blamer
+
+Magit has its own blame mode but I find it doesn't integrate nicely with my editing flow and I like to keep a blame mode up all the time.
+This package is a bit bloated in terms of functionality but it will work until I implement something minimal that works for me.
+
+#+BEGIN_SRC emacs-lisp
+(use-package blamer
+  :straight (:host github :repo "artawower/blamer.el")
+  ;;:bind (("s-i" . blamer-show-commit-info))
+  :custom
+  (blamer-idle-time 1.0)
+  (blamer-min-offset 70)
+  :custom-face
+  (blamer-face ((t :foreground "#7a88cf"
+                    :background nil
+                    :height 140
+                    :italic t)))
+  :config
+  (global-blamer-mode 1))
+#+END_SRC
+
 * Window navigation
 ** ace-window
 We can replace the default binding of ~C-x o~ which is ~other-window~ with ~ace-window~.

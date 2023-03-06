@@ -1,0 +1,5 @@
+#+Title: Mac Box
+#+AUTHOR: Xavier Capaldi
+#+PROPERTY: header-args :results silent
+
+This is a literate org-mode guide for setting up my Mac box for work at Optable.
