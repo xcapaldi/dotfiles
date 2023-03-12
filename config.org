@@ -1117,10 +1117,15 @@ Probably the much easier solution is to make such commands not transient which m
      ]))
 #+END_SRC
 
-** D2
+** COMMENT D2
 #+BEGIN_SRC emacs-lisp
 (use-package ob-d2
   :straight (ob-d2 :type git :host github :repo "xcapaldi/ob-d2"))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ob-d2
+  :straight (:type built-in))
 #+END_SRC
 
 ** Docker                                                              :work:
@@ -1131,6 +1136,11 @@ Probably the much easier solution is to make such commands not transient which m
   :mode ("Dockerfile" . dockerfile-mode))
 #+END_SRC
 
+** Elisp                                                               :home:
+#+BEGIN_SRC emacs-lisp
+(use-package package-lint
+  :if (eq system-type 'gnu/linux))
+#+END_SRC
 ** Golang
 Because typically I launch emacs via my window manager, it doesn't properly source my ~.bash_profile~.
 This means I need to set the paths for Go in my config here.
