@@ -212,6 +212,12 @@ By default I set git to use my Github-provided noreply email address.
 	ff = only
 [merge]
 	conflictstyle = diff3
+[credential "https://github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
 #+END_SRC
 
 #+BEGIN_SRC conf :tangle (when (eq system-type 'darwin) "~/.gitconfig")

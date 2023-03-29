@@ -1,3 +1,6 @@
+# Version control
+install git gh
+
 # CLI tools
 install tar unzip ftp lm_sensors
 install entr task-spooler urlview tree byzanz
@@ -64,3 +67,6 @@ install ffmpeg youtube-dl mpv
 
 # Golang
 install golang golang-x-tools-gopls
+
+# Javascript
+install nodejs
