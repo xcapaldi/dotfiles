@@ -1041,7 +1041,7 @@ Alternative to apheleia?
    '("PATH")))
 #+END_SRC
 
-** kubel                                                               :work:
+** COMMENT kubel                                                               :work:
 
 #+BEGIN_SRC emacs-lisp
 (use-package kubel
