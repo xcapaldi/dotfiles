@@ -267,3 +267,9 @@ Selinux will have an issue with this so:
 /sbin/restorecon -v /etc/cups/ppd/number5.ppd
 /sbin/restorecon -v /etc/cups/ppd/phaser9.ppd
 #+END_SRC
+
+* Non-standard fonts
+#+BEGIN_SRC sh :dir /sudo::
+curl https://dtinth.github.io/comic-mono-font/ComicMono.ttf --output /usr/local/share/fonts/ComicMono.ttf
+curl https://dtinth.github.io/comic-mono-font/ComicMono-Bold.ttf --output /usr/local/share/fonts/ComicMono-Bold.ttf
+#+END_SRC

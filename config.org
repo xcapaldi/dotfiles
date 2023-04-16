@@ -8,7 +8,7 @@
 The [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Early-Init-File.html][early init file]] is loaded before the package system or GUI is initialized.
 We use it to disable ~package.el~ as we will use ~straight.el~ for package management.
 
-#+BEGIN_SRC emacs-lisp :tangle early-init.el
+#+BEGIN_SRC emacs-lisp :tangle ~/.config/emacs/early-init.el
 (setq package-enable-at-startup nil)
 #+END_SRC
 
@@ -16,7 +16,7 @@ We use it to disable ~package.el~ as we will use ~straight.el~ for package manag
 First bootstrap straight.el.
 Normally we could do this in our normal config but if we want to install the latest version of org-mode, we need to load everything before using org-babel to load the literate config.
 
-#+BEGIN_SRC emacs-lisp :tangle init.el
+#+BEGIN_SRC emacs-lisp :tangle ~/.config/emacs/init.el
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -33,7 +33,7 @@ Normally we could do this in our normal config but if we want to install the lat
 
 ** Install use-package
 
-#+BEGIN_SRC emacs-lisp :tangle init.el
+#+BEGIN_SRC emacs-lisp :tangle ~/.config/emacs/init.el
 (straight-use-package 'use-package)
 (setq-default use-package-compute-statistics nil)
 #+END_SRC
@@ -41,14 +41,14 @@ Normally we could do this in our normal config but if we want to install the lat
 ** Integration with use-package
 We can tell use-package to invoke ~straight.el~ by default.
 
-#+BEGIN_SRC emacs-lisp :tangle init.el
+#+BEGIN_SRC emacs-lisp :tangle ~/.config/emacs/init.el
 (setq straight-use-package-by-default 1)
 #+END_SRC
 
 ** Extensions for use-package
 *** COMMENT Control system packages
 It seems to not be actively maintained and has one major flaw for managing packages across the whole system.
-That flaw is that you cannot specify different package names depended on the package manager begin used.
+That flaw is that you cannot specify different package names depended on the package manager being used.
 This means that if you use this to manage packages on MacOS and Linux and the package names don't match, it will not work.
 
 #+BEGIN_SRC emacs-lisp
@@ -128,14 +128,14 @@ This is crucial to work well with a dmenu script or rofi.
 (setq-default frame-title-format '("%b [%m]"))
 #+END_SRC
 
-* Install latest version of built-in packages                          :home:
+* COMMENT Install latest version of built-in packages                          :home:
 Some tools (eglot/citar) require more-recent versions of built-in packages.
 Straight.el can install a more recent version but there are all sort of issues conflicting with the built-in package.
 If we want this to work, we need to install the new version before the package is loaded by anything in emacs.
 For org-mode in theory the first use of org-mode is using org-babel to load this literate config so unfortunately our org-mode installation will reside in init.el.
 This is only required on the linux box currently which is still running emacs 27.
 
-#+BEGIN_SRC emacs-lisp :tangle init.el
+#+BEGIN_SRC emacs-lisp :tangle ~/.config/emacs/init.el
 (use-package org)
 #+END_SRC
 
@@ -149,9 +149,95 @@ This is only required on the linux box currently which is still running emacs 27
       (use-package xref)))
 #+END_SRC
 
+* Org                                                               :builtin:
+** Simple setup                                                        :work:
+
+#+BEGIN_SRC emacs-lisp :tangle ~/.config/emacs/init.el
+(use-package org
+  :if (eq system-type 'darwin)
+  :straight (:type built-in)
+  :config
+  ;; Org-babel supported languages
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((shell . t)
+     (python . t)))
+  :custom
+  (org-adapt-indentation nil)
+  (org-edit-src-content-indentation 0))
+#+END_SRC
+
+** Complex setup with planning methodology                             :home:
+#+BEGIN_SRC emacs-lisp :tangle ~/.config/emacs/init.el
+(use-package org
+  :if (eq system-type 'gnu/linux)
+  ;;:after ob-d2
+  :bind (:map org-mode-map
+              ;; These commands would normally add current org file to agenda.
+              ;; Better to assign them manually with org-agenda-files
+              ("C-c [" . nil)
+              ("C-c ]" . nil))
+  :config
+  ;; Habits
+  (add-to-list 'org-modules 'org-habit)
+
+  ;; Org-babel supported languages
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((shell . t)
+     (python . t)))
+    ;; (d2 . t)))
+
+  :custom
+  ;; Don't indent text by default
+  (org-adapt-indentation nil)
+  (org-edit-src-content-indentation 0)
+
+  ;; Define all project files or files that contain dates
+  (org-agenda-files
+   '("/home/xavier/Syncthing/org/todo.org"))
+
+  (org-agenda-start-with-log-mode t)
+  (org-deadline-warning-days 14)
+  (org-log-done 'time)
+  (org-log-into-drawer t)
+
+  (org-todo-keywords
+   '((sequence "TODO(t)" "|" "DONE(d!)")
+     (sequence "WAIT(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)")))
+  ;; select a todo from any in the above list quickly
+  (org-use-fast-todo-selection t)
+
+  ;; Enforce todo dependencies
+  ;; Parent nodes can only be finished if all children are finished
+  (org-enforce-todo-dependencies t)
+  (org-enforce-todo-checkbox-dependencies t)
+  ;; Tasks which have unfulfilled dependencies (children or those linked by org-edna) will remain invisible on the agenda
+  (org-agenda-dim-blocked-tasks 'invisible)
+
+  ; Targets include this file and any file contributing to the agenda - up to 9 levels deep
+  (org-refile-targets (quote ((nil :maxlevel . 9)
+                                   (org-agenda-files :maxlevel . 9))))
+
+  ; Use full outline paths for refile targets
+  (org-refile-use-outline-path t)
+
+  ; Targets complete directly
+  (org-outline-path-complete-in-steps nil)
+
+  ; Allow refile to create parent tasks with confirmation
+  (org-refile-allow-creating-parent-nodes (quote confirm))
+
+  (org-file-apps '((auto-mode . emacs)
+                   (directory . emacs)
+                   ("\\.mm\\'" . default)
+                   ("\\.x?html?\\'" . default)
+                   ("\\.pdf\\'" . default))))
+#+END_SRC
+
 * Source system specific configuration
 
-#+BEGIN_SRC emacs-lisp :tangle init.el
+#+BEGIN_SRC emacs-lisp :tangle ~/.config/emacs/init.el
 (org-babel-load-file "~/.config/emacs/config.org")
 ;;(cond
 ;; ((eq system-type 'gnu/linux)
@@ -870,92 +956,6 @@ Good ideas from that ...
   :config
   (pdf-tools-install)
   (setq-default pdf-view-display-size 'fit-width))
-#+END_SRC
-
-* Org                                                               :builtin:
-** Simple setup                                                        :work:
-
-#+BEGIN_SRC emacs-lisp
-(use-package org
-  :if (eq system-type 'darwin)
-  :straight (:type built-in)
-  :config
-  ;; Org-babel supported languages
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((shell . t)
-     (python . t)))
-  :custom
-  (org-adapt-indentation nil)
-  (org-edit-src-content-indentation 0))
-#+END_SRC
-
-** Complex setup with planning methodology                             :home:
-#+BEGIN_SRC emacs-lisp
-(use-package org
-  :if (eq system-type 'gnu/linux)
-  :after ob-d2
-  :bind (:map org-mode-map
-              ;; These commands would normally add current org file to agenda.
-              ;; Better to assign them manually with org-agenda-files
-              ("C-c [" . nil)
-              ("C-c ]" . nil))
-  :config
-  ;; Habits
-  (add-to-list 'org-modules 'org-habit)
-
-  ;; Org-babel supported languages
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((shell . t)
-     (python . t)
-     (d2 . t)))
-
-  :custom
-  ;; Don't indent text by default
-  (org-adapt-indentation nil)
-  (org-edit-src-content-indentation 0)
-
-  ;; Define all project files or files that contain dates
-  (org-agenda-files
-   '("/home/xavier/Syncthing/org/todo.org"))
-
-  (org-agenda-start-with-log-mode t)
-  (org-deadline-warning-days 14)
-  (org-log-done 'time)
-  (org-log-into-drawer t)
-
-  (org-todo-keywords
-   '((sequence "TODO(t)" "|" "DONE(d!)")
-     (sequence "WAIT(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)")))
-  ;; select a todo from any in the above list quickly
-  (org-use-fast-todo-selection t)
-
-  ;; Enforce todo dependencies
-  ;; Parent nodes can only be finished if all children are finished
-  (org-enforce-todo-dependencies t)
-  (org-enforce-todo-checkbox-dependencies t)
-  ;; Tasks which have unfulfilled dependencies (children or those linked by org-edna) will remain invisible on the agenda
-  (org-agenda-dim-blocked-tasks 'invisible)
-
-  ; Targets include this file and any file contributing to the agenda - up to 9 levels deep
-  (setq org-refile-targets (quote ((nil :maxlevel . 9)
-                                   (org-agenda-files :maxlevel . 9))))
-
-  ; Use full outline paths for refile targets
-  (setq org-refile-use-outline-path t)
-
-  ; Targets complete directly
-  (setq org-outline-path-complete-in-steps nil)
-
-  ; Allow refile to create parent tasks with confirmation
-  (setq org-refile-allow-creating-parent-nodes (quote confirm))
-
-  (org-file-apps '((auto-mode . emacs)
-                   (directory . emacs)
-                   ("\\.mm\\'" . default)
-                   ("\\.x?html?\\'" . default)
-                   ("\\.pdf\\'" . default))))
 #+END_SRC
 
 ** COMMENT org-edna
@@ -1896,7 +1896,7 @@ For some reason the font is miniscule on Mac so I have to set the font size much
 (if (eq system-type 'gnu/linux)
     (progn (set-face-attribute 'default nil
                                :family "JetBrains Mono"
-                               :height 90
+                               :height 100
                                :weight 'medium)
            (setq line-spacing 0.2))
   (progn (set-face-attribute 'default nil
@@ -2154,7 +2154,6 @@ _Z_: undo only
 ** vundo
 #+BEGIN_SRC emacs-lisp
 (use-package vundo
-  :straight (vundo :type git :host github :repo "casouri/vundo")
   :commands (vundo)
   :bind ("C-c u" . vundo))
 #+END_SRC
