@@ -1,8 +1,8 @@
 #+TITLE: Emacs Configuration
 #+AUTHOR: Xavier Capaldi
 #+PROPERTY: header-args :results silent :exports code
+#+PROPERTY: tangle "~/.config/emacs/init.el"
 #+TAGS: builtin(b)
-#+TAGS: {machine : home work }
 
 * Early init file
 The [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Early-Init-File.html][early init file]] is loaded before the package system or GUI is initialized.
@@ -14,9 +14,8 @@ We use it to disable ~package.el~ as we will use ~straight.el~ for package manag
 
 * Package management
 First bootstrap straight.el.
-Normally we could do this in our normal config but if we want to install the latest version of org-mode, we need to load everything before using org-babel to load the literate config.
 
-#+BEGIN_SRC emacs-lisp :tangle ~/.config/emacs/init.el
+#+BEGIN_SRC emacs-lisp
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -33,7 +32,7 @@ Normally we could do this in our normal config but if we want to install the lat
 
 ** Install use-package
 
-#+BEGIN_SRC emacs-lisp :tangle ~/.config/emacs/init.el
+#+BEGIN_SRC emacs-lisp
 (straight-use-package 'use-package)
 (setq-default use-package-compute-statistics nil)
 #+END_SRC
@@ -41,7 +40,7 @@ Normally we could do this in our normal config but if we want to install the lat
 ** Integration with use-package
 We can tell use-package to invoke ~straight.el~ by default.
 
-#+BEGIN_SRC emacs-lisp :tangle ~/.config/emacs/init.el
+#+BEGIN_SRC emacs-lisp
 (setq straight-use-package-by-default 1)
 #+END_SRC
 
@@ -128,114 +127,8 @@ This is crucial to work well with a dmenu script or rofi.
 (setq-default frame-title-format '("%b [%m]"))
 #+END_SRC
 
-* COMMENT Install latest version of built-in packages                          :home:
-Some tools (eglot/citar) require more-recent versions of built-in packages.
-Straight.el can install a more recent version but there are all sort of issues conflicting with the built-in package.
-If we want this to work, we need to install the new version before the package is loaded by anything in emacs.
-For org-mode in theory the first use of org-mode is using org-babel to load this literate config so unfortunately our org-mode installation will reside in init.el.
-This is only required on the linux box currently which is still running emacs 27.
-
-#+BEGIN_SRC emacs-lisp :tangle ~/.config/emacs/init.el
-(use-package org)
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp :tangle no
-(if (eq system-type 'gnu/linux)
-    (progn
-;;      (use-package org
-;;        :demand t)
-      (use-package flymake)
-      (use-package project)
-      (use-package xref)))
-#+END_SRC
-
-* Org                                                               :builtin:
-** Simple setup                                                        :work:
-
-#+BEGIN_SRC emacs-lisp :tangle ~/.config/emacs/init.el
-(use-package org
-  :if (eq system-type 'darwin)
-  :straight (:type built-in)
-  :config
-  ;; Org-babel supported languages
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((shell . t)
-     (python . t)))
-  :custom
-  (org-adapt-indentation nil)
-  (org-edit-src-content-indentation 0))
-#+END_SRC
-
-** Complex setup with planning methodology                             :home:
-#+BEGIN_SRC emacs-lisp :tangle ~/.config/emacs/init.el
-(use-package org
-  :if (eq system-type 'gnu/linux)
-  ;;:after ob-d2
-  :bind (:map org-mode-map
-              ;; These commands would normally add current org file to agenda.
-              ;; Better to assign them manually with org-agenda-files
-              ("C-c [" . nil)
-              ("C-c ]" . nil))
-  :config
-  ;; Habits
-  (add-to-list 'org-modules 'org-habit)
-
-  ;; Org-babel supported languages
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((shell . t)
-     (python . t)))
-    ;; (d2 . t)))
-
-  :custom
-  ;; Don't indent text by default
-  (org-adapt-indentation nil)
-  (org-edit-src-content-indentation 0)
-
-  ;; Define all project files or files that contain dates
-  (org-agenda-files
-   '("/home/xavier/Syncthing/org/todo.org"))
-
-  (org-agenda-start-with-log-mode t)
-  (org-deadline-warning-days 14)
-  (org-log-done 'time)
-  (org-log-into-drawer t)
-
-  (org-todo-keywords
-   '((sequence "TODO(t)" "|" "DONE(d!)")
-     (sequence "WAIT(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)")))
-  ;; select a todo from any in the above list quickly
-  (org-use-fast-todo-selection t)
-
-  ;; Enforce todo dependencies
-  ;; Parent nodes can only be finished if all children are finished
-  (org-enforce-todo-dependencies t)
-  (org-enforce-todo-checkbox-dependencies t)
-  ;; Tasks which have unfulfilled dependencies (children or those linked by org-edna) will remain invisible on the agenda
-  (org-agenda-dim-blocked-tasks 'invisible)
-
-  ; Targets include this file and any file contributing to the agenda - up to 9 levels deep
-  (org-refile-targets (quote ((nil :maxlevel . 9)
-                                   (org-agenda-files :maxlevel . 9))))
-
-  ; Use full outline paths for refile targets
-  (org-refile-use-outline-path t)
-
-  ; Targets complete directly
-  (org-outline-path-complete-in-steps nil)
-
-  ; Allow refile to create parent tasks with confirmation
-  (org-refile-allow-creating-parent-nodes (quote confirm))
-
-  (org-file-apps '((auto-mode . emacs)
-                   (directory . emacs)
-                   ("\\.mm\\'" . default)
-                   ("\\.x?html?\\'" . default)
-                   ("\\.pdf\\'" . default))))
-#+END_SRC
-
-* Source system specific configuration
+* COMMENT Install latest version of built-in packages
+* COMMENT Source system specific configuration
 
 #+BEGIN_SRC emacs-lisp :tangle ~/.config/emacs/init.el
 (org-babel-load-file "~/.config/emacs/config.org")
@@ -630,7 +523,7 @@ An alternative built into emacs 28 is ~fido-vertical-mode~ but generally I prefe
 ** TODO dired-collapse
 
 ** TODO image-dired                                                 :builtin:
-* Email                                                                :home:
+* Email
 See [[file:~/Syncthing/org/email.org][system configuration for email]].
 Email is synced using ~mbsync~ and ~msmtp~ is used to send messages.
 Notmuch is my preferred email manager and client.
@@ -724,6 +617,7 @@ For Golang on Fedora I can install via dnf: ~sudo dnf install golang-x-tools-gop
   :straight (:type built-in)
   :hook (prog-mode . linum-mode))
 #+END_SRC
+
 * Markdown
 
 #+BEGIN_SRC emacs-lisp
@@ -731,7 +625,7 @@ For Golang on Fedora I can install via dnf: ~sudo dnf install golang-x-tools-gop
   :after hydra
   :mode "\\.md\\'"
   :bind (:map markdown-mode-map
-	      ("C-c h" . markdown-hydra/body))
+              ("C-c h" . markdown-hydra/body))
   :config
   (defhydra markdown-hydra (:color pink :hint none)
     "
@@ -865,7 +759,7 @@ promote _h_   +   _l_ demote     _RET_ do
   (meow-use-clipboard t))
 #+END_SRC
 
-* Notetaking and reference management                                  :home:
+* Notetaking and reference management
 Previously I used a combination of ivy-bibtex, pdf-tools, org-ref, org-roam and org-roam-bibtex to handle my notes (literature-based and otherwise).
 Citar, in combination with modern vertical completing-read packages, allows me simplify the whole setup.
 Citar replaces the functionality of ivy-bibtex and even goes further beyond by allowing the inclusion of an org-id to each note.
@@ -922,6 +816,7 @@ Other topics may not be split by reference.
 For example a topic on object oriented programming in python might just be an aggregate of my own experience and notes and thus it isn't important to maintain the same cohesion.
 That could be one large note, several smaller notes or several smaller notes that I later summarize in a large note.
 Since everything is plain text, refactoring later should not be terrible.
+
 *** evergreen notes
 ** org-ref
 Org-ref purely for generating bibtex entries nicely.
@@ -968,6 +863,92 @@ Normal org mode can only specify hierarchical dependencies while org edna will a
     :hook (org-mode))
 #+END_SRC
 
+* Org                                                               :builtin:
+** Simple setup                                                        :work:
+
+#+BEGIN_SRC emacs-lisp :tangle ~/.config/emacs/init.el
+(use-package org
+  :if (eq system-type 'darwin)
+  :straight (:type built-in)
+  :config
+  ;; Org-babel supported languages
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((shell . t)
+     (python . t)))
+  :custom
+  (org-adapt-indentation nil)
+  (org-edit-src-content-indentation 0))
+#+END_SRC
+
+** Complex setup with planning methodology                             :home:
+#+BEGIN_SRC emacs-lisp :tangle ~/.config/emacs/init.el
+(use-package org
+  :if (eq system-type 'gnu/linux)
+  ;;:after ob-d2
+  :bind (:map org-mode-map
+              ;; These commands would normally add current org file to agenda.
+              ;; Better to assign them manually with org-agenda-files
+              ("C-c [" . nil)
+              ("C-c ]" . nil))
+  :config
+  ;; Habits
+  (add-to-list 'org-modules 'org-habit)
+
+  ;; Org-babel supported languages
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((shell . t)
+     (python . t)))
+    ;; (d2 . t)))
+
+  :custom
+  ;; Don't indent text by default
+  (org-adapt-indentation nil)
+  (org-edit-src-content-indentation 0)
+
+  ;; Define all project files or files that contain dates
+  (org-agenda-files
+   '("/home/xavier/Syncthing/org/todo.org"))
+
+  (org-agenda-start-with-log-mode t)
+  (org-deadline-warning-days 14)
+  (org-log-done 'time)
+  (org-log-into-drawer t)
+
+  (org-todo-keywords
+   '((sequence "TODO(t)" "|" "DONE(d!)")
+     (sequence "WAIT(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)")))
+  ;; select a todo from any in the above list quickly
+  (org-use-fast-todo-selection t)
+
+  ;; Enforce todo dependencies
+  ;; Parent nodes can only be finished if all children are finished
+  (org-enforce-todo-dependencies t)
+  (org-enforce-todo-checkbox-dependencies t)
+  ;; Tasks which have unfulfilled dependencies (children or those linked by org-edna) will remain invisible on the agenda
+  (org-agenda-dim-blocked-tasks 'invisible)
+
+  ; Targets include this file and any file contributing to the agenda - up to 9 levels deep
+  (org-refile-targets (quote ((nil :maxlevel . 9)
+                                   (org-agenda-files :maxlevel . 9))))
+
+  ; Use full outline paths for refile targets
+  (org-refile-use-outline-path t)
+
+  ; Targets complete directly
+  (org-outline-path-complete-in-steps nil)
+
+  ; Allow refile to create parent tasks with confirmation
+  (org-refile-allow-creating-parent-nodes (quote confirm))
+
+  (org-file-apps '((auto-mode . emacs)
+                   (directory . emacs)
+                   ("\\.mm\\'" . default)
+                   ("\\.x?html?\\'" . default)
+                   ("\\.pdf\\'" . default))))
+#+END_SRC
+
 * Printing                                                          :builtin:
 Printing from emacs requires some configuration.
 The built-in printing interface is the closest to a modern printing interface but still requires some effort to configure which I haven't done yet.
@@ -1000,7 +981,7 @@ We could probably infer the printing method using [[https://emacsredux.com/blog/
 
 ** TODO consider adding support to citar for pdf and embark
 * Programming helpers
-** asdf                                                                :work:
+** asdf
 
 #+BEGIN_SRC emacs-lisp
 (use-package asdf
@@ -1041,7 +1022,7 @@ Alternative to apheleia?
    '("PATH")))
 #+END_SRC
 
-** COMMENT kubel                                                               :work:
+** COMMENT kubel
 
 #+BEGIN_SRC emacs-lisp
 (use-package kubel
@@ -1056,7 +1037,7 @@ Alternative to apheleia?
   :after hydra
   :mode "\\.csv\\'"
   :bind (:map csv-mode-map
-	     ("C-c h" . csv-hydra/body))
+              ("C-c h" . csv-hydra/body))
 
   :config
  (defhydra csv-hydra (:color pink)
@@ -1071,7 +1052,7 @@ Alternative to apheleia?
    ("A" csv-align-mode
     (concat
      (if (bound-and-true-p csv-align-mode)
-	"[x]" "[ ]")
+         "[x]" "[ ]")
      " Toggle automatic alignment") :column "Toggles")
    ("n" next-line "Next line" :column "Test")))
 #+END_SRC
@@ -1085,7 +1066,7 @@ Probably the much easier solution is to make such commands not transient which m
   :after transient
   :mode "\\.csv\\'"
   :bind (:map csv-mode-map
-	     ("C-c h" . csv-transient))
+              ("C-c h" . csv-transient))
 
   :config
   (transient-define-prefix csv-transient ()
@@ -1096,8 +1077,8 @@ Probably the much easier solution is to make such commands not transient which m
      ("A" csv-align-mode
       :transient t
       :description (lambda ()
-		     (format "%s Align mode" (if (bound-and-true-p csv-align-mode)
-						 "[x]" "[ ]"))))]
+                     (format "%s Align mode" (if (bound-and-true-p csv-align-mode)
+                                                 "[x]" "[ ]"))))]
     ["Actions"
      ("t" "Transpose" csv-transpose)
      ("k" "Kill fields" csv-kill-fields :transient t)
@@ -1128,7 +1109,7 @@ Probably the much easier solution is to make such commands not transient which m
   :straight (:type built-in))
 #+END_SRC
 
-** Docker                                                              :work:
+** Docker
 
 #+BEGIN_SRC emacs-lisp
 (use-package dockerfile-mode
@@ -1136,11 +1117,12 @@ Probably the much easier solution is to make such commands not transient which m
   :mode ("Dockerfile" . dockerfile-mode))
 #+END_SRC
 
-** Elisp                                                               :home:
+** Elisp
 #+BEGIN_SRC emacs-lisp
 (use-package package-lint
   :if (eq system-type 'gnu/linux))
 #+END_SRC
+
 ** Golang
 Because typically I launch emacs via my window manager, it doesn't properly source my ~.bash_profile~.
 This means I need to set the paths for Go in my config here.
@@ -1149,15 +1131,15 @@ This means I need to set the paths for Go in my config here.
 (use-package go-mode
   :after hydra
   :mode (("\\.go\\'" . go-mode)
-	 ("\\.mod\\'" . go-dot-mod-mode))
+         ("\\.mod\\'" . go-dot-mod-mode))
 ;;  :bind (:map go-mode-map
-;;	     ("C-c h" . go-hydra/body))
+;;  ("C-c h" . go-hydra/body))
   :custom
   (go-play-browse-function 'browse-url-generic))
 ;;   :config
 ;;  (defhydra csv-hydra (:color pink :hint none)
 ;;    "
-;; _q_: quit                 _y_: yank ARGth field 
+;; _q_: quit                 _y_: yank ARGth field
 ;; _TAB_: Next field         _a_: align all fields in region
 ;; _t_: transpose            _A_: ?A? toggle automatic alignment
 ;; _k_: kill fields          _n_: next line
@@ -1219,10 +1201,10 @@ This is unnecessary if using LSP.
 Install this via go package manager: ~go get -u github.com/dougm/goflymake~
 
 #+BEGIN_SRC emacs-lisp
-  (use-package go-flymake
-    :straight (:host github :repo "dougm/goflymake"
-               :branch "master")
-    :after go-mode)
+(use-package go-flymake
+  :straight (:host github :repo "dougm/goflymake"
+                   :branch "master")
+  :after go-mode)
 #+END_SRC
 
 *** lsp
@@ -1265,7 +1247,7 @@ There are many options for typescript (~web-mode~, ~tide~, ~js2~, ~rjsx~) but th
 sudo npm install -g typescript-language-server typescript
 #+END_SRC
 
-** Protobuf                                                            :work:
+** Protobuf
 
 #+BEGIN_SRC emacs-lisp
 (use-package protobuf-mode
@@ -1317,7 +1299,7 @@ pip install pyright
 
 #+BEGIN_SRC emacs-lisp
 (defhydra hydra-python (:color blue
-			       :columns 4)
+                               :columns 4)
   "Coding"
   ("q" hydra-master/body "backlick"))
 (define-skeleton skel-python-function
@@ -1351,7 +1333,7 @@ pip install pyright
                     ("def" "" 'skel-python-function)
                     ("hw" "hello world"))
     :abbrev ((python-mode . ("def" "" 'skel-python-function))
-	         (go-mode . ("func" "" 'skel-go-function)))
+             (go-mode . ("func" "" 'skel-go-function)))
     :hydra ((:color blue
                     :columns 4)
 
@@ -1366,7 +1348,7 @@ pip install pyright
     :config)
 #+END_SRC
 
-** SQL                                                         :builtin:work:
+** SQL                                                              :builtin:
 
 #+BEGIN_SRC emacs-lisp
 (use-package sql
@@ -1392,7 +1374,7 @@ pip install pyright
                   (sql-database "cleanroom")))))
 #+END_SRC
 
-** Terraform                                                           :work:
+** Terraform
 
 #+BEGIN_SRC emacs-lisp
 (use-package terraform-mode
@@ -1425,7 +1407,7 @@ Built-in rectangle editing.
      (defhydra rectangle-hydra (:color pink :hint none)
        "
 _q_: quit  
-_k_: kill  
+_k_: kill
 _M-w_: copy
 _d_: delete
 _y_: yank
@@ -1450,8 +1432,8 @@ _r_: rectangle register
        ("t" string-rectangle)
        ("T" string-insert-rectangle)
        ("SPC" rectangle-mark-mode
-	(if (bound-and-true-p rectangle-mark-mode)
-	    "[x]" "[ ]"))
+        (if (bound-and-true-p rectangle-mark-mode)
+            "[x]" "[ ]"))
        ("r" rectangle-register-hydra/body))
 
      (defhydra rectangle-register-hydra (:color pink :hint nil)
@@ -1474,7 +1456,7 @@ Built-in repeat functionality only in emacs 28.
   :init (repeat-mode))
 #+END_SRC
 
-* RSS feed reader                                                      :home:
+* RSS feed reader
 I have four potential use-cases for RSS feeds:
 
 1. Follow news sources
@@ -1495,7 +1477,7 @@ I have four potential use-cases for RSS feeds:
    The disadvantage is that you'll never find new channels...
    To find the RSS feed for a channel you just need to look at the source of the channel page and search for ~channelid~.
 
-** elfeed                                                              :home:
+** elfeed
 As you can see in the config below, the feed configuration is not clear at all.
 We just have a URL and the tags.
 There is much nicer way of managing feeds by using the [[https://github.com/remyhonig/elfeed-org][elfeed-org package]].
@@ -1506,9 +1488,9 @@ I decided against using it because I actually don't need that level of control a
   :if (eq system-type 'gnu/linux)
   :commands elfeed
   :hook (('elfeed-new-entry . (elfeed-make-tagger :feed-url "youtube\\.com"
-						  :add '(video)))
-	 ('elfeed-new-entry . (elfeed-make-tagger :before "2 weeks ago"
-						  :remove 'unread)))
+                                                  :add '(video)))
+         ('elfeed-new-entry . (elfeed-make-tagger :before "2 weeks ago"
+                                                  :remove 'unread)))
   :config
 ;;  (add-hook 'elfeed-new-entry-hook
 ;;            (elfeed-make-tagger :feed-url "youtube\\.com"
@@ -1590,7 +1572,7 @@ I decided against using it because I actually don't need that level of control a
 #+END_SRC
 
 ** TODO elfeed-tube
-** COMMENT newsticker                                                       :builtin:
+** COMMENT newsticker                                               :builtin:
 When quitting the newsticker treeview, it saves the feed groups to file using ~newsticker-treeview-save~.
 This function uses ~prin1-to-string~ to convert the group objects to string but that function uses the settings of ~print-length~ and ~print-level~ to determine when the output should be abbreviated.
 There is a [[https://debbugs.gnu.org/cgi/bugreport.cgi?bug=53638][patch to fix this group issue]].
@@ -1605,32 +1587,32 @@ The full patch is necessary to work on Windows.
   :after hydra
   :commands (newsticker-start newsticker-treeview newsticker-plainview)
   :bind (:map newsticker-treeview-mode-map
-	      ("C-c h" . newsticker-treeview-hydra/body))
+              ("C-c h" . newsticker-treeview-hydra/body))
   :init
   (defun xcc/newsticker-treeview-save ()
     "Save treeview group settings."
     (interactive)
     (let ((coding-system-for-write 'utf-8)
-	  (buf (find-file-noselect (concat newsticker-dir "/groups")))
-	  (print-level nil)
-	  (print-length nil))
+          (buf (find-file-noselect (concat newsticker-dir "/groups")))
+          (print-level nil)
+          (print-length nil))
       (when buf
-	(with-current-buffer buf
-	  (setq buffer-undo-list t)
-	  (erase-buffer)
-	  (insert ";; -*- coding: utf-8 -*-\n")
-	  (insert (prin1-to-string newsticker-groups))
-	  (save-buffer)
-	  (kill-buffer)))))
+        (with-current-buffer buf
+          (setq buffer-undo-list t)
+          (erase-buffer)
+          (insert ";; -*- coding: utf-8 -*-\n")
+          (insert (prin1-to-string newsticker-groups))
+          (save-buffer)
+          (kill-buffer)))))
   (advice-add 'newsticker-treeview-save :override #'xcc/newsticker-treeview-save)
 
   (defun xcc/newsticker--cache-save-feed (feed)
   "Save cache data for FEED."
   (let ((dir (file-name-as-directory
-	      (expand-file-name (symbol-name (car feed))
-				(newsticker--cache-dir))))
-	(print-level nil)
-	(print-length nil))
+              (expand-file-name (symbol-name (car feed))
+                                (newsticker--cache-dir))))
+        (print-level nil)
+        (print-length nil))
     (unless (file-directory-p dir)
       (make-directory dir t))
     (let ((coding-system-for-write 'utf-8))
@@ -1732,31 +1714,16 @@ _r_: rename group      _u_: update
 #+END_SRC
 
 * Shells
-** eshell                                                      :builtin:work:
-
-#+BEGIN_SRC emacs-lisp
-(use-package eshell
-  :if (eq system-type 'darwin)
-  :straight (:type built-in)
-  :custom
-  ;; commands which should run in a dedicated terminal
-  (eshell-visual-commands '("vi" "vim" "screen" "tmux" "top" "htop" "less" "more" "lynx" "links" "ncftp" "mutt" "pine" "tin" "trn" "elm"))
-  ;; command options which need to run in a dedicated terminal
-  (eshell-visual-options '(("git" "--help" "--paginate")))
-  ;; subcommands which need to run in a dedicated terminal
-  (eshell-visual-subcommands '(("git" "log" "diff" "show"))))
-#+END_SRC
-
-** eshell with smart mode                                      :builtin:home:
-This appears to lag terribly as soon as you have a full page of text.
+** eshell                                                           :builtin:
+Eshell-smart appears to lag terribly as soon as you have a full page of text on MacOS so I only enable for linux.
 
 
 #+BEGIN_SRC emacs-lisp
 (use-package eshell
-  :if (eq system-type 'gnu/linux)
   :straight (:type built-in)
   :config
-  (add-to-list 'eshell-modules-list 'eshell-smart)
+  (if (eq system-type 'gnu/linux)
+      (add-to-list 'eshell-modules-list 'eshell-smart))
   :custom
   ;; commands which should run in a dedicated terminal
   (eshell-visual-commands '("vi" "vim" "screen" "tmux" "top" "htop" "less" "more" "lynx" "links" "ncftp" "mutt" "pine" "tin" "trn" "elm"))
@@ -1798,7 +1765,7 @@ ln -s /home/xavier/.config/emacs/straight/repos/ezf/ezf /usr/local/bin/ezf
   :straight (:type built-in)
   :after hydra
   :bind (:map isearch-mode-map
-	      ("C-c h" . isearch-hydra/body))
+              ("C-c h" . isearch-hydra/body))
   :config
   (defhydra isearch-hydra (:color amaranth)
     "SWIPER HYDRA"
@@ -1806,14 +1773,14 @@ ln -s /home/xavier/.config/emacs/straight/repos/ezf/ezf /usr/local/bin/ezf
     ("c" isearch-toggle-case-fold
      (concat
       (if (bound-and-true-p isearch-case-fold-search)
-	  "[x]" "[ ]")
+          "[x]" "[ ]")
       " case folding"))
     ("i" isearch-toggle-invisible
      (if (string-equal isearch-invisible "open")
-	 "[x]" "[ ]"))
+         "[x]" "[ ]"))
     ("r" isearch-toggle-regexp
      (if (bound-and-true-p isearch-regexp)
-	 "[x]" "[ ]"))
+         "[x]" "[ ]"))
 ;;    ("w" isearch-toggle-word
 ;;     (if (bound-and-true-p isearch-word)
 ;;	 "[x]" "[ ]"))
@@ -1825,7 +1792,7 @@ ln -s /home/xavier/.config/emacs/straight/repos/ezf/ezf /usr/local/bin/ezf
 ;;	 "[x]" "[ ]"))
     ("SPC" isearch-toggle-lax-whitespace
      (if (bound-and-true-p isearch-lax-whitespace)
-	 "[x]" "[ ]"))))
+         "[x]" "[ ]"))))
 #+END_SRC
 
 ** COMMENT anzu
@@ -1938,13 +1905,12 @@ Also by having a blanket package like this, I don't need to pollute my blocks fo
   :init
   (minions-mode 1)
   :custom
-  (minions-prominent-modes '(
-			     meow-beacon-mode
-			     meow-insert-mode
-			     meow-keypad-mode
-			     meow-motion-mode
-			     meow-normal-mode
-                 flymake-mode)))
+  (minions-prominent-modes '(meow-beacon-mode
+                             meow-insert-mode
+                             meow-keypad-mode
+                             meow-motion-mode
+                             meow-normal-mode
+                             flymake-mode)))
 #+END_SRC
 
 ** modus-themes
@@ -1981,22 +1947,22 @@ It's also very useful when looking at the whole structure to understand the dept
     :desaturations '(0) ; may lower the contrast ratio
     :lightens '(0)      ; same
     :colors (modus-themes-with-colors
-	      (list fg-main
-		    magenta
-		    cyan-alt-other
-		    magenta-alt-other
-		    blue
-		    magenta-alt
-		    cyan-alt
-		    red-alt-other
-		    green
-		    fg-main
-		    cyan
-		    yellow
-		    blue-alt
-		    red-alt
-		    green-alt-other
-		    fg-special-warm))))
+              (list fg-main
+                    magenta
+                    cyan-alt-other
+                    magenta-alt-other
+                    blue
+                    magenta-alt
+                    cyan-alt
+                    red-alt-other
+                    green
+                    fg-main
+                    cyan
+                    yellow
+                    blue-alt
+                    red-alt
+                    green-alt-other
+                    fg-special-warm))))
 #+END_SRC
 
 ** pulsar.el
