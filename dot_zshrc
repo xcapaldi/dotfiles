@@ -1,0 +1,45 @@
+eval "$(/opt/homebrew/bin/brew shellenv)"
+source "$HOME/.asdf/asdf.sh"
+export GOPATH="$HOME/go"
+export PATH="$PATH:$HOME/go/bin"
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/xavier/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/xavier/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/xavier/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/xavier/google-cloud-sdk/completion.zsh.inc'; fi
+
+# emacs M-x shell
+if [[ "dumb" == $TERM ]]; then
+  alias less='cat'
+  alias more='cat'
+  export PAGER=cat
+  export TERM=xterm-256color
+fi
+
+# prevent tramp from hanging on remote ssh zsh connection
+[[ $TERM == "dumb" ]] && unsetopt zle && PS1='$ '
+
+# better defaults for zsh history
+export HISTSIZE=1000000   # the number of items for the internal history list
+export SAVEHIST=1000000   # maximum number of items for the history file
+
+# The meaning of these options can be found in man page of `zshoptions`.
+setopt HIST_IGNORE_ALL_DUPS  # do not put duplicated command into history list
+setopt HIST_SAVE_NO_DUPS  # do not save duplicated command
+setopt HIST_REDUCE_BLANKS  # remove unnecessary blanks
+setopt INC_APPEND_HISTORY_TIME  # append command to history file immediately after execution
+# setopt EXTENDED_HISTORY  # record command start time
+
+# configure prompt with git info
+autoload -Uz vcs_info
+zstyle ':vcs_info:*' enable git svn
+zstyle ':vcs_info:*' check-for-changes true
+zstyle ':vcs_info:*' stagedstr '➕'
+zstyle ':vcs_info:*' unstagedstr '❗'
+zstyle ':vcs_info:git*' actionformats "%u%c (%F{red}%a%f) %b"
+precmd() { vcs_info }
+
+setopt PROMPT_SUBST
+PROMPT='${vcs_info_msg_0_} | %~ $ '
+#RPROMPT='${vcs_info_msg_0_}'

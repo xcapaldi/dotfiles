@@ -1,0 +1,10 @@
+{{ if eq .chezmoi.os "linux" -}}
+#!/bin/sh
+echo "not configured yet"
+{{ else if eq .chezmoi.os "darwin" -}}
+#!/bin/sh
+
+# Brewfile hash: {{ include "Brewfile" | sha256sum }}
+brew bundle --file {{ joinPath .chezmoi.sourceDir "Brewfile" | quote }}
+{{ end -}}
+

@@ -1,0 +1,4 @@
+#+TITLE: Dotfiles
+#+AUTHOR: Xavier Capaldi
+
+My dotfiles using [[https://www.chezmoi.io/][Chezmoi]]. 

@@ -1,0 +1,305 @@
+#+TITLE: Emacs Configuration
+#+AUTHOR: Xavier Capaldi
+#+PROPERTY: header-args :results silent :exports code
+#+PROPERTY: header-args :tangle init.el
+
+This is my literate emacs configuration.
+The configuration uses Elpaca as a package manager but otherwise it tries to use packages that transparently enhance the emacs experience.
+
+* early init file
+The [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Early-Init-File.html][early init file]] is loaded before the package system or GUI is initialized.
+We use it to disable ~package.el~ as we will use ~elpaca.el~ for package management.
+
+#+BEGIN_SRC emacs-lisp :tangle early-init.el
+(setq package-enable-at-startup nil)
+#+END_SRC
+
+* [[https://github.com/progfolio/elpaca][elpaca]] package manager                                          :progfolio:
+Bootstrap the package manager.
+
+#+BEGIN_SRC emacs-lisp
+(defvar elpaca-installer-version 0.5)
+(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                              :ref nil
+                              :files (:defaults (:exclude "extensions"))
+                              :build (:not elpaca--activate-package)))
+(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+       (build (expand-file-name "elpaca/" elpaca-builds-directory))
+       (order (cdr elpaca-order))
+       (default-directory repo))
+  (add-to-list 'load-path (if (file-exists-p build) build repo))
+  (unless (file-exists-p repo)
+    (make-directory repo t)
+    (when (< emacs-major-version 28) (require 'subr-x))
+    (condition-case-unless-debug err
+        (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                 ((zerop (call-process "git" nil buffer t "clone"
+                                       (plist-get order :repo) repo)))
+                 ((zerop (call-process "git" nil buffer t "checkout"
+                                       (or (plist-get order :ref) "--"))))
+                 (emacs (concat invocation-directory invocation-name))
+                 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                 ((require 'elpaca))
+                 ((elpaca-generate-autoloads "elpaca" repo)))
+            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+          (error "%s" (with-current-buffer buffer (buffer-string))))
+      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+  (unless (require 'elpaca-autoloads nil t)
+    (require 'elpaca)
+    (elpaca-generate-autoloads "elpaca" repo)
+    (load "./elpaca-autoloads")))
+(add-hook 'after-init-hook #'elpaca-process-queues)
+(elpaca `(,@elpaca-order))
+#+END_SRC
+
+Install use-package support
+#+BEGIN_SRC emacs-lisp
+(elpaca elpaca-use-package
+;; Enable :elpaca use-package keyword.
+(elpaca-use-package-mode))
+;; Assume :elpaca t unless otherwise specified.
+;;(setq elpaca-use-package-by-default t))
+#+END_SRC
+
+* elpaca-wait
+This command forces =elpaca= to process the current queue.
+It should be called after anything that modifies =use-package= forms.
+
+#+BEGIN_SRC emacs-lisp
+(elpaca-wait)
+#+END_SRC
+
+* general emacs settings
+#+BEGIN_SRC emacs-lisp
+(use-package emacs
+  :elpaca nil
+  :config
+  <<LOAD_THEME>>
+  (when (equal system-type 'darwin)
+    <<REBIND_MAC_KEYS>>
+    <<MAC_FONTS>>))
+#+END_SRC
+
+** Theme
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref LOAD_THEME
+(load-theme 'modus-operandi t)
+#+END_SRC
+
+** Fonts
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref MAC_FONTS
+(when (member "Comic Mono" (font-family-list))
+      (add-to-list 'initial-frame-alist '(font . "Andale Mono-14:regular"))
+      (add-to-list 'default-frame-alist '(font . "Andale Mono-14:regular")))
+(set-fontset-font t 'symbol (font-spec :family "Apple Symbols") nil 'prepend)
+(set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend)
+(setq-default line-spacing 0.2)
+#+END_SRC
+
+** Remap keys on Macos
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref REBIND_MAC_KEYS
+(setq mac-command-modifier 'meta)
+(setq mac-option-modifier 'super)
+#+END_SRC
+
+* [[https://github.com/tabfugnic/asdf.el][asdf]]
+asdf is a [[https://asdf-vm.com/][version manager]] used at my work to control the versions of some developer tools.
+The corresponding emacs package does all necessary environment setup so tools installed by asdf are accessible in emacs.
+
+#+BEGIN_SRC emacs-lisp
+(use-package asdf
+  :if (eq system-type 'darwin)
+  :elpaca (asdf :host github
+		:repo "tabfugnic/asdf.el"
+		:branch "main")
+  :config (asdf-enable))
+#+END_SRC
+
+* [[https://github.com/minad/consult][consult]]                                                             :minad:
+
+#+BEGIN_SRC emacs-lisp
+(use-package consult
+  ;; Enable automatic preview at point in the *Completions* buffer.
+  ;; This is relevant when you use the default completion UI,
+  ;; and not necessary for Vertico, Selectrum, etc.
+  :elpaca t
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+  :bind (:map isearch-mode-map
+  ("C-c l" . consult-line)))
+#+END_SRC
+
+* [[https://github.com/zerolfx/copilot.el][copilot]]
+This package integrate Github's [[https://github.com/features/copilot][Copilot]] with emacs.
+The license to Copilot is provided through my work.
+
+#+BEGIN_SRC emacs-lisp
+(use-package copilot
+  :elpaca (copilot :host github
+		   :repo "zerolfx/copilot.el"
+		   :branch "main"
+		   :files ("dist" "*.el"))
+  :if (eq system-type 'darwin)
+  :hook (prog-mode . copilot-mode))
+#+END_SRC
+
+* [[https://github.com/minad/corfu][corfu]]                                                               :minad:
+This package provides a completion popup window.
+There is a way to do completions using =consult= in the minibuffer but if you use that solution you cannot update the completion with further input.
+
+#+BEGIN_SRC emacs-lisp
+(use-package corfu
+  :elpaca t
+  :init
+  (global-corfu-mode))
+#+END_SRC
+
+* [[https://github.com/jacktasia/dumb-jump][dumb-jump]]
+This package uses =grep=, =The Silver Searcher= or =ripgrep= along with some baked language heuristics to implement a fast go-to-definiton command.
+LSP should usually handle this functionality but =dumb-jump= is a solid fallback that just works without configuration.
+
+#+BEGIN_SRC emacs-lisp
+(use-package dumb-jump
+  :elpaca t
+  :config
+  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
+#+END_SRC
+
+* [[https://github.com/editorconfig/editorconfig-emacs][editorconfig]]
+This is an [[https://editorconfig.org/][EditorConfig]] plugin for Emacs.
+While ~editorconfig-mode~ is enabled, most EditorConfig settings in projects will be respected.
+
+#+BEGIN_SRC emacs-lisp
+(use-package editorconfig
+  :elpaca t
+  :config (editorconfig-mode 1))
+#+END_SRC
+
+* [[https://github.com/joaotavora/eglot][eglot]]                                                          :joaotavora:
+This package will become the built-in [[https://microsoft.github.io/language-server-protocol/][language server protocol (LSP)]] in Emacs.
+
+#+BEGIN_SRC emacs-lisp
+(use-package eglot
+  :elpaca t
+  :after (project flymake xref)
+  :commands eglot)
+#+END_SRC
+
+* [[https://github.com/purcell/exec-path-from-shell][exec-path-from-shell]]                                              :purcell:
+Emacs on MacOS cannot access path properly.
+This package allows Emacs to access the same environment variables as in the shell.
+
+#+BEGIN_SRC emacs-lisp
+(use-package exec-path-from-shell
+  :elpaca t
+  :if (memq window-system '(mac ns x))
+  :init (exec-path-from-shell-initialize))
+#+END_SRC
+
+* [[https://github.com/dominikh/go-mode.el][go-mode]]
+This package provides standard language support for the Go programming language.
+In addition to syntax highlighting and basic semantic motions, it provides integrations with several Go tools like =gofmt= and [[https://go.dev/play/][Go Playground]].
+
+#+BEGIN_SRC emacs-lisp
+(use-package go-mode
+  :elpaca t
+  :mode (("\\.go\\'" . go-mode)
+         ("\\.mod\\'" . go-dot-mod-mode)))
+#+END_SRC
+	 
+* js
+The built in javascript mode.
+
+#+BEGIN_SRC emacs-lisp
+(use-package js
+  :elpaca nil
+  :mode "\\.js[x]\\'")
+#+END_SRC
+
+* [[https://magit.vc/][magit]]
+This package is a comprehensive [[https://git-scm.com/][git]] porcelain in Emacs.
+Emacs has =vc-mode= which is built-in but magit is widely regarded as one of the best git interfaces.
+
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+  :elpaca t)
+#+END_SRC
+
+* [[https://github.com/minad/marginalia][marginalia]]                                                          :minad:
+Add helpful marginalia to minibuffer completions
+
+#+BEGIN_SRC emacs-lisp
+(use-package marginalia
+  :elpaca t
+  :bind (:map minibuffer-local-map
+              ("M-A" . marginalia-cycle))
+  :init (marginalia-mode 1))
+#+END_SRC
+
+* [[https://github.com/oantolin/orderless][orderless]]                                                        :oantolin:
+This package adds an advanced completions style to Emacs.
+The style is space-separated and each separated block can match using several different completion patterns.
+It sounds complex but is actually very intuitive to use compared to most of the built-in completions.
+
+#+BEGIN_SRC emacs-lisp
+(use-package orderless
+  :elpaca t
+  :init
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))
+#+END_SRC
+
+* [[https://github.com/protocolbuffers/protobuf/blob/main/editors/protobuf-mode.el][protobuf-mode]]
+[[https://protobuf.dev/][Protocol Buffers]] are used to serialize structured data.
+We use them in my work and this package adds support for the protobuf syntax.
+
+#+BEGIN_SRC emacs-lisp
+(use-package protobuf-mode
+  :elpaca t
+  :if (eq system-type 'darwin)
+  :mode ("\\.proto\\'"))
+#+END_SRC
+
+* [[https://github.com/hcl-emacs/terraform-mode][terraform-mode]]
+This package adds support for [[https://www.terraform.io/][Terraform]] configuration files which we use at my work.
+
+#+BEGIN_SRC emacs-lisp
+(use-package terraform-mode
+  :elpaca t
+  :if (eq system-type 'darwin)
+  :mode ("\\.tf\\'" . terraform-mode))
+#+END_SRC
+
+* [[https://github.com/emacs-typescript/typescript.el][typescript-mode]]
+This package add support for the Typescript programming language to Emacs.
+
+#+BEGIN_SRC emacs-lisp
+(use-package typescript-mode
+  :elpaca t
+  :mode "\\.ts[x]\\'")
+#+END_SRC
+
+* [[https://github.com/minad/vertico][vertico]]                                                             :minad:
+An improved vertical completion UI for Emacs.
+This synergizes nicely with marginalia and orderless.
+
+#+BEGIN_SRC emacs-lisp
+(use-package vertico
+  :elpaca t
+  :init (vertico-mode 1))
+#+END_SRC
+
+* [[https://github.com/casouri/vundo][vundo]]
+Emacs undo system is really hard to follow.
+This package adds a undo tree visualization.
+
+#+BEGIN_SRC emacs-lisp
+(use-package vundo
+  :elpaca t
+  :commands (vundo)
+  :bind ("C-c u" . vundo))
+#+END_SRC
+

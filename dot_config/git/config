@@ -1,0 +1,20 @@
+[user]
+	name = Xavier Capaldi
+	email = 38892330+xcapaldi@users.noreply.github.com
+[core]
+	excludesFiles = ~/.config/git/ignore
+[pull]
+	ff = only
+[merge]
+	conflictstyle = diff3
+[credential "https://github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[filter "lfs"]
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f

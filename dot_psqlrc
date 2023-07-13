@@ -1,0 +1,25 @@
+-- don't display help message at startup
+\set QUIET 1
+
+-- display null custom
+\pset null '¤'
+
+-- turn off pager, terminal scrollback is good enough
+\pset pager off
+
+-- show how long queries take to execute
+\timing
+
+-- automatic expanded display when wider than terminal
+\x auto
+
+-- nice prompt
+\set PROMPT1 '%[%033[1m%]%M %n@%/%R%[%033[0m%]%# '
+\set PROMPT2 '[more] %R > '
+
+\set VERBOSITY verbose
+\set HISTFILE ~/.psql_history- :DBNAME
+\set HISTCONTROL ignoredups
+\set COMP_KEYWORD_CASE preserve-upper
+
+\unset QUIET

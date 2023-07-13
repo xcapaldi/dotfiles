@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Emacs org config hash: {{ include "dot_config/emacs/config.org" | sha256sum }}
+emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file {{ joinPath .chezmoi.sourceDir "dot_config/emacs/config.org" | quote }})'
+
