@@ -4,79 +4,45 @@
 #+PROPERTY: header-args :tangle init.el
 
 This is my literate emacs configuration.
-The configuration uses Elpaca as a package manager but otherwise it tries to use packages that transparently enhance the emacs experience.
+It currently uses the native ~package.el~ due to bug on MacOS.
+Otherwise it tries to use a limited set of packages that mostly augment the natural emacs workflow.
 
 * early init file
 The [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Early-Init-File.html][early init file]] is loaded before the package system or GUI is initialized.
-We use it to disable ~package.el~ as we will use ~elpaca.el~ for package management.
+We would also use it to disable ~package.el~ if we could use ~elpaca~ for package management.
+However there appears to be a [[https://debbugs.gnu.org/cgi/bugreport.cgi?bug=59081][bug]] on emacs startup in MacOS Ventura.
+None of the suggested solutions work so I'll manually run the configuration on emacs startup.
+This means the package manager will be initialized already.
+Rather than deal with any complications, I'll just use ~package.el~ for now.
 
-#+BEGIN_SRC emacs-lisp :tangle early-init.el
+We would also use it to disable graphical features before start but instead since we are manually running this config, I put at the head of =init.el=.
+
+#+BEGIN_SRC emacs-lisp :tangle (if (eq system-type 'darwin) "init.el" "early-init.el")
+(setq inhibit-startup-message t)
+(setq initial-scratch-message nil)
+(tool-bar-mode -1)
+#+END_SRC
+
+* bootstrap use-package
+#+BEGIN_SRC emacs-lisp
+(require 'package)
 (setq package-enable-at-startup nil)
-#+END_SRC
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/"))
 
-* [[https://github.com/progfolio/elpaca][elpaca]] package manager                                          :progfolio:
-Bootstrap the package manager.
+(package-initialize)
 
-#+BEGIN_SRC emacs-lisp
-(defvar elpaca-installer-version 0.5)
-(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
-(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
-(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
-(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-                              :ref nil
-                              :files (:defaults (:exclude "extensions"))
-                              :build (:not elpaca--activate-package)))
-(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
-       (build (expand-file-name "elpaca/" elpaca-builds-directory))
-       (order (cdr elpaca-order))
-       (default-directory repo))
-  (add-to-list 'load-path (if (file-exists-p build) build repo))
-  (unless (file-exists-p repo)
-    (make-directory repo t)
-    (when (< emacs-major-version 28) (require 'subr-x))
-    (condition-case-unless-debug err
-        (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-                 ((zerop (call-process "git" nil buffer t "clone"
-                                       (plist-get order :repo) repo)))
-                 ((zerop (call-process "git" nil buffer t "checkout"
-                                       (or (plist-get order :ref) "--"))))
-                 (emacs (concat invocation-directory invocation-name))
-                 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
-                 ((require 'elpaca))
-                 ((elpaca-generate-autoloads "elpaca" repo)))
-            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
-          (error "%s" (with-current-buffer buffer (buffer-string))))
-      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
-  (unless (require 'elpaca-autoloads nil t)
-    (require 'elpaca)
-    (elpaca-generate-autoloads "elpaca" repo)
-    (load "./elpaca-autoloads")))
-(add-hook 'after-init-hook #'elpaca-process-queues)
-(elpaca `(,@elpaca-order))
-#+END_SRC
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 
-Install use-package support
-#+BEGIN_SRC emacs-lisp
-(elpaca elpaca-use-package
-;; Enable :elpaca use-package keyword.
-(elpaca-use-package-mode))
-;; Assume :elpaca t unless otherwise specified.
-;;(setq elpaca-use-package-by-default t))
-#+END_SRC
-
-* elpaca-wait
-This command forces =elpaca= to process the current queue.
-It should be called after anything that modifies =use-package= forms.
-
-#+BEGIN_SRC emacs-lisp
-(elpaca-wait)
+(eval-when-compile
+  (require 'use-package))
 #+END_SRC
 
 * general emacs settings
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :noweb yes
 (use-package emacs
-  :elpaca nil
   :config
   <<LOAD_THEME>>
   (when (equal system-type 'darwin)
@@ -91,12 +57,12 @@ It should be called after anything that modifies =use-package= forms.
 
 ** Fonts
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref MAC_FONTS
-(when (member "Comic Mono" (font-family-list))
-      (add-to-list 'initial-frame-alist '(font . "Andale Mono-14:regular"))
-      (add-to-list 'default-frame-alist '(font . "Andale Mono-14:regular")))
+(when (member "Monaco" (font-family-list))
+      (add-to-list 'initial-frame-alist '(font . "Monaco-13:regular"))
+      (add-to-list 'default-frame-alist '(font . "Monaco-13:regular")))
 (set-fontset-font t 'symbol (font-spec :family "Apple Symbols") nil 'prepend)
 (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend)
-(setq-default line-spacing 0.2)
+(setq-default line-spacing 0.1)
 #+END_SRC
 
 ** Remap keys on Macos
@@ -108,24 +74,31 @@ It should be called after anything that modifies =use-package= forms.
 * [[https://github.com/tabfugnic/asdf.el][asdf]]
 asdf is a [[https://asdf-vm.com/][version manager]] used at my work to control the versions of some developer tools.
 The corresponding emacs package does all necessary environment setup so tools installed by asdf are accessible in emacs.
+Because we can't use =elpaca.el= to install from source on MacOS currently, this package must be cloned locally.
 
 #+BEGIN_SRC emacs-lisp
 (use-package asdf
+  :load-path "~/Checkout/asdf.el"
   :if (eq system-type 'darwin)
-  :elpaca (asdf :host github
-		:repo "tabfugnic/asdf.el"
-		:branch "main")
   :config (asdf-enable))
 #+END_SRC
 
-* [[https://github.com/minad/consult][consult]]                                                             :minad:
+* [[https://github.com/tuh8888/chezmoi.el][chezmoi]]
+chezmoi is a [[https://www.chezmoi.io/][dotfiles manager]] that I use to manage my configurations (including this one).
+This package exposes some chezmoi commands to emacs.
 
+#+BEGIN_SRC emacs-lisp
+(use-package chezmoi
+  :ensure t)
+#+END_SRC
+
+* [[https://github.com/minad/consult][consult]]                                                             :minad:
 #+BEGIN_SRC emacs-lisp
 (use-package consult
   ;; Enable automatic preview at point in the *Completions* buffer.
   ;; This is relevant when you use the default completion UI,
   ;; and not necessary for Vertico, Selectrum, etc.
-  :elpaca t
+  :ensure t
   :hook (completion-list-mode . consult-preview-at-point-mode)
   :bind (:map isearch-mode-map
   ("C-c l" . consult-line)))
@@ -134,13 +107,11 @@ The corresponding emacs package does all necessary environment setup so tools in
 * [[https://github.com/zerolfx/copilot.el][copilot]]
 This package integrate Github's [[https://github.com/features/copilot][Copilot]] with emacs.
 The license to Copilot is provided through my work.
+Because we can't use =elpaca.el= to install from source on MacOS currently, this package must be cloned locally.
 
 #+BEGIN_SRC emacs-lisp
 (use-package copilot
-  :elpaca (copilot :host github
-		   :repo "zerolfx/copilot.el"
-		   :branch "main"
-		   :files ("dist" "*.el"))
+  :load-path "~/Checkout/copilot.el"
   :if (eq system-type 'darwin)
   :hook (prog-mode . copilot-mode))
 #+END_SRC
@@ -151,7 +122,7 @@ There is a way to do completions using =consult= in the minibuffer but if you us
 
 #+BEGIN_SRC emacs-lisp
 (use-package corfu
-  :elpaca t
+  :ensure t
   :init
   (global-corfu-mode))
 #+END_SRC
@@ -162,7 +133,7 @@ LSP should usually handle this functionality but =dumb-jump= is a solid fallback
 
 #+BEGIN_SRC emacs-lisp
 (use-package dumb-jump
-  :elpaca t
+  :ensure t
   :config
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 #+END_SRC
@@ -173,7 +144,7 @@ While ~editorconfig-mode~ is enabled, most EditorConfig settings in projects wil
 
 #+BEGIN_SRC emacs-lisp
 (use-package editorconfig
-  :elpaca t
+  :ensure t
   :config (editorconfig-mode 1))
 #+END_SRC
 
@@ -182,7 +153,7 @@ This package will become the built-in [[https://microsoft.github.io/language-ser
 
 #+BEGIN_SRC emacs-lisp
 (use-package eglot
-  :elpaca t
+  :ensure t
   :after (project flymake xref)
   :commands eglot)
 #+END_SRC
@@ -193,7 +164,7 @@ This package allows Emacs to access the same environment variables as in the she
 
 #+BEGIN_SRC emacs-lisp
 (use-package exec-path-from-shell
-  :elpaca t
+  :ensure t
   :if (memq window-system '(mac ns x))
   :init (exec-path-from-shell-initialize))
 #+END_SRC
@@ -204,7 +175,7 @@ In addition to syntax highlighting and basic semantic motions, it provides integ
 
 #+BEGIN_SRC emacs-lisp
 (use-package go-mode
-  :elpaca t
+  :ensure t
   :mode (("\\.go\\'" . go-mode)
          ("\\.mod\\'" . go-dot-mod-mode)))
 #+END_SRC
@@ -214,7 +185,7 @@ The built in javascript mode.
 
 #+BEGIN_SRC emacs-lisp
 (use-package js
-  :elpaca nil
+  :ensure nil
   :mode "\\.js[x]\\'")
 #+END_SRC
 
@@ -224,7 +195,7 @@ Emacs has =vc-mode= which is built-in but magit is widely regarded as one of the
 
 #+BEGIN_SRC emacs-lisp
 (use-package magit
-  :elpaca t)
+  :ensure t)
 #+END_SRC
 
 * [[https://github.com/minad/marginalia][marginalia]]                                                          :minad:
@@ -232,7 +203,7 @@ Add helpful marginalia to minibuffer completions
 
 #+BEGIN_SRC emacs-lisp
 (use-package marginalia
-  :elpaca t
+  :ensure t
   :bind (:map minibuffer-local-map
               ("M-A" . marginalia-cycle))
   :init (marginalia-mode 1))
@@ -245,11 +216,25 @@ It sounds complex but is actually very intuitive to use compared to most of the 
 
 #+BEGIN_SRC emacs-lisp
 (use-package orderless
-  :elpaca t
+  :ensure t
   :init
   (setq completion-styles '(orderless basic)
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
+#+END_SRC
+
+* org
+#+BEGIN_SRC emacs-lisp
+(use-package org
+  :config
+  ;; Org-babel supported languages
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((shell . t)
+     (python . t)))
+  :custom
+  (org-adapt-indentation nil)
+  (org-edit-src-content-indentation 0))
 #+END_SRC
 
 * [[https://github.com/protocolbuffers/protobuf/blob/main/editors/protobuf-mode.el][protobuf-mode]]
@@ -258,7 +243,7 @@ We use them in my work and this package adds support for the protobuf syntax.
 
 #+BEGIN_SRC emacs-lisp
 (use-package protobuf-mode
-  :elpaca t
+  :ensure t
   :if (eq system-type 'darwin)
   :mode ("\\.proto\\'"))
 #+END_SRC
@@ -268,7 +253,7 @@ This package adds support for [[https://www.terraform.io/][Terraform]] configura
 
 #+BEGIN_SRC emacs-lisp
 (use-package terraform-mode
-  :elpaca t
+  :ensure t
   :if (eq system-type 'darwin)
   :mode ("\\.tf\\'" . terraform-mode))
 #+END_SRC
@@ -278,7 +263,7 @@ This package add support for the Typescript programming language to Emacs.
 
 #+BEGIN_SRC emacs-lisp
 (use-package typescript-mode
-  :elpaca t
+  :ensure t
   :mode "\\.ts[x]\\'")
 #+END_SRC
 
@@ -288,7 +273,7 @@ This synergizes nicely with marginalia and orderless.
 
 #+BEGIN_SRC emacs-lisp
 (use-package vertico
-  :elpaca t
+  :ensure t
   :init (vertico-mode 1))
 #+END_SRC
 
@@ -298,8 +283,20 @@ This package adds a undo tree visualization.
 
 #+BEGIN_SRC emacs-lisp
 (use-package vundo
-  :elpaca t
+  :ensure t
   :commands (vundo)
   :bind ("C-c u" . vundo))
 #+END_SRC
 
+* [[https://github.com/justbur/emacs-which-key][which-key]]
+#+BEGIN_SRC emacs-lisp
+(use-package which-key
+  :ensure t
+  :custom
+  ;; Allow C-h to trigger which-key before it is done automatically
+  (which-key-show-early-on-C-h t)
+  ;; Don't show normally but refresh quickly when triggered
+  (which-key-idle-delay 10000)
+  (which-key-idle-secondary-delay 0.05)
+  :init (which-key-mode))
+#+END_SRC
