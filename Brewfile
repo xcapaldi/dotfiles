@@ -11,6 +11,7 @@ brew "ripgrep"
 brew "coreutils"
 brew "gnu-sed"
 brew "findutils"
+brew "fzf"
 
 cask "docker"
 cask "google-chrome"
