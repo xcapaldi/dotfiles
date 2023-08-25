@@ -9,6 +9,9 @@ if [ -f '/Users/xavier/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/xavier/g
 # The next line enables shell command completion for gcloud.
 if [ -f '/Users/xavier/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/xavier/google-cloud-sdk/completion.zsh.inc'; fi
 
+# The next line enables shell command completion for kubectl.
+source <(kubectl completion zsh)
+
 # emacs M-x shell
 if [[ "dumb" == $TERM ]]; then
   alias less='cat'
@@ -43,3 +46,10 @@ precmd() { vcs_info }
 setopt PROMPT_SUBST
 PROMPT='${vcs_info_msg_0_} | %~ $ '
 #RPROMPT='${vcs_info_msg_0_}'
+
+# draw a horizontal line before commands with a lot of output that is hard to distinguish from prior command
+preexec() {
+  if [[ $1 == rg* || $1 == ls* ]]; then
+    printf '%.s═' $(seq 1 $(tput cols))
+  fi
+}	
