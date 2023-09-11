@@ -1,8 +1,6 @@
 README.org
 Brewfile
 Brewfile.lock.json
-.config/emacs/config.org
-.config/emacs/config.org~
 {{ if ne .chezmoi.os "darwin" -}}
 .zshrc
 {{- end }}

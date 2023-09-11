@@ -1,4 +1,8 @@
 #+TITLE: Dotfiles
 #+AUTHOR: Xavier Capaldi
 
-My dotfiles using [[https://www.chezmoi.io/][Chezmoi]]. 
+My dotfiles using [[https://www.chezmoi.io/][Chezmoi]]:
+
+- [[file:dot_zshrc][zshrc]]
+- [[file:dot_psqlrc][psqlrc]]
+- [[file:dot_config/emacs/config.org][emacs]]

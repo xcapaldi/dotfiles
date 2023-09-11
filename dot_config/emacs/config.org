@@ -1,53 +1,84 @@
 #+TITLE: Emacs Configuration
 #+AUTHOR: Xavier Capaldi
-#+PROPERTY: header-args :results silent :exports code :tangle init.el
+#+PROPERTY: header-args :results silent :exports code
 
 This is my literate emacs configuration.
-It currently uses the native ~package.el~ due to bug on MacOS.
+It currently uses the native ~package.el~ but a future version may use [[https://github.com/radian-software/straight.el][straight.el]] or [[https://github.com/progfolio/elpaca][elpaca]].
 Otherwise it tries to use a limited set of packages that mostly augment the natural emacs workflow.
+
+* COMMENT comments in literate configuration
+One really nice benefit of the literate configurations is that commented blocks are not rendered in Github.
+This allows us to store configurations/packages that are still being tested without making them "active".
 
 * early init file
 The [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Early-Init-File.html][early init file]] is loaded before the package system or GUI is initialized.
-We would also use it to disable ~package.el~ if we could use ~elpaca~ for package management.
-However there appears to be a [[https://debbugs.gnu.org/cgi/bugreport.cgi?bug=59081][bug]] on emacs startup in MacOS Ventura.
-None of the suggested solutions work so I'll manually run the configuration on emacs startup.
-This means the package manager will be initialized already.
+We would also use it to disable ~package.el~ if we used an alternative package manager.
 Rather than deal with any complications, I'll just use ~package.el~ for now.
 
 We would also use it to disable graphical features before start but instead since we are manually running this config, I put at the head of =init.el=.
 
-#+BEGIN_SRC emacs-lisp :tangle (if (eq system-type 'darwin) "init.el" "early-init.el")
+#+BEGIN_SRC emacs-lisp :tangle early-init.el
 (setq inhibit-startup-message t)
 (setq initial-scratch-message nil)
 (tool-bar-mode -1)
 #+END_SRC
 
-* use-package
-#+BEGIN_SRC emacs-lisp
+* init file
+The actual init file will only configure =package.el= and then tangle this literate configuration and load it.
+
+** package.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (require 'package)
 (setq package-enable-at-startup nil)
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/"))
 
 (package-initialize)
+#+END_SRC
 
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+** load literate configuration
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(org-babel-load-file "~/.config/emacs/config.org")
+#+END_SRC
 
+* package management
+** [[https://github.com/jwiegley/use-package][use-package]]                                                     :jwiegley:
+=use-package= is a package configuration tool that allows us to manage each package in a single isolated block.
+It has finally been incorporated into Emacs proper.
+
+#+BEGIN_SRC emacs-lisp
 (eval-when-compile
   (require 'use-package))
+#+END_SRC
+
+** [[https://github.com/slotThe/vc-use-package][vc-use-package]]                                                   :slotThe:
+=package.el= supports installing packages from a version-controlled source.
+Integration of this feature with =use-package= was merged into Emacs proper but missed the Emacs 29 release deadline.
+This package adds =use-package= support.
+
+#+BEGIN_SRC emacs-lisp
+(unless (package-installed-p 'vc-use-package)
+  (package-vc-install "https://github.com/slotThe/vc-use-package"))
+#+END_SRC
+
+* [[https://github.com/emacscollective/no-littering][no-littering]]
+Emacs has a tendency to clutter the config directory.
+This package tries to automagically keep things clean.
+In addition, this package can handle storing backups and autosaves in a centralized directory.
+It should be initialized as early as possible in the configuration.
+
+#+BEGIN_SRC emacs-lisp
+(use-package no-littering
+  :ensure t
+  :config
+  (no-littering-theme-backups)) ; store backups and autosaves in centralized directories
 #+END_SRC
 
 * general emacs settings
 #+BEGIN_SRC emacs-lisp :noweb yes
 (use-package emacs
   :init
-  <<MAKE_AUTOSAVE_DIRECTORY>>
-  <<MAKE_BACKUP_DIRECTORY>>
-  :custom
-  <<CENTRALIZED_AUTOSAVES>>
-  <<CENTRALIZED_BACKUPS>>
+  <<MINIBUFFER>>
   :config
   <<SET_DEFAULTS>>
   <<SET_GLOBAL_MODES>>
@@ -79,7 +110,7 @@ We would also use it to disable graphical features before start but instead sinc
 ** set global modes
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref SET_GLOBAL_MODES
 (global-visual-line-mode 0)            ; Don't always wrap lines instead of extending past view
-(global-hl-line-mode 0)                ; Highlight current line
+(global-hl-line-mode 1)                ; Highlight current line
 (display-fill-column-indicator-mode 0) ; add indicator for the fill line
 (column-number-mode 1)                 ; Show the column number
 (fset 'yes-or-no-p 'y-or-n-p)          ; Replace yes/no prompts with y/n
@@ -90,32 +121,17 @@ We would also use it to disable graphical features before start but instead sinc
 (blink-cursor-mode 0)                  ; Don't blink the cursor
 (show-paren-mode 1)                    ; Show matching parens
 (global-auto-revert-mode 1)            ; If file changes on disk, update the buffer automatically
+(pixel-scroll-precision-mode 1)        ; Smooth scrolling
+(context-menu-mode 0)                  ; Don't replace standard mouse-3 actions with context menu
 #+END_SRC
 
-** centralized backups and autosaves
-Emacs has the concept of autosave file (=#foo#=) which contain changes to an open file as well as backup file (=foo~=) which are ... backups when saving a file.
-These are useful in principle but tend to litter the file system.
-Instead we can create dedicated directories for them and ask emacs to store the files there.
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref MAKE_AUTOSAVE_DIRECTORY
-(make-directory "~/.config/emacs/autosaves/" t)
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref MAKE_BACKUP_DIRECTORY
-(make-directory "~/.config/emacs/backups/" t)
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref CENTRALIZED_AUTOSAVES
-(auto-save-file-name-transforms '((".*" "~/.config/emacs/autosaves/\\1" t)))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref CENTRALIZED_BACKUPS
-(backup-directory-alist '((".*" . "~/.config/emacs/backups/")))
-(backup-by-copying t)
-(version-control t)
-(delete-old-versions nil)
-(kept-new-versions 20)
-(kept-old-versions 5)
+** minibuffer
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref MINIBUFFER
+;; Do not allow the cursor in the minibuffer prompt
+(setq minibuffer-prompt-properties
+      '(read-only t cursor-intangible t face minibuffer-prompt))
+(add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+(setq enable-recursive-minibuffers t)
 #+END_SRC
 
 ** theme
@@ -141,21 +157,31 @@ Instead we can create dedicated directories for them and ask emacs to store the 
 #+END_SRC
 
 * COMMENT ace-window
-* [[https://github.com/radian-software/apheleia][apheleia]]                                                         :raxod502:
+* [[https://github.com/emacsorphanage/anzu][anzu]]
+The principle benefit of this package is to display the number of matching results in an =isearch= query.
+That only is nice improvement in the user experience.
+In addition this package improves the UX when doing a query replace (=M-%= in =isearch=).
+
 #+BEGIN_SRC emacs-lisp
-(use-package apheleia
+(use-package anzu
   :ensure t
-  :init (apheleia-global-mode +1))
+  :bind (([remap isearch-query-replace] . anzu-isearch-query-replace)
+	 ([remap isearch-query-replace-regexp] . anzu-isearch-query-replace-regexp))
+  :init (global-anzu-mode 1)
+  :custom ((anzu-deactivate-region t) ; deactivate region when anzu overlay starts for constrast
+	   (anzu-search-threshold 1000)
+	   (anzu-replace-threshold 50)
+	   (anzu-replace-to-string-separator " => ")))
 #+END_SRC
 
+* COMMENT [[https://github.com/radian-software/apheleia][apheleia]]
 * [[https://github.com/tabfugnic/asdf.el][asdf]]
 asdf is a [[https://asdf-vm.com/][version manager]] used at my work to control the versions of some developer tools.
 The corresponding emacs package does all necessary environment setup so tools installed by asdf are accessible in emacs.
-Because we can't use =elpaca.el= to install from source on MacOS currently, this package must be cloned locally.
 
 #+BEGIN_SRC emacs-lisp
 (use-package asdf
-  :load-path "~/.config/emacs/site-lisp/asdf.el"
+  :vc (:fetcher github :repo tabfugnic/asdf.el)
   :if (eq system-type 'darwin)
   :config (asdf-enable))
 #+END_SRC
@@ -170,40 +196,45 @@ This package exposes some chezmoi commands to emacs.
   :ensure t)
 #+END_SRC
 
-* [[https://github.com/minad/consult][consult]]                                                             :minad:
+* COMMENT [[https://github.com/minad/consult][consult]]
 #+BEGIN_SRC emacs-lisp
 (use-package consult
-  ;; Enable automatic preview at point in the *Completions* buffer.
-  ;; This is relevant when you use the default completion UI,
-  ;; and not necessary for Vertico, Selectrum, etc.
   :ensure t
-  :hook (completion-list-mode . consult-preview-at-point-mode)
   :bind (:map isearch-mode-map
-  ("C-c l" . consult-line)))
+              ("C-c l" . consult-line)))
 #+END_SRC
 
 * COMMENT consult-eglot
 * [[https://github.com/zerolfx/copilot.el][copilot]]
 This package integrate Github's [[https://github.com/features/copilot][Copilot]] with emacs.
 The license to Copilot is provided through my work.
-Because we can't use =elpaca.el= to install from source on MacOS currently, this package must be cloned locally.
 
 #+BEGIN_SRC emacs-lisp
 (use-package copilot
-  :load-path "~/.config/emacs/site-lisp/copilot.el"
+  :vc (:fetcher github :repo zerolfx/copilot.el)
   :if (eq system-type 'darwin)
-  :hook (prog-mode . copilot-mode))
+  :hook (prog-mode . copilot-mode)
+  :config
+  (transient-define-prefix copilot-prefix ()
+    "Prefix that allow control of copilot suggestions"
+    [("<return>" "accept completion" copilot-accept-completion)
+     ("n" "next completion" copilot-next-completion :transient t)
+     ("p" "prev completion" copilot-previous-completion :transient t)
+     ("<tab>" "accept completion by line" copilot-accept-completion-by-line :transient t)
+     ("<SPC>" "accept completion by word" copilot-accept-completion-by-word :transient t)
+     ("<backspace>" "clear overlay" copilot-clear-overlay)])
+  :bind (:map copilot-mode-map
+              ("C-c c" . copilot-prefix)))
 #+END_SRC
 
-* [[https://github.com/minad/corfu][corfu]]                                                               :minad:
+* [[https://github.com/minad/corfu][corfu]]
 This package provides a completion popup window.
 There is a way to do completions using =consult= in the minibuffer but if you use that solution you cannot update the completion with further input.
 
 #+BEGIN_SRC emacs-lisp
 (use-package corfu
   :ensure t
-  :init
-  (global-corfu-mode))
+  :config (global-corfu-mode))
 #+END_SRC
 
 * COMMENT denote
@@ -213,11 +244,9 @@ Emac's native file explorer/manager.
 
 #+BEGIN_SRC emacs-lisp
 (use-package dired
-  :custom
-  ;; --list-directories-first
-  ((dired-listing-switches "-alh"))
-  :config
-  (put 'dired-find-alternate-file 'disabled nil))
+  :ensure nil
+  :custom ((dired-listing-switches "-alh"))
+  :config (put 'dired-find-alternate-file 'disabled nil))
 #+END_SRC
 
 * [[https://github.com/jacktasia/dumb-jump][dumb-jump]]
@@ -227,8 +256,8 @@ LSP should usually handle this functionality but =dumb-jump= is a solid fallback
 #+BEGIN_SRC emacs-lisp
 (use-package dumb-jump
   :ensure t
-  :config
-  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
+  :after xref
+  :config (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 #+END_SRC
 
 * [[https://github.com/editorconfig/editorconfig-emacs][editorconfig]]
@@ -241,22 +270,32 @@ While ~editorconfig-mode~ is enabled, most EditorConfig settings in projects wil
   :config (editorconfig-mode 1))
 #+END_SRC
 
-* [[https://github.com/joaotavora/eglot][eglot]]                                                          :joaotavora:
-This package will become the built-in [[https://microsoft.github.io/language-server-protocol/][language server protocol (LSP)]] in Emacs.
+* [[https://github.com/joaotavora/eglot][eglot]]
+This is the built-in [[https://microsoft.github.io/language-server-protocol/][language server protocol (LSP)]] in Emacs.
 
 #+BEGIN_SRC emacs-lisp
 (use-package eglot
-  :ensure t
+  :ensure nil
   :after (project flymake xref)
   :commands eglot)
 #+END_SRC
 
 * COMMENT elfeed
-* COMMENT embark
+* COMMENT [[https://github.com/oantolin/embark][embark]]
+#+BEGIN_SRC emacs-lisp
+(use-package embark
+  :ensure t)
+#+END_SRC
+
 * COMMENT embark-consult
+#+BEGIN_SRC emacs-lisp
+(use-package embark-consult
+  :ensure t)
+#+END_SRC
 * COMMENT eshell
 #+BEGIN_SRC emacs-lisp
 (use-package eshell
+  :ensure nil
   :config
   (if (eq system-type 'gnu/linux)
       (add-to-list 'eshell-modules-list 'eshell-smart))
@@ -269,6 +308,7 @@ This package will become the built-in [[https://microsoft.github.io/language-ser
   (eshell-visual-subcommands '(("git" "log" "diff" "show"))))
 
 (use-package em-smart
+  :ensure nil
   :if (eq system-type 'gnu/linux)
   :after eshell
   :custom
@@ -277,7 +317,7 @@ This package will become the built-in [[https://microsoft.github.io/language-ser
   (eshell-smart-space-goes-to-end nil))
 #+END_SRC
 
-* [[https://github.com/purcell/exec-path-from-shell][exec-path-from-shell]]                                              :purcell:
+* [[https://github.com/purcell/exec-path-from-shell][exec-path-from-shell]]
 Emacs on MacOS cannot access path properly.
 This package allows Emacs to access the same environment variables as in the shell.
 
@@ -285,7 +325,7 @@ This package allows Emacs to access the same environment variables as in the she
 (use-package exec-path-from-shell
   :ensure t
   :if (memq window-system '(mac ns x))
-  :init (exec-path-from-shell-initialize))
+  :config (exec-path-from-shell-initialize))
 #+END_SRC
 
 * COMMENT ezf
@@ -297,7 +337,7 @@ It is recommended to use [[https://github.com/go-delve/delve][Delve]] instead.
 
 #+BEGIN_SRC emacs-lisp
 (use-package go-dlv
-  :load-path "~/.config/emacs/site-lisp/go-dlv.el")
+  :vc (:fetcher github :repo benma/go-dlv.el))
 #+END_SRC
 
 * [[https://github.com/dominikh/go-mode.el][go-mode]]
@@ -316,7 +356,17 @@ In addition to syntax highlighting and basic semantic motions, it provides integ
 
 #+BEGIN_SRC emacs-lisp
 (use-package ibuffer
+  :ensure nil
   :bind ([remap list-buffers] . ibuffer)) ;; C-x C-b
+#+END_SRC
+
+* icomplete
+
+#+BEGIN_SRC emacs-lisp
+(use-package icomplete
+  :ensure nil
+  :init (icomplete-mode)
+  :custom (icomplete-prospects-height 1))
 #+END_SRC
 
 * js
@@ -328,13 +378,14 @@ The built in javascript mode.
   :mode "\\.js[x]\\'")
 #+END_SRC
 
-* linum
+* display-line-numbers
 #+BEGIN_SRC emacs-lisp
-(use-package linum
-  :hook (prog-mode . linum-mode))
+(use-package display-line-numbers
+  :ensure nil
+  :hook (prog-mode . display-line-numbers-mode))
 #+END_SRC
 
-* [[https://magit.vc/][magit]]
+* COMMENT [[https://magit.vc/][magit]]
 This package is a comprehensive [[https://git-scm.com/][git]] porcelain in Emacs.
 Emacs has =vc-mode= which is built-in but magit is widely regarded as one of the best git interfaces.
 
@@ -343,14 +394,14 @@ Emacs has =vc-mode= which is built-in but magit is widely regarded as one of the
   :ensure t)
 #+END_SRC
 
-* [[https://github.com/alphapapa/magit-todos][magit-todos]]                                                     :alphapapa:
+* COMMENT [[https://github.com/alphapapa/magit-todos][magit-todos]]
 #+BEGIN_SRC emacs-lisp
 (use-package magit-todos
   :ensure t
   :hook magit-mode)
 #+END_SRC
 
-* [[https://github.com/minad/marginalia][marginalia]]                                                          :minad:
+* COMMENT [[https://github.com/minad/marginalia][marginalia]]
 Add helpful marginalia to minibuffer completions
 
 #+BEGIN_SRC emacs-lisp
@@ -358,7 +409,7 @@ Add helpful marginalia to minibuffer completions
   :ensure t
   :bind (:map minibuffer-local-map
               ("M-A" . marginalia-cycle))
-  :init (marginalia-mode 1))
+  :config (marginalia-mode 1))
 #+END_SRC
 
 * [[https://jblevins.org/projects/markdown-mode/][markdown-mode]]
@@ -370,10 +421,7 @@ Emacs doesn't have a native markdown mode and I use it frequently in repository 
   :mode ("README\\.md\\'" . gfm-mode))
 #+END_SRC
 
-#+RESULTS:
-: ((README\.md\' . gfm-mode) (\.\(?:md\|markdown\|mkd\|mdown\|mkdn\|mdwn\)\' . markdown-mode) (\.ts[x]\' . typescript-mode) (\.tsx?\' . typescript-mode) (\.tf\' . terraform-mode) (\.tf\(vars\)?\' . terraform-mode) (\.nomad\' . hcl-mode) (\.hcl\' . hcl-mode) (\.proto\' . protobuf-mode) (/git-rebase-todo\' . git-rebase-mode) (\.js[x]\' . js) (\.mod\' . go-dot-mod-mode) (go\.work\' . go-dot-work-mode) (go\.mod\' . go-dot-mod-mode) (\.go\' . go-mode) (\.editorconfig\' . editorconfig-conf-mode) (\.gpg\(~\|\.~[0-9]+~\)?\' nil epa-file) (\.elc\' . elisp-byte-code-mode) (\.zst\' nil jka-compr) (\.dz\' nil jka-compr) (\.xz\' nil jka-compr) (\.lzma\' nil jka-compr) (\.lz\' nil jka-compr) (\.g?z\' nil jka-compr) (\.bz2\' nil jka-compr) (\.Z\' nil jka-compr) (\.vr[hi]?\' . vera-mode) (\(?:\.\(?:rbw?\|ru\|rake\|thor\|jbuilder\|rabl\|gemspec\|podspec\)\|/\(?:Gem\|Rake\|Cap\|Thor\|Puppet\|Berks\|Brew\|Vagrant\|Guard\|Pod\)file\)\' . ruby-mode) (\.re?st\' . rst-mode) (\.py[iw]?\' . python-mode) (\.m\' . octave-maybe-mode) (\.less\' . less-css-mode) (\.scss\' . scss-mode) (\.awk\' . awk-mode) (\.\(u?lpc\|pike\|pmod\(\.in\)?\)\' . pike-mode) (\.idl\' . idl-mode) (\.java\' . java-mode) (\.m\' . objc-mode) (\.ii\' . c++-mode) (\.i\' . c-mode) (\.lex\' . c-mode) (\.y\(acc\)?\' . c-mode) (\.h\' . c-or-c++-mode) (\.c\' . c-mode) (\.\(CC?\|HH?\)\' . c++-mode) (\.[ch]\(pp\|xx\|\+\+\)\' . c++-mode) (\.\(cc\|hh\)\' . c++-mode) (\.\(bat\|cmd\)\' . bat-mode) (\.[sx]?html?\(\.[a-zA-Z_]+\)?\' . mhtml-mode) (\.svgz?\' . image-mode) (\.svgz?\' . xml-mode) (\.x[bp]m\' . image-mode) (\.x[bp]m\' . c-mode) (\.p[bpgn]m\' . image-mode) (\.tiff?\' . image-mode) (\.gif\' . image-mode) (\.png\' . image-mode) (\.jpe?g\' . image-mode) (\.te?xt\' . text-mode) (\.[tT]e[xX]\' . tex-mode) (\.ins\' . tex-mode) (\.ltx\' . latex-mode) (\.dtx\' . doctex-mode) (\.org\' . org-mode) (\.dir-locals\(?:-2\)?\.el\' . lisp-data-mode) (eww-bookmarks\' . lisp-data-mode) (tramp\' . lisp-data-mode) (/archive-contents\' . lisp-data-mode) (places\' . lisp-data-mode) (\.emacs-places\' . lisp-data-mode) (\.el\' . emacs-lisp-mode) (Project\.ede\' . emacs-lisp-mode) (\.\(scm\|stk\|ss\|sch\)\' . scheme-mode) (\.l\' . lisp-mode) (\.li?sp\' . lisp-mode) (\.[fF]\' . fortran-mode) (\.for\' . fortran-mode) (\.p\' . pascal-mode) (\.pas\' . pascal-mode) (\.\(dpr\|DPR\)\' . delphi-mode) (\.\([pP]\([Llm]\|erl\|od\)\|al\)\' . perl-mode) (Imakefile\' . makefile-imake-mode) (Makeppfile\(?:\.mk\)?\' . makefile-makepp-mode) (\.makepp\' . makefile-makepp-mode) (\.mk\' . makefile-bsdmake-mode) (\.make\' . makefile-bsdmake-mode) (GNUmakefile\' . makefile-gmake-mode) ([Mm]akefile\' . makefile-bsdmake-mode) (\.am\' . makefile-automake-mode) (\.texinfo\' . texinfo-mode) (\.te?xi\' . texinfo-mode) (\.[sS]\' . asm-mode) (\.asm\' . asm-mode) (\.css\' . css-mode) (\.mixal\' . mixal-mode) (\.gcov\' . compilation-mode) (/\.[a-z0-9-]*gdbinit . gdb-script-mode) (-gdb\.gdb . gdb-script-mode) ([cC]hange\.?[lL]og?\' . change-log-mode) ([cC]hange[lL]og[-.][0-9]+\' . change-log-mode) (\$CHANGE_LOG\$\.TXT . change-log-mode) (\.scm\.[0-9]*\' . scheme-mode) (\.[ckz]?sh\'\|\.shar\'\|/\.z?profile\' . sh-mode) (\.bash\' . sh-mode) (/PKGBUILD\' . sh-mode) (\(/\|\`\)\.\(bash_\(profile\|history\|log\(in\|out\)\)\|z?log\(in\|out\)\)\' . sh-mode) (\(/\|\`\)\.\(shrc\|zshrc\|m?kshrc\|bashrc\|t?cshrc\|esrc\)\' . sh-mode) (\(/\|\`\)\.\([kz]shenv\|xinitrc\|startxrc\|xsession\)\' . sh-mode) (\.m?spec\' . sh-mode) (\.m[mes]\' . nroff-mode) (\.man\' . nroff-mode) (\.sty\' . latex-mode) (\.cl[so]\' . latex-mode) (\.bbl\' . latex-mode) (\.bib\' . bibtex-mode) (\.bst\' . bibtex-style-mode) (\.sql\' . sql-mode) (\(acinclude\|aclocal\|acsite\)\.m4\' . autoconf-mode) (\.m[4c]\' . m4-mode) (\.mf\' . metafont-mode) (\.mp\' . metapost-mode) (\.vhdl?\' . vhdl-mode) (\.article\' . text-mode) (\.letter\' . text-mode) (\.i?tcl\' . tcl-mode) (\.exp\' . tcl-mode) (\.itk\' . tcl-mode) (\.icn\' . icon-mode) (\.sim\' . simula-mode) (\.mss\' . scribe-mode) (\.f9[05]\' . f90-mode) (\.f0[38]\' . f90-mode) (\.indent\.pro\' . fundamental-mode) (\.\(pro\|PRO\)\' . idlwave-mode) (\.srt\' . srecode-template-mode) (\.prolog\' . prolog-mode) (\.tar\' . tar-mode) (\.\(arc\|zip\|lzh\|lha\|zoo\|[jew]ar\|xpi\|rar\|cbr\|7z\|squashfs\|ARC\|ZIP\|LZH\|LHA\|ZOO\|[JEW]AR\|XPI\|RAR\|CBR\|7Z\|SQUASHFS\)\' . archive-mode) (\.oxt\' . archive-mode) (\.\(deb\|[oi]pk\)\' . archive-mode) (\`/tmp/Re . text-mode) (/Message[0-9]*\' . text-mode) (\`/tmp/fol/ . text-mode) (\.oak\' . scheme-mode) (\.sgml?\' . sgml-mode) (\.x[ms]l\' . xml-mode) (\.dbk\' . xml-mode) (\.dtd\' . sgml-mode) (\.ds\(ss\)?l\' . dsssl-mode) (\.js[mx]?\' . javascript-mode) (\.har\' . javascript-mode) (\.json\' . javascript-mode) (\.[ds]?va?h?\' . verilog-mode) (\.by\' . bovine-grammar-mode) (\.wy\' . wisent-grammar-mode) ([:/\]\..*\(emacs\|gnus\|viper\)\' . emacs-lisp-mode) (\`\..*emacs\' . emacs-lisp-mode) ([:/]_emacs\' . emacs-lisp-mode) (/crontab\.X*[0-9]+\' . shell-script-mode) (\.ml\' . lisp-mode) (\.ld[si]?\' . ld-script-mode) (ld\.?script\' . ld-script-mode) (\.xs\' . c-mode) (\.x[abdsru]?[cnw]?\' . ld-script-mode) (\.zone\' . dns-mode) (\.soa\' . dns-mode) (\.asd\' . lisp-mode) (\.\(asn\|mib\|smi\)\' . snmp-mode) (\.\(as\|mi\|sm\)2\' . snmpv2-mode) (\.\(diffs?\|patch\|rej\)\' . diff-mode) (\.\(dif\|pat\)\' . diff-mode) (\.[eE]?[pP][sS]\' . ps-mode) (\.\(?:PDF\|DVI\|OD[FGPST]\|DOCX\|XLSX?\|PPTX?\|pdf\|djvu\|dvi\|od[fgpst]\|docx\|xlsx?\|pptx?\)\' . doc-view-mode-maybe) (configure\.\(ac\|in\)\' . autoconf-mode) (\.s\(v\|iv\|ieve\)\' . sieve-mode) (BROWSE\' . ebrowse-tree-mode) (\.ebrowse\' . ebrowse-tree-mode) (#\*mail\* . mail-mode) (\.g\' . antlr-mode) (\.mod\' . m2-mode) (\.ses\' . ses-mode) (\.docbook\' . sgml-mode) (\.com\' . dcl-mode) (/config\.\(?:bat\|log\)\' . fundamental-mode) (/\.\(authinfo\|netrc\)\' . authinfo-mode) (\.\(?:[iI][nN][iI]\|[lL][sS][tT]\|[rR][eE][gG]\|[sS][yY][sS]\)\' . conf-mode) (\.la\' . conf-unix-mode) (\.ppd\' . conf-ppd-mode) (java.+\.conf\' . conf-javaprop-mode) (\.properties\(?:\.[a-zA-Z0-9._-]+\)?\' . conf-javaprop-mode) (\.toml\' . conf-toml-mode) (\.desktop\' . conf-desktop-mode) (/\.redshift\.conf\' . conf-windows-mode) (\`/etc/\(?:DIR_COLORS\|ethers\|.?fstab\|.*hosts\|lesskey\|login\.?de\(?:fs\|vperm\)\|magic\|mtab\|pam\.d/.*\|permissions\(?:\.d/.+\)?\|protocols\|rpc\|services\)\' . conf-space-mode) (\`/etc/\(?:acpid?/.+\|aliases\(?:\.d/.+\)?\|default/.+\|group-?\|hosts\..+\|inittab\|ksysguarddrc\|opera6rc\|passwd-?\|shadow-?\|sysconfig/.+\)\' . conf-mode) ([cC]hange[lL]og[-.][-0-9a-z]+\' . change-log-mode) (/\.?\(?:gitconfig\|gnokiirc\|hgrc\|kde.*rc\|mime\.types\|wgetrc\)\' . conf-mode) (/\.\(?:asound\|enigma\|fetchmail\|gltron\|gtk\|hxplayer\|mairix\|mbsync\|msmtp\|net\|neverball\|nvidia-settings-\|offlineimap\|qt/.+\|realplayer\|reportbug\|rtorrent\.\|screen\|scummvm\|sversion\|sylpheed/.+\|xmp\)rc\' . conf-mode) (/\.\(?:gdbtkinit\|grip\|mpdconf\|notmuch-config\|orbital/.+txt\|rhosts\|tuxracer/options\)\' . conf-mode) (/\.?X\(?:default\|resource\|re\)s\> . conf-xdefaults-mode) (/X11.+app-defaults/\|\.ad\' . conf-xdefaults-mode) (/X11.+locale/.+/Compose\' . conf-colon-mode) (/X11.+locale/compose\.dir\' . conf-javaprop-mode) (\.~?[0-9]+\.[0-9][-.0-9]*~?\' nil t) (\.\(?:orig\|in\|[bB][aA][kK]\)\' nil t) ([/.]c\(?:on\)?f\(?:i?g\)?\(?:\.[a-zA-Z0-9._-]+\)?\' . conf-mode-maybe) (\.[1-9]\' . nroff-mode) (\.art\' . image-mode) (\.avs\' . image-mode) (\.bmp\' . image-mode) (\.cmyk\' . image-mode) (\.cmyka\' . image-mode) (\.crw\' . image-mode) (\.dcr\' . image-mode) (\.dcx\' . image-mode) (\.dng\' . image-mode) (\.dpx\' . image-mode) (\.fax\' . image-mode) (\.hrz\' . image-mode) (\.icb\' . image-mode) (\.icc\' . image-mode) (\.icm\' . image-mode) (\.ico\' . image-mode) (\.icon\' . image-mode) (\.jbg\' . image-mode) (\.jbig\' . image-mode) (\.jng\' . image-mode) (\.jnx\' . image-mode) (\.miff\' . image-mode) (\.mng\' . image-mode) (\.mvg\' . image-mode) (\.otb\' . image-mode) (\.p7\' . image-mode) (\.pcx\' . image-mode) (\.pdb\' . image-mode) (\.pfa\' . image-mode) (\.pfb\' . image-mode) (\.picon\' . image-mode) (\.pict\' . image-mode) (\.rgb\' . image-mode) (\.rgba\' . image-mode) (\.tga\' . image-mode) (\.wbmp\' . image-mode) (\.webp\' . image-mode) (\.wmf\' . image-mode) (\.wpg\' . image-mode) (\.xcf\' . image-mode) (\.xmp\' . image-mode) (\.xwd\' . image-mode) (\.yuv\' . image-mode) (\.tgz\' . tar-mode) (\.tbz2?\' . tar-mode) (\.txz\' . tar-mode) (\.tzst\' . tar-mode))
-
-* [[https://github.com/tarsius/minions][minions]]                                                           :tarsius:
+* [[https://github.com/tarsius/minions][minions]]
 There are already a variety of tools to hide various minor modes in the mode-line.
 =Blackout= from raxod comes to mind.
 These packages require you to specify for each minor mode whether or not it should be visible.
@@ -384,9 +432,8 @@ Also by having a blanket package like this, I don’t need to pollute my blocks 
 #+BEGIN_SRC emacs-lisp
 (use-package minions
   :ensure t
-  :init (minions-mode 1)
-  :custom
-  (minions-prominent-modes '(flymake-mode)))
+  :config (minions-mode 1)
+  :custom (minions-prominent-modes '(flymake-mode)))
 #+END_SRC
 
 * [[https://github.com/pope/ob-go][ob-go]]
@@ -398,7 +445,7 @@ Add support for Go to org mode code blocks.
   :after org-mode)
 #+END_SRC
 
-* [[https://github.com/oantolin/orderless][orderless]]                                                        :oantolin:
+* [[https://github.com/oantolin/orderless][orderless]]
 This package adds an advanced completions style to Emacs.
 The style is space-separated and each separated block can match using several different completion patterns.
 It sounds complex but is actually very intuitive to use compared to most of the built-in completions.
@@ -415,6 +462,7 @@ It sounds complex but is actually very intuitive to use compared to most of the 
 * org
 #+BEGIN_SRC emacs-lisp
 (use-package org
+  :ensure nil
   :config
   ;; Org-babel supported languages
   (org-babel-do-load-languages
@@ -438,7 +486,7 @@ We use them in my work and this package adds support for the protobuf syntax.
   :mode ("\\.proto\\'"))
 #+END_SRC
 
-* [[https://protesilaos.com/emacs/pulsar][pulsar]]                                                        :protesilaos:
+* [[https://protesilaos.com/emacs/pulsar][pulsar]]
 Emacs has a built-in pulse.el which works well enough.
 If you want to try it, check out Karthink’s blog.
 This package extends pulse.el and is a bit more minimalistic than beacon which offers similar functionality.
@@ -448,7 +496,7 @@ This package extends pulse.el and is a bit more minimalistic than beacon which o
   :ensure t
   :bind (("C-c h p" . pulsar-pulse-line)
          ("C-c h h" . pulsar-highlight-dwim))
-  :init (pulsar-global-mode 1)
+  :config (pulsar-global-mode 1)
   :custom
   (pulsar-pulse t)
   (pulsar-delay 0.055)
@@ -486,13 +534,11 @@ This package extends pulse.el and is a bit more minimalistic than beacon which o
                             outline-forward-same-level
                             outline-next-visible-heading
                             outline-previous-visible-heading
-                            outline-up-heading))
-
-  (pulsar-global-mode 1))
+                            outline-up-heading)))
 #+END_SRC
 
 * COMMENT puni
-* [[https://github.com/Fanael/rainbow-delimiters][rainbow-delimiters]]
+* COMMENT [[https://github.com/Fanael/rainbow-delimiters][rainbow-delimiters]]
 #+BEGIN_SRC emacs-lisp
 (use-package rainbow-delimiters
   :ensure t
@@ -500,9 +546,29 @@ This package extends pulse.el and is a bit more minimalistic than beacon which o
 #+END_SRC
 
 * COMMENT rainbow-mode
+* shell
+This is just a dumb emacs interface to the system shell.
+It is non-interactive but retains emacs keybindings which is quite nice.
+For an interactive terminal, you'll need to use =ansi-term=.
+
+#+BEGIN_SRC emacs-lisp
+(use-package shell
+  :ensure nil
+  :init (setq comint-process-echoes t) ; remove zsh echoing
+  :config
+  (defun xcc/shell-cur-dir ()
+    (interactive)
+    (shell (concat "*shell" default-directory "*")))
+  (transient-define-prefix spawn-shell-prefix ()
+    "Prefix that allows spawning shells"
+    [("<return>" "current directory" xcc/shell-cur-dir)])
+  :bind ("C-c s" . spawn-shell-prefix))
+#+END_SRC
+
 * subword
 #+BEGIN_SRC emacs-lisp
 (use-package subword
+  :ensure nil
   :hook (prog-mode . subword-mode))
 #+END_SRC
 
@@ -526,14 +592,46 @@ This package add support for the Typescript programming language to Emacs.
 #+END_SRC
 
 * COMMENT undo-hl
-* [[https://github.com/minad/vertico][vertico]]                                                             :minad:
+* COMMENT [[https://github.com/minad/vertico][vertico]]
 An improved vertical completion UI for Emacs.
 This synergizes nicely with marginalia and orderless.
 
 #+BEGIN_SRC emacs-lisp
 (use-package vertico
   :ensure t
-  :init (vertico-mode 1))
+  :config
+  (vertico-mode 1))
+
+(use-package vertico-multiform
+  :after vertico
+  :ensure nil
+  :init (vertico-multiform-mode 1)
+  :custom
+  (vertico-multiform-categories
+   '((file reverse )
+     (consult-grep buffer)
+     (consult-location buffer)
+     (imenu buffer)
+     (t reverse)
+     ))
+  (vertico-multiform-commands
+   '(("flyspell-correct-*" reverse)
+     (org-refile grid reverse indexed)
+     (consult-yank-pop indexed)
+     (consult-flymake buffer)
+     (consult-lsp-diagnostics)
+     )))
+
+(use-package vertico-directory
+  :after vertico
+  :ensure nil
+  ;; More convenient directory navigation commands
+  :bind (:map vertico-map
+              ("RET" . vertico-directory-enter)
+              ("DEL" . vertico-directory-delete-char)
+              ("M-DEL" . vertico-directory-delete-word))
+  ;; Tidy shadowed file names
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 #+END_SRC
 
 * [[https://github.com/casouri/vundo][vundo]]
@@ -563,6 +661,7 @@ This package adds a undo tree visualization.
 * whitespace
 #+BEGIN_SRC emacs-lisp
 (use-package whitespace
+  :ensure nil
   :init (global-whitespace-mode 1)
   :custom
   (whitespace-style (quote (face trailing missing-newline-at-eof empty tab-mark)))
@@ -578,11 +677,10 @@ This package adds a undo tree visualization.
 
 * [[https://github.com/mhayashi1120/Emacs-wgrep][wgrep]]
 This package allows me to edit =grep= buffers in the same way we can edit files and directories with =wdired=.
-Unfortunately we need a local clone of the source because we are using =package.el= and this package isn't in melpa or elpa.
 
 #+BEGIN_SRC emacs-lisp
 (use-package wgrep
-  :load-path "~/.config/emacs/site-lisp/Emacs-wgrep")
+  :vc (:fetcher github :repo mhayashi1120/Emacs-wgrep))
 #+END_SRC
 
 * COMMENT yaml-mode
