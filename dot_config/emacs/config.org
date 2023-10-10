@@ -166,12 +166,12 @@ In addition this package improves the UX when doing a query replace (=M-%= in =i
 (use-package anzu
   :ensure t
   :bind (([remap isearch-query-replace] . anzu-isearch-query-replace)
-	 ([remap isearch-query-replace-regexp] . anzu-isearch-query-replace-regexp))
+         ([remap isearch-query-replace-regexp] . anzu-isearch-query-replace-regexp))
   :init (global-anzu-mode 1)
   :custom ((anzu-deactivate-region t) ; deactivate region when anzu overlay starts for constrast
-	   (anzu-search-threshold 1000)
-	   (anzu-replace-threshold 50)
-	   (anzu-replace-to-string-separator " => ")))
+           (anzu-search-threshold 1000)
+           (anzu-replace-threshold 50)
+           (anzu-replace-to-string-separator " => ")))
 #+END_SRC
 
 * COMMENT [[https://github.com/radian-software/apheleia][apheleia]]
@@ -186,7 +186,23 @@ The corresponding emacs package does all necessary environment setup so tools in
   :config (asdf-enable))
 #+END_SRC
 
-* COMMENT avy
+* [[https://github.com/abo-abo/avy][avy]]
+
+#+BEGIN_SRC emacs-lisp
+(use-package avy
+  :ensure t
+  :bind (("C-c s" . avy-goto-char-timer)
+         ("C-z" . avy-goto-char-timer) ;; replace suspend frame
+         ([remap goto-line] . avy-goto-line) ;; M-g g or M-g M-g
+         :map isearch-mode-map
+         ("C-c s" . avy-isearch))
+  :custom
+  (avy-style 'at-full)
+  (avy-timeout-seconds 0.25)
+  (avy-case-fold-search nil)
+  (avy-background nil))
+#+END_SRC
+
 * [[https://github.com/tuh8888/chezmoi.el][chezmoi]]
 chezmoi is a [[https://www.chezmoi.io/][dotfiles manager]] that I use to manage my configurations (including this one).
 This package exposes some chezmoi commands to emacs.
@@ -196,11 +212,13 @@ This package exposes some chezmoi commands to emacs.
   :ensure t)
 #+END_SRC
 
-* COMMENT [[https://github.com/minad/consult][consult]]
+* [[https://github.com/minad/consult][consult]]
 #+BEGIN_SRC emacs-lisp
 (use-package consult
   :ensure t
-  :bind (:map isearch-mode-map
+  :bind (([remap switch-to-buffer] . consult-buffer) ;; C-x b
+         ([remap yank-pop] . consult-yank-pop) ;; M-y
+         :map isearch-mode-map
               ("C-c l" . consult-line)))
 #+END_SRC
 
@@ -224,6 +242,8 @@ The license to Copilot is provided through my work.
      ("<SPC>" "accept completion by word" copilot-accept-completion-by-word :transient t)
      ("<backspace>" "clear overlay" copilot-clear-overlay)])
   :bind (:map copilot-mode-map
+              ("S-<tab>" . copilot-accept-completion)
+              ("S-<SPC>" . copilot-accept-completion-by-word)
               ("C-c c" . copilot-prefix)))
 #+END_SRC
 
@@ -257,6 +277,7 @@ LSP should usually handle this functionality but =dumb-jump= is a solid fallback
 (use-package dumb-jump
   :ensure t
   :after xref
+  :custom (dumb-jump-force-searcher 'rg)
   :config (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 #+END_SRC
 
@@ -360,7 +381,7 @@ In addition to syntax highlighting and basic semantic motions, it provides integ
   :bind ([remap list-buffers] . ibuffer)) ;; C-x C-b
 #+END_SRC
 
-* icomplete
+* COMMENT icomplete
 
 #+BEGIN_SRC emacs-lisp
 (use-package icomplete
@@ -401,7 +422,7 @@ Emacs has =vc-mode= which is built-in but magit is widely regarded as one of the
   :hook magit-mode)
 #+END_SRC
 
-* COMMENT [[https://github.com/minad/marginalia][marginalia]]
+* [[https://github.com/minad/marginalia][marginalia]]
 Add helpful marginalia to minibuffer completions
 
 #+BEGIN_SRC emacs-lisp
@@ -475,6 +496,15 @@ It sounds complex but is actually very intuitive to use compared to most of the 
 #+END_SRC
 
 * COMMENT printing
+* [[https://github.com/alphapapa/prism.el][prism.el]]
+
+#+BEGIN_SRC emacs-lisp
+(use-package prism
+  :ensure t
+  :mode (("\\.proto\\'" . prism-mode)
+         ("^Tiltfile\\'" . prism-whitespace-mode)))
+#+END_SRC
+
 * [[https://github.com/protocolbuffers/protobuf/blob/main/editors/protobuf-mode.el][protobuf-mode]]
 [[https://protobuf.dev/][Protocol Buffers]] are used to serialize structured data.
 We use them in my work and this package adds support for the protobuf syntax.
@@ -496,6 +526,38 @@ This package extends pulse.el and is a bit more minimalistic than beacon which o
   :ensure t
   :bind (("C-c h p" . pulsar-pulse-line)
          ("C-c h h" . pulsar-highlight-dwim))
+  :commands (recenter-top-bottom
+             move-to-window-line-top-bottom
+             reposition-window
+             bookmark-jump
+             other-window
+             ace-window
+             delete-window
+             delete-other-windows
+             forward-page
+             backward-page
+             scroll-up-command
+             scroll-down-command
+             windmove-right
+             windmove-left
+             windmove-up
+             windmove-down
+             windmove-swap-states-right
+             windmove-swap-states-left
+             windmove-swap-states-up
+             windmove-swap-states-down
+             tab-new
+             tab-close
+             tab-next
+             org-next-visible-heading
+             org-previous-visible-heading
+             org-forward-heading-same-level
+             org-backward-heading-same-level
+             outline-backward-same-level
+             outline-forward-same-level
+             outline-next-visible-heading
+             outline-previous-visible-heading
+             outline-up-heading)
   :config (pulsar-global-mode 1)
   :custom
   (pulsar-pulse t)
@@ -592,7 +654,7 @@ This package add support for the Typescript programming language to Emacs.
 #+END_SRC
 
 * COMMENT undo-hl
-* COMMENT [[https://github.com/minad/vertico][vertico]]
+* [[https://github.com/minad/vertico][vertico]]
 An improved vertical completion UI for Emacs.
 This synergizes nicely with marginalia and orderless.
 
@@ -617,7 +679,7 @@ This synergizes nicely with marginalia and orderless.
   (vertico-multiform-commands
    '(("flyspell-correct-*" reverse)
      (org-refile grid reverse indexed)
-     (consult-yank-pop indexed)
+     (consult-yank-pop buffer)
      (consult-flymake buffer)
      (consult-lsp-diagnostics)
      )))
@@ -632,6 +694,11 @@ This synergizes nicely with marginalia and orderless.
               ("M-DEL" . vertico-directory-delete-word))
   ;; Tidy shadowed file names
   :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+
+(use-package vertico-mouse
+  :after vertico
+  :ensure nil
+  :init (vertico-mouse-mode 1))
 #+END_SRC
 
 * [[https://github.com/casouri/vundo][vundo]]
