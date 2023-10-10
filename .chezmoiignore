@@ -1,6 +1,8 @@
 README.org
 Brewfile
 Brewfile.lock.json
+dnffile
 {{ if ne .chezmoi.os "darwin" -}}
 .zshrc
+.psqlrc
 {{- end }}

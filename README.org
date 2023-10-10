@@ -1,8 +1,149 @@
 #+TITLE: Dotfiles
 #+AUTHOR: Xavier Capaldi
+#+PROPERTY: header-args :results silent
 
 My dotfiles using [[https://www.chezmoi.io/][Chezmoi]]:
 
 - [[file:dot_zshrc][zshrc]]
 - [[file:dot_psqlrc][psqlrc]]
 - [[file:dot_config/emacs/config.org][emacs]]
+
+Note that this is currently used to configure my personal Fedora box and my work MacOS box.
+In both cases I've slowly steered away from super complex configurations in favor of using default functionality.
+I would prefer to spend time potentially lost in a rabbit hole of configuration on real projects.
+
+* Personal linux box
+I prefer to use [[https://getfedora.org/][Fedora Linux]] as it is a well-behaved modern Linux distribution that is dedicated to open-source.
+In general Fedora packages are kept more up to date than those for Debian while still being quite stable.
+Fedora is also known to push for new innovations in desktop Linux.
+
+The packages I want on the system are stored in [[file:dnffile][dnffile]] and can be installed in a single transaction with DNF.
+This is a direct analogy to a Brewfile on Macos.
+
+** Installing a minimal system
+If you don't want the hassle of such a complex setup, consider installing the [[https://spins.fedoraproject.org/en/xfce/][XFCE]] or [[https://spins.fedoraproject.org/en/i3/][i3wm]] spins that come preconfigured for their respective window managers.
+
+*** Installation
+Start with a [[https://alt.fedoraproject.org/][Fedora network installer]].
+Select the minimal installation with no addons.
+Make sure you set a root password and a user with administrative privileges.
+
+*** Disk partitioning
+Be careful with automatic partitioning.
+I've found it won't use the whole hard drive unless instructed.
+
+- Click custom partitioning and click the old partition tree and then the minus.
+- Delete everything.
+- Then click =automatically generate new partitioning scheme.=
+- Look at the details and look at the =/= partition (which is home).
+- It will be very small (15 GiB).
+- Change it to a number larger than your remaining space and it will automatically increase appropriately.
+
+After the install you can log into the tty.
+
+*** Install packages with DNF
+Fedora's package manager, DNF, supports transactional operations.
+We can maintain the packages we care about for our system in [[file:dnffile][dnffile]] and pass it to =dnf shell= to be installed as a single transaction.
+First, we should force usage of the fastest mirror:
+
+#+BEGIN_SRC sh :dir /sudo::
+echo "fastestmirror=True" | tee -a /etc/dnf/dnf.conf
+#+END_SRC
+
+Tangle the following minimal set of packages into a file:
+
+#+BEGIN_SRC sh :tangle /tmp/minimal-install
+# Remove plymouth so we can see boot sequence
+remove plymouth-*
+
+# Wifi
+install NetworkManager NetworkManager-wifi
+# complex configuration requires applet for system tray
+install network-manager-applet
+
+# Graphical display (xorg)
+install xorg-x11-server-Xorg xorg-x11-xinit
+install xorg-x11-drv-intel
+# graphical tool for changing screen resolution
+install arandr
+
+# Compositor (need for screen sharing)
+install xcompmgr
+
+# Audio
+# install alsa-utils
+install pulseaudio pavucontrol pulseaudio-utils
+# system tray icon
+install pasystray
+
+# Power management
+install acpi
+# system tray icon
+install battray
+
+# Backlight
+install light
+
+# System tray (if window manager doesn't come with it)
+# install stalonetray
+
+# Screen locker
+install xlockmore
+
+# SSH
+install x11-ssh-askpass
+
+# Keybindings
+# install xbindkeys
+
+# Window manager
+install jwm
+#+END_SRC
+
+and install them:
+
+#+BEGIN_SRC sh :dir /sudo::
+dnf shell /tmp/minimal-install
+#+END_SRC
+
+Install and initialize Chezmoi:
+#+BEGIN_SRC sh
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply xcapaldi
+#+END_SRC
+
+*** COMMENT Git software
+**** Dragon
+
+#+BEGIN_SRC sh
+dnf install gtk3-devel
+#+END_SRC
+
+#+BEGIN_SRC sh
+git clone https://github.com/mwh/dragon ~/Checkout/dragon
+cd ~/Checkout/dragon
+make && sudo make install
+#+END_SRC
+
+**** Jumpapp
+
+#+BEGIN_SRC sh :var user="xavier"
+git clone https://github.com/mkropat/jumpapp.git ~/Checkout/jumpapp
+cd ~/Checkout/jumpapp
+make && sudo make install
+#+END_SRC
+
+*** Use posix-compliant shell
+Alias =sh= to =dash= instead of =bash=.
+This should speed up posix-compliant scripts.
+
+#+BEGIN_SRC sh :dir /sudo::
+rm /bin/sh
+ln -s /bin/dash /bin/sh
+#+END_SRC
+
+*** COMMENT Non-standard fonts
+#+BEGIN_SRC sh :dir /sudo::
+curl https://dtinth.github.io/comic-mono-font/ComicMono.ttf --output /usr/local/share/fonts/ComicMono.ttf
+curl https://dtinth.github.io/comic-mono-font/ComicMono-Bold.ttf --output /usr/local/share/fonts/ComicMono-Bold.ttf
+#+END_SRC
+
