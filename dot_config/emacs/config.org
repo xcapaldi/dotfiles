@@ -90,39 +90,45 @@ It should be initialized as early as possible in the configuration.
 
 ** set defaults
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref SET_DEFAULTS
-(setq-default
- coding-system-for-read 'utf-8                ; Use UTF-8 by default
- coding-system-for-write 'utf-8
- cursor-in-non-selected-windows t             ; Don't hide the cursor in inactive windows
- help-window-select t                         ; Focus new help windows when opened
- indent-tabs-mode nil                         ; Prefer spaces over tabs
- indicate-empty-lines t                       ; Display bitmap in left fringe on empty lines
- inhibit-startup-screen t                     ; Remove default start screen
- ring-bell-function 1                         ; Use a visual bell
- select-enable-clipboard t                    ; Merge emacs and system clipboard
- tab-always-indent 'complete                  ; Use tab as a completion instead of C-M-i
- tab-width 4                                  ; Set width for tabs
- view-read-only t                             ; Always open read-only buffers in view-mode
- visible-bell t                               ; Use a visual bell
- vc-follow-symlinks t)                        ; Don't ask for confirmation following symlinked files
+  (setq-default
+   coding-system-for-read 'utf-8                ; Use UTF-8 by default
+   coding-system-for-write 'utf-8
+   cursor-in-non-selected-windows t             ; Don't hide the cursor in inactive windows
+   help-window-select t                         ; Focus new help windows when opened
+   indent-tabs-mode nil                         ; Prefer spaces over tabs
+   indicate-empty-lines t                       ; Display bitmap in left fringe on empty lines
+   inhibit-startup-screen t                     ; Remove default start screen
+   ring-bell-function 1                         ; Use a visual bell
+   select-enable-clipboard t                    ; Merge emacs and system clipboard
+   tab-always-indent 'complete                  ; Use tab as a completion instead of C-M-i
+   tab-width 4                                  ; Set width for tabs
+   view-read-only t                             ; Always open read-only buffers in view-mode
+   visible-bell t                               ; Use a visual bell
+   vc-follow-symlinks t                         ; Don't ask for confirmation following symlinked files
+   show-trailing-whitespace t                   ; Highlight trailing whitespace at end of line
+   indicate-buffer-boundaries 'left             ; Indicate last newline in buffer
+   require-final-newline t                      ; Always insert final newline on save
+   sentence-end-double-space nil                ; Sentences end with punctuation and single space
+   show-paren-delay 0                           ; No delay on highlighting matching paren
+   indent-tabs-mode -1                          ; Use spaces by default instead of tabs
+   global-visual-line-mode 0                    ; Don't always wrap lines instead of extending past view
+   global-hl-line-mode 1                        ; Highlight current line
+   display-fill-column-indicator-mode 0         ; add indicator for the fill line
+   column-number-mode 1                         ; Show the column number
+   tool-bar-mode 1                              ; Hide the toolbar
+   menu-bar-mode 1                              ; Hide the menubar
+   tooltip-mode 0                               ; Remove mouse hover tooltips
+   scroll-bar-mode 1                            ; Hide the scrollbar
+   blink-cursor-mode 1                          ; Don't blink the cursor
+   show-paren-mode 1                            ; Show matching parens
+   global-auto-revert-mode 1                    ; If file changes on disk, update the buffer automatically
+   pixel-scroll-precision-mode 1                ; Smooth scrolling
+   context-menu-mode 1)                         ; Don't replace standard mouse-3 actions with context menu
  #+END_SRC
 
 ** set global modes
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref SET_GLOBAL_MODES
-(global-visual-line-mode 0)            ; Don't always wrap lines instead of extending past view
-(global-hl-line-mode 1)                ; Highlight current line
-(display-fill-column-indicator-mode 0) ; add indicator for the fill line
-(column-number-mode 1)                 ; Show the column number
 (fset 'yes-or-no-p 'y-or-n-p)          ; Replace yes/no prompts with y/n
-(tool-bar-mode 1)                      ; Hide the toolbar
-(menu-bar-mode 1)                      ; Hide the menubar
-(tooltip-mode 0)                       ; Remove mouse hover tooltips
-(scroll-bar-mode 1)                    ; Hide the scrollbar
-(blink-cursor-mode 0)                  ; Don't blink the cursor
-(show-paren-mode 1)                    ; Show matching parens
-(global-auto-revert-mode 1)            ; If file changes on disk, update the buffer automatically
-(pixel-scroll-precision-mode 1)        ; Smooth scrolling
-(context-menu-mode 0)                  ; Don't replace standard mouse-3 actions with context menu
 #+END_SRC
 
 ** minibuffer
