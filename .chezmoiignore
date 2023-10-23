@@ -8,4 +8,7 @@ dnffile
 .vim
 .vim/pack/plugins/start/**
 .vim/pack/plugins/opt/**
-{{- end }}
+{{ else if ne .chezmoi.os "linux" -}}
+.config/icewm
+.Xresources
+{{ end -}}

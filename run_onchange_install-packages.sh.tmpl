@@ -1,15 +1,21 @@
 {{ if eq .chezmoi.os "linux" -}}
 #!/bin/sh
 
-# dnffile hash: {{ include "dnffile" | sha256sum }}
-sudo dnf shell {{ joinPath .chezmoi.sourceDir "dnffile" | quote }}
+sudo zypper --non-interactive install chezmoi \
+                                      zip \
+                                      git \
+                                      gh \
+                                      emacs \
+                                      gnu-unifont-otf-fonts \
+                                      google-noto-coloremoji-fonts \
+                                      gdouros-symbola-fonts \ # Emacs uses symbola as fallback by default
+                                      bitwarden \
+                                      mpv \
 
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 flatpak install com.valvesoftware.Steam \
                 com.discordapp.Discord \
-                org.gnucash.GnuCash \
                 com.bitwarden.desktop \
-                org.mozilla.firefox \
                 com.github.tchx84.Flatseal \
 {{ else if eq .chezmoi.os "darwin" -}}
 #!/bin/sh
