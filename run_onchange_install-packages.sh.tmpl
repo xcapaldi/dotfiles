@@ -8,15 +8,16 @@ sudo zypper --non-interactive install chezmoi \
                                       emacs \
                                       gnu-unifont-otf-fonts \
                                       google-noto-coloremoji-fonts \
-                                      gdouros-symbola-fonts \ # Emacs uses symbola as fallback by default
+                                      gdouros-symbola-fonts \
                                       bitwarden \
                                       mpv \
+                                      flatpak \
 
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-flatpak install com.valvesoftware.Steam \
-                com.discordapp.Discord \
-                com.bitwarden.desktop \
-                com.github.tchx84.Flatseal \
+sudo flatpak install -y com.valvesoftware.Steam \
+                   com.discordapp.Discord \
+                   com.bitwarden.desktop \
+                   com.github.tchx84.Flatseal \
 {{ else if eq .chezmoi.os "darwin" -}}
 #!/bin/sh
 
