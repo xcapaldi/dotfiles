@@ -240,6 +240,17 @@
   :mode (("\\.go\\'" . go-mode)
          ("\\.mod\\'" . go-dot-mod-mode)))
 
+(use-package grep
+  ;; Native grep interface
+  :ensure nil
+  :config
+  ;; replace grepping commands with ripgrep if available
+  ;; https://stegosaurusdormant.com/emacs-ripgrep/
+  (if (executable-find "rg")
+      (grep-apply-setting
+       'grep-find-command
+       '("rg -n -H --no-heading -e '' $(git rev-parse --show-toplevel || pwd)" . 27))))
+
 ;; helpful
 
 (use-package hippie-exp
