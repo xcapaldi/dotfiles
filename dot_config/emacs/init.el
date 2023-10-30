@@ -278,16 +278,16 @@
   :ensure nil
   :mode "\\.js[x]\\'")
 
-;; (use-package magit
-;;   ;; https://magit.vc/
-;;   ;; Git porcelain.
-;;   :ensure t)
+(use-package magit
+  ;; https://magit.vc/
+  ;; Git porcelain.
+  :ensure t)
 
-;; (use-package magit-todos
-;;   ;; https://github.com/alphapapa/magit-todos
-;;   ;; Highlight TODOs in magit interface.
-;;   :ensure t
-;;   :hook magit-mode)
+(use-package magit-todos
+  ;; https://github.com/alphapapa/magit-todos
+  ;; Highlight TODOs in magit interface.
+  :ensure t
+  :hook magit-mode)
 
 (use-package markdown-mode
   ;; https://jblevins.org/projects/markdown-mode/
