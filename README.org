@@ -75,7 +75,7 @@ sudo rm /bin/sh
 sudo ln -s /bin/dash /bin/sh
 #+END_SRC
 
-*** Replace screenlocker
+*** COMMENT Replace screenlocker
 #+BEGIN_SRC sh
 sudo zypper install xlockmore -xscreensaver -xscreensaver-data -xscreensaver-lang
 #+END_SRC
