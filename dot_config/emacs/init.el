@@ -189,7 +189,18 @@
 (use-package eglot
   ;; Native LSP client
   :ensure nil
-  :commands eglot)
+  :commands eglot
+  :config
+  (transient-define-prefix eglot-prefix ()
+    "Prefix that allows control of eglot LSP interface"
+    [("f" "format" eglot-format)
+     ("s" "shutdown" eglot-shutdown)
+     ("S" "shutdown all" eglot-shutdown-all)
+     ("R" "reconnect" eglot-reconnect)
+     ("a" "code actions" eglot-code-actions)
+     ("r" "rename" eglot-rename)])
+  :bind (:map eglot-mode-map
+              ("C-c l" . eglot-prefix)))
 
 ;; elfeed
 
