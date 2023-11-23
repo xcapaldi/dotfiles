@@ -279,7 +279,7 @@
   :init (icomplete-mode)
   ;; M-TAB is the normal keybind but often conflicts with window managers
   :bind (:map icomplete-minibuffer-map
-			  ("M-j" . icomplete-force-complete))
+			  ("C-k" . icomplete-force-complete))
   :custom
   (icomplete-prospects-height 1)
   (completion-styles '(flex basic)))
