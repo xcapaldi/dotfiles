@@ -2,24 +2,30 @@
 #!/bin/sh
 
 sudo zypper --non-interactive refresh
-sudo zypper --non-interactive install chezmoi \
-                                      zip \
-                                      git \
-                                      gh \
-                                      emacs \
-                                      gnu-unifont-otf-fonts \
-                                      google-noto-coloremoji-fonts \
-                                      gdouros-symbola-fonts \
-                                      bitwarden \
-                                      mpv \
-                                      flatpak \
-                                      python311-pipx \
+sudo zypper --non-interactive install \
+	age \
+	bitwarden \
+	chezmoi \
+	emacs \
+	flatpak \
+	gdouros-symbola-fonts \
+	gh \
+	git \
+	gnu-unifont-otf-fonts \
+	google-noto-coloremoji-fonts \
+	isync \
+	mpv \
+	notmuch \
+	notmuch-emacs \
+	python311-pipx \
+	zip \
 
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-sudo flatpak install -y com.valvesoftware.Steam \
-                   com.discordapp.Discord \
-                   com.bitwarden.desktop \
-                   com.github.tchx84.Flatseal \
+sudo flatpak install -y \
+	com.valvesoftware.Steam \
+	com.discordapp.Discord \
+	com.bitwarden.desktop \
+	com.github.tchx84.Flatseal \
 
 # development tooling
 pipx install jedi-language-server

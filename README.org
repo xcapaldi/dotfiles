@@ -75,6 +75,24 @@ sudo rm /bin/sh
 sudo ln -s /bin/dash /bin/sh
 #+END_SRC
 
+*** Email
+Email on my Linux box is one of the more complex configurations managed in Chezmoi.
+All of the configurations contain some level of personal information.
+Nevertheless I'd like to manage them here.
+The solution is to configure them as encrypted configurations.
+I like to use [[https://github.com/FiloSottile/age][age]] for encryption because it is far easier to work with than gpg.
+I can generate a keyfile with ~age-keygen -o /home/xavier/Documents/org/chezmoi-key.txt~ and configure chezmoi on my linux machine via its =~/.config/chezmoi/chezmoi.toml=:
+
+#+BEGIN_SRC
+encryption = "age"
+[age]
+    identity = "/home/xavier/Documents/org/chezmoi-key.txt"
+    recipient = "<generated-public-key>"
+#+END_SRC
+
+This key becomes the only important piece that isn't maintained with the rest of my configuration.
+=chezmoi edit= will now use this to decrypt my sensitive email-related configurations.
+
 *** COMMENT Replace screenlocker
 #+BEGIN_SRC sh
 sudo zypper install xlockmore -xscreensaver -xscreensaver-data -xscreensaver-lang
