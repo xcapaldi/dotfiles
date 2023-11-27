@@ -92,6 +92,21 @@
 
 ;; ace-window
 
+(use-package age
+  ;; https://github.com/anticomputer/age.el
+  ;; Add support for Age encryption/decryption.
+  :ensure t
+  :if (eq system-type 'gnu/linux)
+  :demand t
+  :custom
+  (age-default-identity '("/home/xavier/Documents/org/age_general"
+			  "/home/xavier/Documents/org/age_chezmoi"))
+  (age-default-recipient '("/home/xavier/Documents/org/age_general.pub"
+			   "/home/xavier/Documents/org/age_chezmoi.pub"))
+  (auth-sources '("~/.authinfo" "~/.authinfo.gpg" "~/.authinfo.age" "~/.netrc"))
+  :config
+  (age-file-enable))
+
 (use-package anzu
   ;; https://github.com/emacsorphanage/anzu
   ;; Improve UX of isearch and query replace (M-%) in isearch.
@@ -162,7 +177,7 @@
 (use-package dired
   ;; Native file explorer
   :ensure nil
-  :custom ((dired-listing-switches "-alh"))
+  :custom (dired-listing-switches "-alh")
   ;; allow navigating directories in current buffer with 'a'
   :config (put 'dired-find-alternate-file 'disabled nil))
 
@@ -236,6 +251,9 @@
   :config (exec-path-from-shell-initialize))
 
 ;; focus
+
+;; email configuration -- stored in separate encrypted file
+(load-file (concat user-emacs-directory "gnus.el"))
 
 ;; (use-package go-dlv
 ;;   ;; https://github.com/benma/go-dlv.el

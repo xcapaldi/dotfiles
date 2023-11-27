@@ -11,7 +11,4 @@ dnffile
 {{ else if ne .chezmoi.os "linux" -}}
 .config/icewm
 .Xresources
-.mbsyncrc
-.config/msmtp
-.config/notmuch
 {{ end -}}
