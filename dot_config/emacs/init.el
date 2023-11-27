@@ -96,13 +96,12 @@
   ;; https://github.com/anticomputer/age.el
   ;; Add support for Age encryption/decryption.
   :ensure t
-  :if (eq system-type 'gnu/linux)
   :demand t
   :custom
-  (age-default-identity '("/home/xavier/Documents/org/age_general"
-			  "/home/xavier/Documents/org/age_chezmoi"))
-  (age-default-recipient '("/home/xavier/Documents/org/age_general.pub"
-			   "/home/xavier/Documents/org/age_chezmoi.pub"))
+  (age-default-identity '("~/Documents/org/age_general"
+			  "~/Documents/org/age_chezmoi"))
+  (age-default-recipient '("~/Documents/org/age_general.pub"
+			   "~/Documents/org/age_chezmoi.pub"))
   (auth-sources '("~/.authinfo" "~/.authinfo.gpg" "~/.authinfo.age" "~/.netrc"))
   :config
   (age-file-enable))
@@ -253,7 +252,8 @@
 ;; focus
 
 ;; email configuration -- stored in separate encrypted file
-(load-file (concat user-emacs-directory "gnus.el"))
+(if (eq system-type 'gnu/linux)
+  (load-file (concat user-emacs-directory "gnus.el")))
 
 ;; (use-package go-dlv
 ;;   ;; https://github.com/benma/go-dlv.el

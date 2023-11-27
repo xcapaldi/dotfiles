@@ -11,4 +11,6 @@ dnffile
 {{ else if ne .chezmoi.os "linux" -}}
 .config/icewm
 .Xresources
+.authinfo.age
+.config/emacs/gnus.el
 {{ end -}}

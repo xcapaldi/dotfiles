@@ -12,6 +12,7 @@ brew "coreutils"
 brew "gnu-sed"
 brew "findutils"
 brew "fzf"
+brew "age"
 
 cask "docker"
 cask "google-chrome"
