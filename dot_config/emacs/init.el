@@ -52,9 +52,13 @@
 
   ;; only enable font if available on system
   (when (member "Unifont" (font-family-list))
-    (set-frame-font "Unifont-12:regular" nil t)
-    (add-to-list 'initial-frame-alist '(font . "Unifont-12:regular"))
-    (add-to-list 'default-frame-alist '(font . "Unifont-12:regular")))
+    (if (equal system-type 'darwin)
+        (progn (set-frame-font "Unifont-15:regular" nil t)
+               (add-to-list 'initial-frame-alist '(font . "Unifont-15:regular"))
+               (add-to-list 'default-frame-alist '(font . "Unifont-15:regular")))
+      (progn (set-frame-font "Unifont-12:regular" nil t)
+             (add-to-list 'initial-frame-alist '(font . "Unifont-12:regular"))
+             (add-to-list 'default-frame-alist '(font . "Unifont-12:regular")))))
   ;; set fallback fonts for symbols and emoji
   (set-fontset-font t 'symbol (font-spec :family "Apple Symbols") nil 'prepend)
   (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend)
