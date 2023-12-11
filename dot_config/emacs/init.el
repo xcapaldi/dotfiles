@@ -147,6 +147,9 @@
 ;;   (avy-case-fold-search nil)
 ;;   (avy-background nil))
 
+;; browse-at-remote
+;; https://github.com/rmuslimov/browse-at-remote
+
 (use-package chezmoi
   ;; https://github.com/tuh8888/chezmoi.el
   ;; Chezmoi is a dotfiles manager. This package exposes some chezmoi
@@ -173,7 +176,11 @@
               ("S-<SPC>" . copilot-accept-completion-by-word)
               ("C-c c" . copilot-prefix)))
 
-;; denote
+(use-package denote
+  ;; https://github.com/protesilaos/denote
+  :ensure t)
+
+;; denote-menu
 
 ;; dimmer
 
