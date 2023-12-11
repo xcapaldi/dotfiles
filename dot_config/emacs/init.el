@@ -318,16 +318,18 @@
   :ensure nil
   :mode "\\.js[x]\\'")
 
-(use-package magit
+;; This package may still be useful, but vc-annotate (C-x v g) serves
+;; my current needs. I otherwise interact with git via the cli.
+;;(use-package magit
   ;; https://magit.vc/
   ;; Git porcelain.
-  :ensure t)
+;;  :ensure t)
 
-(use-package magit-todos
+;;(use-package magit-todos
   ;; https://github.com/alphapapa/magit-todos
   ;; Highlight TODOs in magit interface.
-  :ensure t
-  :hook magit-mode)
+;;  :ensure t
+;;  :hook magit-mode)
 
 (use-package markdown-mode
   ;; https://jblevins.org/projects/markdown-mode/
