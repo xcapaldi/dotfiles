@@ -1,4 +1,5 @@
 {{ if eq .chezmoi.os "linux" -}}
+{{   if eq .chezmoi.osRelease.id "opensuse-tumbleweed" -}}
 #!/bin/sh
 
 sudo zypper --non-interactive refresh
@@ -26,7 +27,17 @@ sudo flatpak install -y \
 
 # development tooling
 pipx install jedi-language-server
+{{   else if eq .chezmoi.osRelease.id "ubuntu" -}}
+#!/bin/sh
 
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install --assume-yes \
+	age \
+	gh \
+	git \
+sudo apt autoremove
+{{   end -}}
 {{ else if eq .chezmoi.os "darwin" -}}
 #!/bin/sh
 
