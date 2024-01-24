@@ -53,9 +53,9 @@
   ;; only enable font if available on system
   (when (member "Unifont" (font-family-list))
     (if (equal system-type 'darwin)
-        (progn (set-frame-font "Unifont-15:regular" nil t)
-               (add-to-list 'initial-frame-alist '(font . "Unifont-15:regular"))
-               (add-to-list 'default-frame-alist '(font . "Unifont-15:regular")))
+        (progn (set-frame-font "Unifont-16:regular" nil t)
+               (add-to-list 'initial-frame-alist '(font . "Unifont-16:regular"))
+               (add-to-list 'default-frame-alist '(font . "Unifont-16:regular")))
       (progn (set-frame-font "Unifont-12:regular" nil t)
              (add-to-list 'initial-frame-alist '(font . "Unifont-12:regular"))
              (add-to-list 'default-frame-alist '(font . "Unifont-12:regular")))))
@@ -66,7 +66,13 @@
   (setq-default line-spacing 0.1)
   (when (equal system-type 'darwin)
     (setq mac-command-modifier 'meta)
-    (setq mac-option-modifier 'super)))
+    (setq mac-option-modifier 'super))
+
+  ;; disable C-scrolling to change font size on Mac.
+  ;; The trackpad scrolls very fast and scales the font size too much.)
+  (when (equal system-type 'darwin)
+    (global-set-key (kbd "C-<wheel-up>") nil)
+    (global-set-key (kbd "C-<wheel-down>") nil)))
 
 ;;;; package management and configuration
 (require 'package)
