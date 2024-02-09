@@ -139,22 +139,25 @@
   :if (eq system-type 'darwin)
   :config (asdf-enable))
 
-;; (use-package avy
-;;   ;; https://github.com/abo-abo/avy
-;;   :ensure t
-;;   :bind (("C-c s" . avy-goto-char-timer)
-;;          ("C-z" . avy-goto-char-timer) ;; replace suspend frame
-;;          ([remap goto-line] . avy-goto-line) ;; M-g g or M-g M-g
-;;          :map isearch-mode-map
-;;          ("C-c s" . avy-isearch))
-;;   :custom
-;;   (avy-style 'at-full)
-;;   (avy-timeout-seconds 0.25)
-;;   (avy-case-fold-search nil)
-;;   (avy-background nil))
+(use-package avy
+  ;; https://github.com/abo-abo/avy
+  :ensure t
+  :bind (("C-c s" . avy-goto-char-timer)
+         ("C-z" . avy-goto-char-timer) ;; replace suspend frame
+         ([remap goto-line] . avy-goto-line) ;; M-g g or M-g M-g
+         :map isearch-mode-map
+         ("C-c s" . avy-isearch))
+  :custom
+  (avy-style 'at-full)
+  (avy-timeout-seconds 0.25)
+  (avy-case-fold-search nil)
+  (avy-background nil))
 
-;; browse-at-remote
-;; https://github.com/rmuslimov/browse-at-remote
+(use-package browse-at-remote
+  ;; https://github.com/rmuslimov/browse-at-remote
+  ;; Jump to current line on VC remote repository.
+  :ensure t)
+;;  :bind ("C-c g g" . browse-at-remote))
 
 (use-package chezmoi
   ;; https://github.com/tuh8888/chezmoi.el
@@ -470,6 +473,18 @@
 
 ;; rainbow-mode
 
+(use-package repeat
+  ;; Native transient keybinding mode allowing repeating terminal keys.
+  :ensure nil
+  :init (repeat-mode 1))
+
+(use-package repeat-help
+  ;; Display nicer help for repeat-mode.
+  ;; https://github.com/karthink/repeat-help
+  :ensure t
+  :hook (repeat-mode . repeat-help-mode)
+  :custom (repeat-help-auto t))
+
 (use-package shell
   ;; Native dumb shell. It's non-interactive but retains emacs keybindings. For
   ;; an interactive terminal, use ansi-term instead.
@@ -483,6 +498,14 @@
   ;;   "Prefix that allows spawning shells"
   ;;   [("<return>" "current directory" xcc/shell-cur-dir)])
   ;; :bind ("C-c s" . spawn-shell-prefix))
+
+(use-package sql
+  ;; Native SQL interaction mode.
+  :ensure nil
+  :bind
+  (:repeat-map sql-interactive-mode-repeat-map
+   ("n" . comint-next-prompt)
+   ("p" . comint-previous-prompt)))
 
 (use-package subword
   ;; Treat camel-cased subwords as words. So thisFunction is two words now.
@@ -510,6 +533,20 @@
   :ensure t
   :commands (vundo)
   :bind ("C-c u" . vundo))
+
+(use-package which-key
+  ;; https://github.com/justbur/emacs-which-key
+  ;; Display keybindings available following current input.
+  :ensure t
+  :demand t
+  :init (which-key-mode 1)
+  :custom
+  ;; Allow C-h to trigger which-key before it is done automatically
+  (which-key-show-early-on-C-h t)
+  ;; make sure which-key doesn't show normally but refreshes quickly after it is
+  ;; triggered.
+  (which-key-idle-delay 10000)
+  (which-key-idle-secondary-delay 0.05))
 
 (use-package whitespace
   ;; Show whitespace characters
