@@ -275,6 +275,22 @@
 (if (eq system-type 'gnu/linux)
   (load-file (concat user-emacs-directory "gnus.el")))
 
+(use-package flymake
+  ;; Native mode for on-the-fly syntax checking.
+  :ensure nil
+  :bind
+  (:map flymake-mode-map
+        ("C-c f n" . flymake-goto-next-error)
+        ("C-c f p" . flymake-goto-prev-error)
+        ("C-c f b" . flymake-show-buffer-diagnostics)
+        ("C-c f r" . flymake-show-project-diagnostics))
+  (:repeat-map flymake-mode-repeat-map
+               ("n" . flymake-goto-next-error)
+               ("p" . flymake-goto-prev-error)
+               :exit
+               ("b" . flymake-show-buffer-diagnostics)
+               ("r" . flymake-show-project-diagnostics)))
+
 ;; (use-package go-dlv
 ;;   ;; https://github.com/benma/go-dlv.el
 ;;   ;; GDB doesn't understand Go well. Instead you should use Delve. This package
