@@ -37,6 +37,10 @@ sudo apt-get install --assume-yes \
 	gh \
 	git \
 sudo apt autoremove
+
+sudo snap refresh
+sudo snap install emacs --classic
+
 {{   end -}}
 {{ else if eq .chezmoi.os "darwin" -}}
 #!/bin/sh
