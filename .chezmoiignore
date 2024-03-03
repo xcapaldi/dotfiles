@@ -9,7 +9,6 @@ dnffile
 .vim/pack/plugins/start/**
 .vim/pack/plugins/opt/**
 {{  if ne .chezmoi.osRelease.id "opensuse-tumbleweed" -}}
-.config/emacs
 .config/icewm
 {{  end -}}
 {{ else if ne .chezmoi.os "linux" -}}
