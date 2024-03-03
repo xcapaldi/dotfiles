@@ -185,12 +185,6 @@
               ("S-<SPC>" . copilot-accept-completion-by-word)
               ("C-c c" . copilot-prefix)))
 
-(use-package denote
-  ;; https://github.com/protesilaos/denote
-  :ensure t)
-
-;; denote-menu
-
 ;; dimmer
 
 (use-package dired
