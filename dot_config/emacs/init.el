@@ -187,8 +187,6 @@
               ("S-<SPC>" . copilot-accept-completion-by-word)
               ("C-c c" . copilot-prefix)))
 
-;; dimmer
-
 (use-package dired
   ;; Native file explorer
   :ensure nil
@@ -404,83 +402,83 @@
   :if (eq system-type 'darwin)
   :mode ("\\.proto\\'"))
 
-(use-package pulsar
-  ;; https://protesilaos.com/emacs/pulsar
-  ;; Extends pulse.el to pulse line on move or command.
-  :ensure t
-  :init (pulsar-global-mode 1)
-  ;; :bind (("C-c h p" . pulsar-pulse-line)
-  ;;       ("C-c h h" . pulsar-highlight-dwim))
-  :commands (recenter-top-bottom
-             move-to-window-line-top-bottom
-             reposition-window
-             bookmark-jump
-             other-window
-             ace-window
-             delete-window
-             delete-other-windows
-             forward-page
-             backward-page
-             scroll-up-command
-             scroll-down-command
-             windmove-right
-             windmove-left
-             windmove-up
-             windmove-down
-             windmove-swap-states-right
-             windmove-swap-states-left
-             windmove-swap-states-up
-             windmove-swap-states-down
-             tab-new
-             tab-close
-             tab-next
-             org-next-visible-heading
-             org-previous-visible-heading
-             org-forward-heading-same-level
-             org-backward-heading-same-level
-             outline-backward-same-level
-             outline-forward-same-level
-             outline-next-visible-heading
-             outline-previous-visible-heading
-             outline-up-heading)
-  :custom
-  (pulsar-pulse t)
-  (pulsar-delay 0.055)
-  (pulsar-iterations 10)
-  (pulsar-face 'pulsar-magenta)
-  (pulsar-highlight-face 'pulsar-yellow)
-  (pulsar-pulse-functions '(recenter-top-bottom
-                            move-to-window-line-top-bottom
-                            reposition-window
-                            bookmark-jump
-                            other-window
-                            ace-window
-                            delete-window
-                            delete-other-windows
-                            forward-page
-                            backward-page
-                            scroll-up-command
-                            scroll-down-command
-                            windmove-right
-                            windmove-left
-                            windmove-up
-                            windmove-down
-                            windmove-swap-states-right
-                            windmove-swap-states-left
-                            windmove-swap-states-up
-                            windmove-swap-states-down
-                            tab-new
-                            tab-close
-                            tab-next
-                            org-next-visible-heading
-                            org-previous-visible-heading
-                            org-forward-heading-same-level
-                            org-backward-heading-same-level
-                            outline-backward-same-level
-                            outline-forward-same-level
-                            outline-next-visible-heading
-                            outline-previous-visible-heading
-                            outline-up-heading)))
+;; (use-package pulsar
+;;   ;; https://protesilaos.com/emacs/pulsar
+;;   ;; Extends pulse.el to pulse line on move or command.
+;;   :ensure t
+;;   :init (pulsar-global-mode 1)
+;;   ;; :bind (("C-c h p" . pulsar-pulse-line)
+;;   ;;       ("C-c h h" . pulsar-highlight-dwim))
+;;   :commands (recenter-top-bottom
+;;              move-to-window-line-top-bottom
+;;              reposition-window
+;;              bookmark-jump
+;;              other-window
+;;              ace-window
+;;              delete-window
+;;              delete-other-windows
+;;              forward-page
+;;              backward-page
+;;              scroll-up-command
+;;              scroll-down-command
+;;              windmove-right
+;;              windmove-left
+;;              windmove-up
+;;              windmove-down
+;;              windmove-swap-states-right
+;;              windmove-swap-states-left
+;;              windmove-swap-states-up
+;;              windmove-swap-states-down
+;;              tab-new
+;;              tab-close
+;;              tab-next
+;;              org-next-visible-heading
+;;              org-previous-visible-heading
+;;              org-forward-heading-same-level
+;;              org-backward-heading-same-level
+;;              outline-backward-same-level
+;;              outline-forward-same-level
+;;              outline-next-visible-heading
+;;              outline-previous-visible-heading
+;;              outline-up-heading)
+;;   :custom
+;;   (pulsar-pulse t)
+;;   (pulsar-delay 0.055)
+;;   (pulsar-iterations 10)
+;;   (pulsar-face 'pulsar-magenta)
+;;   (pulsar-highlight-face 'pulsar-yellow)
+;;   (pulsar-pulse-functions '(recenter-top-bottom
+;;                             move-to-window-line-top-bottom
+;;                             reposition-window
+;;                             bookmark-jump
+;;                             other-window
+;;                             ace-window
+;;                             delete-window
+;;                             delete-other-windows
+;;                             forward-page
+;;                             backward-page
+;;                             scroll-up-command
+;;                             scroll-down-command
+;;                             windmove-right
+;;                             windmove-left
+;;                             windmove-up
+;;                             windmove-down
+;;                             windmove-swap-states-right
+;;                             windmove-swap-states-left
+;;                             windmove-swap-states-up
+;;                             windmove-swap-states-down
+;;                             tab-new
+;;                             tab-close
+;;                             tab-next
+;;                             org-next-visible-heading
+;;                             org-previous-visible-heading
+;;                             org-forward-heading-same-level
+;;                             org-backward-heading-same-level
+;;                             outline-backward-same-level
+;;                             outline-forward-same-level
+;;                             outline-next-visible-heading
+;;                             outline-previous-visible-heading
+;;                             outline-up-heading)))
 
 ;; puni
 
