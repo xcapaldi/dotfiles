@@ -234,6 +234,12 @@
 
 ;; elfeed
 
+(use-package embark
+  ;; https://github.com/oantolin/embark
+  ;; Contextual actions -- this has a lot of potential power.
+  :ensure t
+  :init (setq prefix-help-command #'embark-prefix-help-command))
+
 (use-package eshell
   :ensure nil
   :config
@@ -545,20 +551,6 @@
   :ensure t
   :commands (vundo)
   :bind ("C-c u" . vundo))
-
-(use-package which-key
-  ;; https://github.com/justbur/emacs-which-key
-  ;; Display keybindings available following current input.
-  :ensure t
-  :demand t
-  :init (which-key-mode 1)
-  :custom
-  ;; Allow C-h to trigger which-key before it is done automatically
-  (which-key-show-early-on-C-h t)
-  ;; make sure which-key doesn't show normally but refreshes quickly after it is
-  ;; triggered.
-  (which-key-idle-delay 10000)
-  (which-key-idle-secondary-delay 0.05))
 
 (use-package whitespace
   ;; Show whitespace characters
