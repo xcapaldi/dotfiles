@@ -51,17 +51,19 @@
   (load-theme 'modus-operandi t) ; Use prot's modus themes
 
   ;; only enable font if available on system
-  (when (member "Unifont" (font-family-list))
-    (if (equal system-type 'darwin)
-        (progn (set-frame-font "Unifont-16:regular" nil t)
-               (add-to-list 'initial-frame-alist '(font . "Unifont-16:regular"))
-               (add-to-list 'default-frame-alist '(font . "Unifont-16:regular")))
+  (if (equal system-type 'darwin)
+      (when (member "Fantasque Sans Mono" (font-family-list))
+        (progn (set-frame-font "Fantasque Sans Mono-16:regular" nil t)
+               (add-to-list 'initial-frame-alist '(font . "Fantasque Sans Mono-16:regular"))
+               (add-to-list 'default-frame-alist '(font . "Fantasque Sans Mono-16:regular"))))
+    (when (member "Unifont" (font-family-list))
       (progn (set-frame-font "Unifont-12:regular" nil t)
              (add-to-list 'initial-frame-alist '(font . "Unifont-12:regular"))
              (add-to-list 'default-frame-alist '(font . "Unifont-12:regular")))))
   ;; set fallback fonts for symbols and emoji
-  (set-fontset-font t 'symbol (font-spec :family "Apple Symbols") nil 'prepend)
-  (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend)
+  (if (equal system-type 'darwin)
+      (progn (set-fontset-font t 'symbol (font-spec :family "Apple Symbols") nil 'prepend)
+             (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend)))
   ;; set line spacing (0.1 == 1x)
   (setq-default line-spacing 0.1)
   (when (equal system-type 'darwin)
@@ -387,7 +389,7 @@
   ;; their own highlighting.
   :ensure t
   :mode (("\\.proto\\'" . prism-mode)
-         ("^Tiltfile\\'" . prism-whitespace-mode)))
+         ("\\Tiltfile\\'" . prism-whitespace-mode)))
 
 (use-package protobuf-mode
   ;; https://github.com/protocolbuffers/protobuf/blob/main/editors/protobuf-mode.el
