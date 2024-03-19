@@ -52,10 +52,10 @@
 
   ;; only enable font if available on system
   (if (equal system-type 'darwin)
-      (when (member "Fantasque Sans Mono" (font-family-list))
-        (progn (set-frame-font "Fantasque Sans Mono-16:regular" nil t)
-               (add-to-list 'initial-frame-alist '(font . "Fantasque Sans Mono-16:regular"))
-               (add-to-list 'default-frame-alist '(font . "Fantasque Sans Mono-16:regular"))))
+      (when (member "Unifont" (font-family-list))
+        (progn (set-frame-font "Unifont-16:regular" nil t)
+               (add-to-list 'initial-frame-alist '(font . "Unifont-16:regular"))
+               (add-to-list 'default-frame-alist '(font . "Unifont-16:regular"))))
     (when (member "Unifont" (font-family-list))
       (progn (set-frame-font "Unifont-12:regular" nil t)
              (add-to-list 'initial-frame-alist '(font . "Unifont-12:regular"))
@@ -219,24 +219,21 @@
   :ensure nil
   :commands eglot
   :config
-  (transient-define-prefix eglot-prefix ()
-    "Prefix that allows control of eglot LSP interface"
-    [("f" "format" eglot-format)
-     ("s" "shutdown" eglot-shutdown)
-     ("S" "shutdown all" eglot-shutdown-all)
-     ("R" "reconnect" eglot-reconnect)
+  (transient-append-suffix 'project-transient '(0 -1) ;; after the last group
+    ;; consider adding toggle to show LSP mode using something like:
+    ;; (process-command (jsonrpc--process (eglot-current-server)))
+    ["LSP"
+     ("m" "format" eglot-format)
+     ("o" "organize imports" eglot-code-action-organize-imports)
+     ("S" "shutdown" eglot-shutdown)
+     ;; eglot-shutdown-all
+     ("C" "reconnect" eglot-reconnect)
      ("a" "code actions" eglot-code-actions)
-     ("r" "rename" eglot-rename)])
-  :bind (:map eglot-mode-map
-              ("C-c l" . eglot-prefix)))
+     ("R" "rename" eglot-rename)]))
 
 ;; elfeed
 
-(use-package embark
-  ;; https://github.com/oantolin/embark
-  ;; Contextual actions -- this has a lot of potential power.
-  :ensure t
-  :init (setq prefix-help-command #'embark-prefix-help-command))
+;; embark
 
 (use-package eshell
   :ensure nil
@@ -284,14 +281,19 @@
         ("C-c f p" . flymake-goto-prev-error)
         ("C-c f b" . flymake-show-buffer-diagnostics)
         ("C-c f r" . flymake-show-project-diagnostics))
-  (:repeat-map flymake-mode-repeat-map
-               ("n" . flymake-goto-next-error)
-               ("p" . flymake-goto-prev-error)
-               :exit
-               ("b" . flymake-show-buffer-diagnostics)
-               ("r" . flymake-show-project-diagnostics)))
+  :config
+  (advice-add 'flymake-goto-next-error :after #'flymake-transient)
+  (advice-add 'flymake-goto-prev-error :after #'flymake-transient)
+  (transient-define-prefix flymake-transient ()
+    "Flymake Transient"
+    :transient-non-suffix 'transient--do-leave
+    ["All"
+     ("n" "next error" flymake-goto-next-error :transient t)
+     ("p" "prev error" flymake-goto-prev-error :transient t)
+     ("b" "show buffer diagnostics" flymake-show-buffer-diagnostics)
+     ("r" "show project diagnostics" flymake-show-project-diagnostics)]))
 
-;; (use-package go-dlv
+;;(use-package go-dlv
 ;;   ;; https://github.com/benma/go-dlv.el
 ;;   ;; GDB doesn't understand Go well. Instead you should use Delve. This package
 ;;   ;; adds emacs support for Delve on top of GUD.
@@ -395,6 +397,36 @@
   :mode (("\\.proto\\'" . prism-mode)
          ("\\Tiltfile\\'" . prism-whitespace-mode)))
 
+(use-package project
+  ;; Native project management
+  :ensure nil
+  :bind ("C-c p" . project-transient)
+  :config
+  (transient-define-prefix project-transient ()
+    "Project Prefix"
+    :transient-non-suffix 'transient--do-leave
+    ["All"
+     ["Project"
+      ("p" "switch project" project-switch-project)
+      ("F" "forget project" project-forget-project)]
+     ["Files and buffers"
+      ("f" "find file" project-find-file)
+      ("d" "dired" project-dired)
+      ("v" "vc status" project-vc-dir)
+      ("b" "switch buffer" project-switch-to-buffer)
+      ("B" "list buffers" project-list-buffers)
+      ("k" "kill buffers" project-kill-buffers)]
+     ["Search and replace"
+      ("g" "regexp search" project-find-regexp)
+      ("G" "interactive search" project-search)
+      ("r" "query replace" project-query-replace-regexp)]
+     ["Shell and compilation"
+      ("s" "shell" project-shell)
+      ("e" "eshell" project-eshell)
+      ("c" "compile" project-compile)
+      ("!" "shell command" project-shell-command)
+      ("&" "async shell command" project-async-shell-command)]]))
+
 (use-package protobuf-mode
   ;; https://github.com/protocolbuffers/protobuf/blob/main/editors/protobuf-mode.el
   ;; Suuport for Protocol Buffer (protobuf) serialized structured data syntax.
@@ -489,17 +521,10 @@
 
 ;; rainbow-mode
 
-(use-package repeat
-  ;; Native transient keybinding mode allowing repeating terminal keys.
-  :ensure nil
-  :init (repeat-mode 1))
-
-(use-package repeat-help
-  ;; Display nicer help for repeat-mode.
-  ;; https://github.com/karthink/repeat-help
-  :ensure t
-  :hook (repeat-mode . repeat-help-mode)
-  :custom (repeat-help-auto t))
+;;(use-package repeat
+;;  ;; Native transient keybinding mode allowing repeating terminal keys.
+;;  :ensure nil
+;;  :init (repeat-mode 1))
 
 (use-package shell
   ;; Native dumb shell. It's non-interactive but retains emacs keybindings. For
@@ -515,13 +540,23 @@
   ;;   [("<return>" "current directory" xcc/shell-cur-dir)])
   ;; :bind ("C-c s" . spawn-shell-prefix))
 
+(use-package simple
+  ;; Native package which contains undo commands
+  :ensure nil
+  :config
+  (advice-add 'undo :after #'undo-transient)
+  (transient-define-prefix undo-transient ()
+    "Undo Prefix"
+    :transient-non-suffix 'transient--do-leave
+    [("u" "undo" undo :transient t)]))
+
 (use-package sql
   ;; Native SQL interaction mode.
-  :ensure nil
-  :bind
-  (:repeat-map sql-interactive-mode-repeat-map
-   ("n" . comint-next-prompt)
-   ("p" . comint-previous-prompt)))
+  :ensure nil)
+;;  :bind
+;;  (:repeat-map sql-interactive-mode-repeat-map
+;;   ("n" . comint-next-prompt)
+;;   ("p" . comint-previous-prompt)))
 
 (use-package subword
   ;; Treat camel-cased subwords as words. So thisFunction is two words now.
@@ -534,6 +569,14 @@
   :ensure t
   :if (eq system-type 'darwin)
   :mode ("\\.tf\\'" . terraform-mode))
+
+(use-package transient
+  ;; Support for transient commands/menus.
+  :ensure nil
+  :custom
+  ;; error if there are key conflicts in transient menus
+  ;; helpful since I append to transient menus in different use-package blocks
+  (transient-detect-key-conflicts t))
 
 (use-package typescript-mode
   ;; https://github.com/emacs-typescript/typescript.el
@@ -548,7 +591,9 @@
   ;; Undo tree visualization for the native emacs undo system.
   :ensure t
   :commands (vundo)
-  :bind ("C-c u" . vundo))
+  :config
+  (transient-append-suffix 'undo-transient '(0) ;; after the last group
+    [("v" "visual undo" vundo)]))
 
 (use-package whitespace
   ;; Show whitespace characters
@@ -564,6 +609,22 @@
      ;;(tab-mark 9 [9500 9472 9472 9472]) ; tab BOX DRAWINGS LIGHT VERTICAL AND RIGHT 「├」 BOX DRAWINGS LIGHT HORIZONTAL 「─」
      ;;(tab-mark 9 (vconcat [9500] (make-vector tab-width 9472)))
      )))
+
+;; (use-package window
+;;   ;; Native window management
+;;   :ensure nil
+;;   :config
+;;   (advice-add 'other-window :after #'window-transient)
+;;   (transient-define-prefix window-transient ()
+;;     "Window Prefix"
+;;     :transient-non-suffix 'transient--do-leave
+;;     ["All"
+;;      ("o" "other window" (other-window 0) :transient t)])
+;;   (transient-define-suffix window-other-window-suffix ()
+;;       "Other Window Suffix"
+;;       :description "other window"
+;;       (interactive)
+;;       (other-window 0)))
 
 (use-package wgrep
   ;; https://github.com/mhayashi1120/Emacs-wgrep
