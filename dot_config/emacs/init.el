@@ -610,21 +610,19 @@
      ;;(tab-mark 9 (vconcat [9500] (make-vector tab-width 9472)))
      )))
 
-;; (use-package window
-;;   ;; Native window management
-;;   :ensure nil
-;;   :config
-;;   (advice-add 'other-window :after #'window-transient)
-;;   (transient-define-prefix window-transient ()
-;;     "Window Prefix"
-;;     :transient-non-suffix 'transient--do-leave
-;;     ["All"
-;;      ("o" "other window" (other-window 0) :transient t)])
-;;   (transient-define-suffix window-other-window-suffix ()
-;;       "Other Window Suffix"
-;;       :description "other window"
-;;       (interactive)
-;;       (other-window 0)))
+(use-package window
+   ;; Native window management
+   :ensure nil
+   :config
+   (define-advice other-window (:after (&rest _))
+     (pulse-momentary-highlight-one-line (point)))
+   (define-advice other-window (:after (&rest _))
+     (window-transient))
+   (transient-define-prefix window-transient ()
+     "Window Prefix"
+     :transient-non-suffix 'transient--do-leave
+     ["All"
+      ("o" "other window" other-window :transient t)]))
 
 (use-package wgrep
   ;; https://github.com/mhayashi1120/Emacs-wgrep
