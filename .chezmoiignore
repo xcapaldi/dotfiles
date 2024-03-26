@@ -5,6 +5,7 @@ dnffile
 {{ if ne .chezmoi.os "darwin" -}}
 .zshrc
 .psqlrc
+.ssh
 .vim
 .vim/pack/plugins/start/**
 .vim/pack/plugins/opt/**
