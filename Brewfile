@@ -11,6 +11,8 @@ brew "ripgrep"
 brew "coreutils"
 brew "gnu-sed"
 brew "findutils"
+brew "gpg"
+brew "awscli"
 brew "age"
 
 cask "docker"
