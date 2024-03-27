@@ -48,5 +48,6 @@ sudo snap install emacs --classic
 
 # Brewfile hash: {{ include "Brewfile" | sha256sum }}
 brew bundle --file {{ joinPath .chezmoi.sourceDir "Brewfile" | quote }}
+gh extension install github/gh-copilot
 {{ end -}}
 
