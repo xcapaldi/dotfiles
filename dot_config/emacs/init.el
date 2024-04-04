@@ -52,10 +52,10 @@
 
   ;; only enable font if available on system
   (if (equal system-type 'darwin)
-      (when (member "Unifont" (font-family-list))
-        (progn (set-frame-font "Unifont-16:regular" nil t)
-               (add-to-list 'initial-frame-alist '(font . "Unifont-16:regular"))
-               (add-to-list 'default-frame-alist '(font . "Unifont-16:regular"))))
+      (when (member "Menlo" (font-family-list))
+        (progn (set-frame-font "Menlo-15:regular" nil t)
+               (add-to-list 'initial-frame-alist '(font . "Menlo-15:regular"))
+               (add-to-list 'default-frame-alist '(font . "Menlo-15:regular"))))
     (when (member "Unifont" (font-family-list))
       (progn (set-frame-font "Unifont-12:regular" nil t)
              (add-to-list 'initial-frame-alist '(font . "Unifont-12:regular"))
