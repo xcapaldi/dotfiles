@@ -12,6 +12,9 @@ if [ -f '/Users/xavier/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/xa
 # The next line enables shell command completion for kubectl.
 source <(kubectl completion zsh)
 
+# add github cli aliases (ghcs/ghce)
+eval "$(gh copilot alias -- zsh)"
+
 # emacs M-x shell
 if [[ "dumb" == $TERM ]]; then
   alias less='cat'
