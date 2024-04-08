@@ -14,6 +14,7 @@ brew "findutils"
 brew "gpg"
 brew "awscli"
 brew "age"
+brew "graphviz"
 
 cask "docker"
 cask "google-chrome"
