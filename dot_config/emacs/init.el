@@ -324,6 +324,34 @@
   :ensure nil
   :bind ([remap dabbrev-expand] . hippie-expand)) ;; M-/ and C-M-/
 
+(use-package howm
+  ;; https://github.com/kaorahi/howm
+  ;; howm is a note-taking and task management system. It predates org-mode and
+  ;; markdown and is very flexible at the cost of long-term note structure. I'm
+  ;; testing its usage for work notes and tasks.
+  :ensure t
+  :if (eq system-type 'darwin)
+  ;; howm overwrites the default help key
+  :bind (:map howm-menu-mode-map ("C-h" . nil)
+         :map riffle-summary-mode-map ("C-h" . nil)
+         :map howm-view-contents-mode-map ("C-h" . nil))
+  :custom
+  (howm-directory "~/howm/")
+  (howm-keyword-file (expand-file-name ".howm-keys" howm-directory))
+  (howm-history-file (expand-file-name ".howm-history" howm-directory))
+  ;;(howm-file-name-format "%Y%m%dT%H%M%S.md")
+  ;; Use ripgrep as grep
+  (howm-view-use-grep t)
+  (howm-view-grep-command "rg")
+  (howm-view-grep-option "-nH --no-heading --color never")
+  (howm-view-grep-extended-option nil)
+  (howm-view-grep-fixed-option "-F")
+  (howm-view-grep-expr-option nil)
+  (howm-view-grep-file-stdin-option nil)
+  :config
+  (add-hook 'howm-mode-hook 'howm-mode-set-buffer-name)
+  (add-hook 'after-save-hook 'howm-mode-set-buffer-name))
+
 (use-package ibuffer
   ;; Native nice replacement for buffer-menu.
   :ensure nil
