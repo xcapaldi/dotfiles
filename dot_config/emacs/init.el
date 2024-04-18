@@ -30,7 +30,7 @@
    show-paren-delay 0                ; No delay on highlighting matching paren
    backup-by-copying t               ; Do not move current file while creating backup
    create-lockfiles nil              ; Disable lockfiles
-   enable-recursive-minibuffers t)   ; Don't allow recursive minibuffers
+   enable-recursive-minibuffers nil) ; Don't allow recursive minibuffers
 
   ;; enable/disable modes
   (column-number-mode 1)                   ; Show the column number in modeline
