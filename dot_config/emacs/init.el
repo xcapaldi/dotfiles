@@ -37,6 +37,7 @@
   (context-menu-mode 1)                    ; Replace standard mouse-3 actions with context menu
   (global-auto-revert-mode 1)              ; If file changes on disk, update the buffer automatically
   (pixel-scroll-precision-mode 1)          ; Smooth scrolling
+  (scroll-bar-mode -1)                     ; Disable the visual scroll bars
   (display-fill-column-indicator-mode -1)  ; Don't display indicator for the fill line
   (global-hl-line-mode -1)                 ; Don't highlight current line globally
   (show-paren-mode 1)                      ; Show matching parens
