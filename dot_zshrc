@@ -55,4 +55,7 @@ preexec() {
   if [[ $1 == rg* || $1 == ls* ]]; then
     printf '%.s═' $(seq 1 $(tput cols))
   fi
-}	
+}
+
+# allow comments in the interactive command line
+setopt INTERACTIVE_COMMENTS
