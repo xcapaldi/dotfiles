@@ -159,8 +159,10 @@
 (use-package browse-at-remote
   ;; https://github.com/rmuslimov/browse-at-remote
   ;; Jump to current line on VC remote repository.
-  :ensure t)
-;;  :bind ("C-c g g" . browse-at-remote))
+  :ensure t
+  :config
+  (transient-append-suffix 'version-control-transient '(0 -1)
+     '("r" "browse at remote" browse-at-remote)))
 
 (use-package chezmoi
   ;; https://github.com/tuh8888/chezmoi.el
@@ -220,17 +222,18 @@
   :ensure nil
   :commands eglot
   :config
-  (transient-append-suffix 'project-transient '(0 -1) ;; after the last group
-    ;; consider adding toggle to show LSP mode using something like:
-    ;; (process-command (jsonrpc--process (eglot-current-server)))
-    ["LSP"
-     ("m" "format" eglot-format)
+  (transient-define-prefix eglot-transient ()
+    "Eglot Prefix"
+    :transient-non-suffix 'transient--do-leave
+    [("f" "format" eglot-format)
      ("o" "organize imports" eglot-code-action-organize-imports)
      ("S" "shutdown" eglot-shutdown)
      ;; eglot-shutdown-all
-     ("C" "reconnect" eglot-reconnect)
+     ("R" "reconnect" eglot-reconnect)
      ("a" "code actions" eglot-code-actions)
-     ("R" "rename" eglot-rename)]))
+     ("r" "rename" eglot-rename)])
+  (transient-append-suffix 'project-transient '(0 -1 -1) ;; in the last group
+     '("l" "lsp" eglot-transient)))
 
 ;; elfeed
 
@@ -288,11 +291,12 @@
   (transient-define-prefix flymake-transient ()
     "Flymake Transient"
     :transient-non-suffix 'transient--do-leave
-    ["All"
-     ("n" "next error" flymake-goto-next-error :transient t)
+    [("n" "next error" flymake-goto-next-error :transient t)
      ("p" "prev error" flymake-goto-prev-error :transient t)
      ("b" "show buffer diagnostics" flymake-show-buffer-diagnostics)
-     ("r" "show project diagnostics" flymake-show-project-diagnostics)]))
+     ("r" "show project diagnostics" flymake-show-project-diagnostics)])
+  (transient-append-suffix 'project-transient '(0 -1 -1) ;; in the last group
+     '("F" "flymake" flymake-transient)))
 
 ;;(use-package go-dlv
 ;;   ;; https://github.com/benma/go-dlv.el
@@ -374,6 +378,11 @@
   :ensure nil
   :mode "\\.js[x]\\'")
 
+(use-package kubel
+  ;; https://github.com/abrochard/kubel
+  ;; Interact with Kubernetes from emacs. Mostly I still interact via the cli.
+  :ensure t)
+
 ;; This package may still be useful, but vc-annotate (C-x v g) serves
 ;; my current needs. I otherwise interact with git via the cli.
 ;;(use-package magit
@@ -431,17 +440,19 @@
   :ensure nil
   :bind ("C-c p" . project-transient)
   :config
+  (transient-define-prefix version-control-transient()
+    "Version control Prefix"
+    :transient-non-suffix 'transient--do-leave
+    [("s" "status" project-vc-dir)])
   (transient-define-prefix project-transient ()
     "Project Prefix"
     :transient-non-suffix 'transient--do-leave
-    ["All"
-     ["Project"
+    [["Project"
       ("p" "switch project" project-switch-project)
-      ("F" "forget project" project-forget-project)]
+      ("X" "forget project" project-forget-project)]
      ["Files and buffers"
       ("f" "find file" project-find-file)
       ("d" "dired" project-dired)
-      ("v" "vc status" project-vc-dir)
       ("b" "switch buffer" project-switch-to-buffer)
       ("B" "list buffers" project-list-buffers)
       ("k" "kill buffers" project-kill-buffers)]
@@ -454,7 +465,9 @@
       ("e" "eshell" project-eshell)
       ("c" "compile" project-compile)
       ("!" "shell command" project-shell-command)
-      ("&" "async shell command" project-async-shell-command)]]))
+      ("&" "async shell command" project-async-shell-command)]
+     ["Extensions"
+      ("v" "version control" version-control-transient)]]))
 
 (use-package protobuf-mode
   ;; https://github.com/protocolbuffers/protobuf/blob/main/editors/protobuf-mode.el
@@ -559,7 +572,8 @@
   ;; Native dumb shell. It's non-interactive but retains emacs keybindings. For
   ;; an interactive terminal, use ansi-term instead.
   :ensure nil
-  :init (setq comint-process-echoes t)) ; remove zsh echoing
+  :init (setq comint-process-echoes t) ; remove zsh echoing
+  :custom (show-trailing-whitespace nil))
   ;; :config
   ;; (defun xcc/shell-cur-dir ()
   ;;   (interactive)
@@ -592,6 +606,11 @@
   :ensure nil
   :hook (prog-mode . subword-mode))
 
+(use-package term
+  ;; Native terminal emulator
+  :ensure nil
+  :custom (show-trailing-whitespace nil))
+
 (use-package terraform-mode
   ;; https://github.com/hcl-emacs/terraform-mode
   ;; Support for Terraform configuration files.
@@ -601,6 +620,7 @@
 
 (use-package transient
   ;; Support for transient commands/menus.
+  ;; Use transient-get-suffix to help append suffixes.
   :ensure nil
   :custom
   ;; error if there are key conflicts in transient menus
@@ -614,6 +634,13 @@
   :mode "\\.ts[x]\\'")
 
 ;; undo-hl
+
+(use-package vc-annotate
+  ;; Native support for display annotations from version-control system.
+  :ensure nil
+  :config
+  (transient-append-suffix 'version-control-transient '(0 -1)
+    '("b" "blame" vc-annotate)))
 
 (use-package vundo
   ;; https://github.com/casouri/vundo
