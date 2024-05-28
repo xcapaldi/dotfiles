@@ -226,7 +226,7 @@
     "Eglot Prefix"
     :transient-non-suffix 'transient--do-leave
     [("f" "format" eglot-format)
-     ("o" "organize imports" eglot-code-action-organize-imports)
+     ("i" "organize imports" eglot-code-action-organize-imports)
      ("S" "shutdown" eglot-shutdown)
      ;; eglot-shutdown-all
      ("R" "reconnect" eglot-reconnect)
@@ -638,7 +638,8 @@
 (use-package vc-annotate
   ;; Native support for display annotations from version-control system.
   :ensure nil
-  :config
+  :commands (vc-annotate)
+  :init
   (transient-append-suffix 'version-control-transient '(0 -1)
     '("b" "blame" vc-annotate)))
 
@@ -647,7 +648,7 @@
   ;; Undo tree visualization for the native emacs undo system.
   :ensure t
   :commands (vundo)
-  :config
+  :init
   (transient-append-suffix 'undo-transient '(0) ;; after the last group
     [("v" "visual undo" vundo)]))
 
