@@ -156,13 +156,15 @@
   (avy-case-fold-search nil)
   (avy-background nil))
 
-(use-package browse-at-remote
-  ;; https://github.com/rmuslimov/browse-at-remote
-  ;; Jump to current line on VC remote repository.
-  :ensure t
-  :config
-  (transient-append-suffix 'version-control-transient '(0 -1)
-     '("r" "browse at remote" browse-at-remote)))
+;; (use-package browse-at-remote
+;;   ;; https://github.com/rmuslimov/browse-at-remote
+;;   ;; Jump to current line on VC remote repository.
+;;   :ensure t
+;;   :demand t
+;;   :after project
+;;   :config
+;;   (transient-append-suffix 'version-control-transient '(0 -1)
+;;      '("r" "browse at remote" browse-at-remote)))
 
 (use-package chezmoi
   ;; https://github.com/tuh8888/chezmoi.el
@@ -176,6 +178,8 @@
   :vc (:fetcher github :repo zerolfx/copilot.el)
   :if (eq system-type 'darwin)
   :hook (prog-mode . copilot-mode)
+  :custom
+  (copilot-indent-warning-suppress t)
   :config
   (transient-define-prefix copilot-prefix ()
     "Prefix that allow control of copilot suggestions"
@@ -222,6 +226,10 @@
   :ensure nil
   :commands eglot
   :config
+  (defun my-eglot-organize-imports () (interactive)
+         (eglot-code-actions nil nil "source.organizeImports" t))
+  (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
+  (add-hook 'before-save-hook 'eglot-format-buffer)
   (transient-define-prefix eglot-transient ()
     "Eglot Prefix"
     :transient-non-suffix 'transient--do-leave
@@ -440,10 +448,19 @@
   :ensure nil
   :bind ("C-c p" . project-transient)
   :config
+  (executable-find "gh")
+  (defun xcc/browse-at-remote ()
+    (interactive)
+    (shell-command
+     (concat "gh browse "
+             (file-name-nondirectory (buffer-file-name))
+             ":"
+             (number-to-string (line-number-at-pos)))))
   (transient-define-prefix version-control-transient()
     "Version control Prefix"
     :transient-non-suffix 'transient--do-leave
-    [("s" "status" project-vc-dir)])
+    [("s" "status" project-vc-dir)
+     ("b" "browse at remote" xcc/browse-at-remote)])
   (transient-define-prefix project-transient ()
     "Project Prefix"
     :transient-non-suffix 'transient--do-leave
