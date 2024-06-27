@@ -580,6 +580,11 @@
 
 ;; rainbow-mode
 
+(use-package rect
+  ;; Native rectangle mark commands
+  :ensure nil
+  :bind ("C-S-SPC" . rectangle-mark-mode))
+
 ;;(use-package repeat
 ;;  ;; Native transient keybinding mode allowing repeating terminal keys.
 ;;  :ensure nil
