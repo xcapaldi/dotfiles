@@ -343,7 +343,6 @@
   ;; markdown and is very flexible at the cost of long-term note structure. I'm
   ;; testing its usage for work notes and tasks.
   :ensure t
-  :if (eq system-type 'darwin)
   ;; howm overwrites the default help key
   :bind (:map howm-menu-mode-map ("C-h" . nil)
          :map riffle-summary-mode-map ("C-h" . nil)
@@ -352,7 +351,7 @@
   (howm-directory "~/howm/")
   (howm-keyword-file (expand-file-name ".howm-keys" howm-directory))
   (howm-history-file (expand-file-name ".howm-history" howm-directory))
-  ;;(howm-file-name-format "%Y%m%dT%H%M%S.md")
+  (howm-file-name-format "%Y%m%dT%H%M%S.md")
   ;; Use ripgrep as grep
   (howm-view-use-grep t)
   (howm-view-grep-command "rg")
@@ -389,7 +388,8 @@
 (use-package kubel
   ;; https://github.com/abrochard/kubel
   ;; Interact with Kubernetes from emacs. Mostly I still interact via the cli.
-  :ensure t)
+  :ensure t
+  :if (eq system-type 'darwin))
 
 ;; This package may still be useful, but vc-annotate (C-x v g) serves
 ;; my current needs. I otherwise interact with git via the cli.
