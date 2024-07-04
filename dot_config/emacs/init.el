@@ -194,6 +194,12 @@
               ("S-<SPC>" . copilot-accept-completion-by-word)
               ("C-c c" . copilot-prefix)))
 
+(use-package cua-rect
+  ;; Native emulation for CUA keybindings (standard copy/paste/cut).
+  ;; I use only for the enhanced rectangle selection.
+  :ensure nil
+  :init (cua-selection-mode 1))
+
 (use-package dired
   ;; Native file explorer
   :ensure nil
@@ -580,10 +586,11 @@
 
 ;; rainbow-mode
 
-(use-package rect
-  ;; Native rectangle mark commands
-  :ensure nil
-  :bind ("C-S-SPC" . rectangle-mark-mode))
+;; using CUA's rectangle mode instead
+;;(use-package rect
+;;  ;; Native rectangle mark commands
+;;  :ensure nil
+;;  :bind ("C-S-SPC" . rectangle-mark-mode))
 
 ;;(use-package repeat
 ;;  ;; Native transient keybinding mode allowing repeating terminal keys.
