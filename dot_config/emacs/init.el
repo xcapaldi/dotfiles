@@ -205,7 +205,17 @@
   :ensure nil
   :custom (dired-listing-switches "-alh")
   ;; allow navigating directories in current buffer with 'a'
-  :config (put 'dired-find-alternate-file 'disabled nil))
+  :config
+  (put 'dired-find-alternate-file 'disabled nil)
+  (transient-define-prefix dired-prefix ()
+    "Prefix with useful dired commands"
+    :transient-non-suffix 'transient--do-stay
+    [["Dired"
+      ("m" "mark" dired-mark :transient t)
+      ("u" "unmark" dired-unmark :transient t)]
+     ["Image Dired"]])
+  :bind (:map dired-mode-map
+              ("C-c <SPC>" . dired-prefix)))
 
 (use-package display-line-numbers
   ;; Native method of displaying line numbers.
