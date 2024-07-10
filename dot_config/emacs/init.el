@@ -368,6 +368,8 @@
   (howm-keyword-file (expand-file-name ".howm-keys" howm-directory))
   (howm-history-file (expand-file-name ".howm-history" howm-directory))
   (howm-file-name-format "%Y%m%dT%H%M%S.md")
+  ;; Keep one window after "1" key in the summary buffer.
+  (howm-view-keep-one-window t)
   ;; Use ripgrep as grep
   (howm-view-use-grep t)
   (howm-view-grep-command "rg")
@@ -376,6 +378,10 @@
   (howm-view-grep-fixed-option "-F")
   (howm-view-grep-expr-option nil)
   (howm-view-grep-file-stdin-option nil)
+  ;; Search optimisations
+  ;;(howm menu-refresh-after-save nil)
+  ;;(howm-menu-expiry-hours 2)  ;; cache menu N hours
+  (howm-menu-file "0000-00-00-000000.txt")  ;; don't *search*
   :config
   (add-hook 'howm-mode-hook 'howm-mode-set-buffer-name)
   (add-hook 'after-save-hook 'howm-mode-set-buffer-name))
