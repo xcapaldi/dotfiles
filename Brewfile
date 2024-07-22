@@ -6,7 +6,6 @@ brew "dnsmasq"
 brew "gh"
 brew "git"
 brew "libpq", link: true
-brew "eslint"
 brew "ripgrep"
 brew "coreutils"
 brew "gnu-sed"
