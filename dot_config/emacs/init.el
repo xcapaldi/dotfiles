@@ -368,7 +368,7 @@
   (howm-keyword-file (expand-file-name ".howm-keys" howm-directory))
   (howm-history-file (expand-file-name ".howm-history" howm-directory))
   ;; Use just one major note per day instead of "%Y-%m-%d-%H%M%S.txt"
-  ;;(howm-file-name-format "%Y-%m-%d.txt")
+  (howm-file-name-format "%Y-%m-%d.txt")
   ;; Keep one window after "1" key in the summary buffer.
   (howm-view-keep-one-window t)
   ;; Use ripgrep as grep
@@ -383,7 +383,7 @@
   ;;(howm menu-refresh-after-save nil)
   ;;(howm-menu-expiry-hours 2)  ;; cache menu N hours
   ;; Match one note per day pattern instead of 0000-00-00-000000.txt
-  ;;(howm-menu-file "0000-00-00.txt")  ;; don't *search*
+  (howm-menu-file "0000-00-00-000000.txt")  ;; don't *search*
   :config
   (add-hook 'howm-mode-hook 'howm-mode-set-buffer-name)
   (add-hook 'after-save-hook 'howm-mode-set-buffer-name))
