@@ -360,7 +360,8 @@
   ;; testing its usage for work notes and tasks.
   :ensure t
   ;; howm overwrites the default help key
-  :bind (:map howm-menu-mode-map ("C-h" . nil)
+  :bind (("C-c ," . howm-transient)
+         :map howm-menu-mode-map ("C-h" . nil)
          :map riffle-summary-mode-map ("C-h" . nil)
          :map howm-view-contents-mode-map ("C-h" . nil))
   :custom
@@ -386,7 +387,37 @@
   (howm-menu-file "0000-00-00-000000.txt")  ;; don't *search*
   :config
   (add-hook 'howm-mode-hook 'howm-mode-set-buffer-name)
-  (add-hook 'after-save-hook 'howm-mode-set-buffer-name))
+  (add-hook 'after-save-hook 'howm-mode-set-buffer-name)
+  (transient-define-prefix howm-transient ()
+    "Howm Prefix"
+    :transient-non-suffix 'transient--do-leave
+    [["Howm"
+      ("SPC" "toggle buffer" howm-toggle-buffer)
+      ("," "menu" howm-menu)
+      ("." "today" howm-find-today)
+      (":" "yesterday" howm-find-yesterday)
+      ("C" "create here" howm-create-here)
+      ("I" "create interactively" howm-create-interactively)
+      ("K" "keyword to kill ring" howm-keyword-to-kill-ring)
+      ("M" "open named file" howm-open-named-file)
+      ("Q" "kill all" howm-kill-all)
+      ("T" "insert date-time" howm-insert-dtime)
+      ("a" "list all" howm-list-all)
+      ("b" "list buffers" howm-list-buffers)
+      ("c" "create" howm-create)
+      ("d" "insert date" howm-insert-date)
+      ("e" "remember" howm-remember)
+      ("g" "list grep" howm-list-grep)
+      ("h" "history" howm-history)
+      ("i" "insert keyword" howm-insert-keyword)
+      ("l" "list recent" howm-list-recent)
+      ("m" "list migemo" howm-list-migemo)
+      ("o" "occur" howm-occur)
+      ("s" "list grep fixed" howm-list-grep-fixed)
+      ("t" "list todo" howm-list-todo)
+      ("w" "random walk" howm-random-walk)
+      ("x" "list mark ring" howm-list-mark-ring)
+      ("y" "list schedule" howm-list-schedule)]]))
 
 (use-package ibuffer
   ;; Native nice replacement for buffer-menu.
