@@ -38,19 +38,27 @@ setopt INC_APPEND_HISTORY_TIME  # append command to history file immediately aft
 # setopt EXTENDED_HISTORY  # record command start time
 
 # configure prompt with git info
-#autoload -Uz vcs_info
+autoload -Uz vcs_info
 #zstyle ':vcs_info:*' enable git svn
 #zstyle ':vcs_info:*' check-for-changes true
 #zstyle ':vcs_info:*' stagedstr '➕'
 #zstyle ':vcs_info:*' unstagedstr '❗'
 #zstyle ':vcs_info:git*' actionformats "%u%c (%F{red}%a%f) %b"
-#precmd() { vcs_info }
 
-#setopt PROMPT_SUBST
+zstyle ':vcs_info:*' enable git svn
+zstyle ':vcs_info:*' check-for-changes true
+zstyle ':vcs_info:*' stagedstr '^'
+zstyle ':vcs_info:*' unstagedstr '*'
+zstyle ':vcs_info:git:*' formats '%b%u%c '
+zstyle ':vcs_info:git:*' actionformats '%b%u%c (%a) '
+precmd() { vcs_info }
+
+setopt PROMPT_SUBST
 #PROMPT='${vcs_info_msg_0_} | %~ $ '
 #RPROMPT='${vcs_info_msg_0_}'
 
-PROMPT='%~ $ '
+#PROMPT='%~ $ '
+PROMPT='%F{green}%*%f %F{blue}%~%f %F{red}${vcs_info_msg_0_}%f$ '
 
 # draw a horizontal line before commands with a lot of output that is hard to distinguish from prior command
 preexec() {
