@@ -61,3 +61,5 @@ preexec() {
 
 # allow comments in the interactive command line
 setopt INTERACTIVE_COMMENTS
+
+alias gcloudauth="gcloud auth login && gcloud auth application-default login"
