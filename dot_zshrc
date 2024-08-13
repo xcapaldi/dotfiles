@@ -58,7 +58,7 @@ setopt PROMPT_SUBST
 #RPROMPT='${vcs_info_msg_0_}'
 
 #PROMPT='%~ $ '
-PROMPT='%F{green}%*%f %F{blue}%~%f %F{red}${vcs_info_msg_0_}%f$ '
+PROMPT='%F{blue}%~%f %F{007}${vcs_info_msg_0_}%f%F{magenta}❯%f '
 
 # draw a horizontal line before commands with a lot of output that is hard to distinguish from prior command
 preexec() {
@@ -69,5 +69,3 @@ preexec() {
 
 # allow comments in the interactive command line
 setopt INTERACTIVE_COMMENTS
-
-alias gcloudauth="gcloud auth login && gcloud auth application-default login"
