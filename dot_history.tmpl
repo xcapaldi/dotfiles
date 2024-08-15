@@ -2,5 +2,6 @@
 {{ else if eq .chezmoi.os "darwin" -}}
 docker system prune --all --volumes --force #prune
 gcloud auth login && gcloud auth application-default login #gcloud auth login
+sudo ln -s $HOME/.docker/run/docker.sock /var/run/docker.sock #link docker.sock
 {{ end -}}
 
