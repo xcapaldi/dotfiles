@@ -359,6 +359,7 @@
   ;; markdown and is very flexible at the cost of long-term note structure. I'm
   ;; testing its usage for work notes and tasks.
   :ensure t
+  :demand t
   ;; howm overwrites the default help key
   :bind (("C-c ," . howm-transient)
          :map howm-menu-mode-map ("C-h" . nil)
