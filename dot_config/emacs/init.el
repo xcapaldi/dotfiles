@@ -487,6 +487,10 @@
    'org-babel-load-languages
    '((shell . t)
      (python . t)))
+  (if (eq system-type 'gnu/linux)
+      (progn (setq org-agenda-files (quote
+                                     ("~/org/todo.org")))
+             (add-to-list 'org-modules 'org-habit)))
   :custom
   (org-adapt-indentation nil)
   (org-edit-src-content-indentation 0))
