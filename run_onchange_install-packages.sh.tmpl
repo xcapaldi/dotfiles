@@ -32,6 +32,12 @@ pipx install jedi-language-server
 
 sudo apt-get update
 sudo apt-get upgrade
+
+{{   if not (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
+sudo apt-get install --assume-yes \
+        xinit \
+{{   end }}
+
 sudo apt-get install --assume-yes \
 	age \
 	gh \
@@ -44,6 +50,11 @@ sudo apt autoremove
 
 sudo snap refresh
 sudo snap install emacs --classic
+sudo snap install chezmoi --classic
+
+{{   if not (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
+sudo snap install firefox
+{{   end }}
 
 {{   end -}}
 {{ else if eq .chezmoi.os "darwin" -}}

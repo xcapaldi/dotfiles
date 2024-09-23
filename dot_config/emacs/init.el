@@ -37,7 +37,6 @@
   (context-menu-mode 1)                    ; Replace standard mouse-3 actions with context menu
   (global-auto-revert-mode 1)              ; If file changes on disk, update the buffer automatically
   (pixel-scroll-precision-mode 1)          ; Smooth scrolling
-  (scroll-bar-mode -1)                     ; Disable the visual scroll bars
   (display-fill-column-indicator-mode -1)  ; Don't display indicator for the fill line
   (global-hl-line-mode -1)                 ; Don't highlight current line globally
   (show-paren-mode 1)                      ; Show matching parens
@@ -51,6 +50,9 @@
   (fset 'yes-or-no-p 'y-or-n-p)  ; Replace yes/no prompts with y/n
   (load-theme 'modus-operandi t) ; Use prot's modus themes
 
+  ;; open fullscreen by default
+  (set-frame-parameter nil 'fullscreen 'fullboth)
+  
   ;; only enable font if available on system
   (if (equal system-type 'darwin)
       (when (member "Menlo" (font-family-list))
@@ -297,8 +299,8 @@
 ;; focus
 
 ;; email configuration -- stored in separate encrypted file
-(if (eq system-type 'gnu/linux)
-  (load-file (concat user-emacs-directory "gnus.el")))
+;;(if (eq system-type 'gnu/linux)
+;;  (load-file (concat user-emacs-directory "gnus.el")))
 
 (use-package flymake
   ;; Native mode for on-the-fly syntax checking.
