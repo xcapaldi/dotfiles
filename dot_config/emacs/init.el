@@ -288,6 +288,10 @@
   (eshell-review-quick-commands t)
   (eshell-smart-space-goes-to-end nil))
 
+;; emacs web wowser -- native, text-based browser using shr
+(use-package eww
+  :ensure nil)
+
 (use-package exec-path-from-shell
   ;; https://github.com/purcell/exec-path-from-shell
   ;; emacs on MacOS cannot access path properly. This package allows emacs to
@@ -600,6 +604,13 @@
   ;;   "Prefix that allows spawning shells"
   ;;   [("<return>" "current directory" xcc/shell-cur-dir)])
   ;; :bind ("C-c s" . spawn-shell-prefix))
+
+(use-package shr
+  ;; Native HTML renderer.
+  :ensure nil
+  :custom
+  (shr-max-image-proportion 0.9)
+  (shr-discard-aria-hidden t))
 
 (use-package simple
   ;; Native package which contains undo commands
