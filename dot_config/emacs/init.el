@@ -52,7 +52,7 @@
 
   ;; open fullscreen by default
   (set-frame-parameter nil 'fullscreen 'fullboth)
-  
+
   ;; only enable font if available on system
   (if (equal system-type 'darwin)
       (when (member "Menlo" (font-family-list))

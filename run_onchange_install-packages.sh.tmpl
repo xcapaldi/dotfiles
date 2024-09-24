@@ -30,8 +30,8 @@ pipx install jedi-language-server
 {{   else if eq .chezmoi.osRelease.id "ubuntu" -}}
 #!/bin/sh
 
-sudo apt-get update
-sudo apt-get upgrade
+sudo apt-get update --assume-yes
+sudo apt-get upgrade --assume-yes
 
 {{   if not (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
 sudo apt-get install --assume-yes \
@@ -42,11 +42,16 @@ sudo apt-get install --assume-yes \
 	age \
 	gh \
 	git \
-        golang-go \
+    golang-go \
 	gopls \
+    python3-venv \
+    pipx \
 	ripgrep \
 
-sudo apt autoremove
+sudo apt autoremove --assume-yes
+
+pipx install jedi-language-server
+pipx ensurepath
 
 sudo snap refresh
 sudo snap install emacs --classic
