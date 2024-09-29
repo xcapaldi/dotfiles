@@ -572,6 +572,11 @@
 
 ;; puni
 
+(use-package pyvenv
+  ;; Activate python virtual environments so Emacs respects them.
+  :ensure t
+  :hook (python-mode . pyvenv-mode))
+
 ;; (use-package rainbow-delimiters
 ;;   ;; https://github.com/Fanael/rainbow-delimiters
 ;;   :ensure t
