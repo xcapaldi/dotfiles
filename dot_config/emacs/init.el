@@ -107,6 +107,11 @@
 
 ;; ace-window
 
+;;(use-package adoc-mode
+;;  ;; https://github.com/bbatsov/adoc-mode/
+;;  ;; Support asciidoc markup format which I primarily want to use for HOWM notes.
+;;  :ensure t)
+
 (use-package age
   ;; https://github.com/anticomputer/age.el
   ;; Add support for Age encryption/decryption.
@@ -372,11 +377,10 @@
          :map riffle-summary-mode-map ("C-h" . nil)
          :map howm-view-contents-mode-map ("C-h" . nil))
   :custom
-  (howm-directory "~/howm/")
+  (howm-directory "~/Notes/")
   (howm-keyword-file (expand-file-name ".howm-keys" howm-directory))
   (howm-history-file (expand-file-name ".howm-history" howm-directory))
-  ;; Use just one major note per day instead of "%Y-%m-%d-%H%M%S.txt"
-  (howm-file-name-format "%Y-%m-%d.txt")
+  (howm-file-name-format "%Y%m%dT%H%M%S.txt")
   ;; Keep one window after "1" key in the summary buffer.
   (howm-view-keep-one-window t)
   ;; Use ripgrep as grep
@@ -390,41 +394,20 @@
   ;; Search optimisations
   ;;(howm menu-refresh-after-save nil)
   ;;(howm-menu-expiry-hours 2)  ;; cache menu N hours
-  ;; Match one note per day pattern instead of 0000-00-00-000000.txt
-  (howm-menu-file "0000-00-00-000000.txt")  ;; don't *search*
+  (howm-menu-file "00000000T000000.txt")  ;; don't *search*
   :config
   (add-hook 'howm-mode-hook 'howm-mode-set-buffer-name)
   (add-hook 'after-save-hook 'howm-mode-set-buffer-name)
-  (transient-define-prefix howm-transient ()
-    "Howm Prefix"
-    :transient-non-suffix 'transient--do-leave
-    [["Howm"
-      ("SPC" "toggle buffer" howm-toggle-buffer)
-      ("," "menu" howm-menu)
-      ("." "today" howm-find-today)
-      (":" "yesterday" howm-find-yesterday)
-      ("C" "create here" howm-create-here)
-      ("I" "create interactively" howm-create-interactively)
-      ("K" "keyword to kill ring" howm-keyword-to-kill-ring)
-      ("M" "open named file" howm-open-named-file)
-      ("Q" "kill all" howm-kill-all)
-      ("T" "insert date-time" howm-insert-dtime)
-      ("a" "list all" howm-list-all)
-      ("b" "list buffers" howm-list-buffers)
-      ("c" "create" howm-create)
-      ("d" "insert date" howm-insert-date)
-      ("e" "remember" howm-remember)
-      ("g" "list grep" howm-list-grep)
-      ("h" "history" howm-history)
-      ("i" "insert keyword" howm-insert-keyword)
-      ("l" "list recent" howm-list-recent)
-      ("m" "list migemo" howm-list-migemo)
-      ("o" "occur" howm-occur)
-      ("s" "list grep fixed" howm-list-grep-fixed)
-      ("t" "list todo" howm-list-todo)
-      ("w" "random walk" howm-random-walk)
-      ("x" "list mark ring" howm-list-mark-ring)
-      ("y" "list schedule" howm-list-schedule)]]))
+  (defun xcc/howm-view-entries (&optional arg)
+      "Run a howm query searching for entries that match ARG days starting with
+the date indicated by the cursor position in the displayed calendar."
+      (interactive "p")
+      (howm-search (apply 'format (append (list "%3$d-%1$d-%2$d") (calendar-cursor-to-date t))) nil)))
+  ;; (defconst cal-menu-howm-menu
+  ;;   '("Howm"
+  ;;     ["Cursor Date" xcc/howm-view-entries])
+  ;;   "Key map for \"Howm\" menu in the calendar.")
+  ;; (easy-menu-define nil map nil xcc/howm-view-entries)
 
 (use-package ibuffer
   ;; Native nice replacement for buffer-menu.
@@ -493,10 +476,10 @@
    'org-babel-load-languages
    '((shell . t)
      (python . t)))
-  (if (eq system-type 'gnu/linux)
-      (progn (setq org-agenda-files (quote
-                                     ("~/org/todo.org")))
-             (add-to-list 'org-modules 'org-habit)))
+  ;; (if (eq system-type 'gnu/linux)
+  ;;     (progn (setq org-agenda-files (quote
+  ;;                                    ("~/org/todo.org")))
+  ;;            (add-to-list 'org-modules 'org-habit)))
   :custom
   (org-adapt-indentation nil)
   (org-edit-src-content-indentation 0))
@@ -773,14 +756,14 @@
    :ensure nil
    :config
    (define-advice other-window (:after (&rest _))
-     (pulse-momentary-highlight-one-line (point)))
-   (define-advice other-window (:after (&rest _))
-     (window-transient))
-   (transient-define-prefix window-transient ()
-     "Window Prefix"
-     :transient-non-suffix 'transient--do-leave
-     ["All"
-      ("o" "other window" other-window :transient t)]))
+     (pulse-momentary-highlight-one-line (point))))
+   ;; (define-advice other-window (:after (&rest _))
+   ;;   (window-transient))
+   ;; (transient-define-prefix window-transient ()
+   ;;   "Window Prefix"
+   ;;   :transient-non-suffix 'transient--do-leave
+   ;;   ["All"
+   ;;    ("o" "other window" other-window :transient t)]))
 
 (use-package wgrep
   ;; https://github.com/mhayashi1120/Emacs-wgrep
