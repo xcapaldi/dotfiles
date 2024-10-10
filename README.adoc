@@ -28,6 +28,7 @@ winget install Bitwarden.Bitwarden
 winget install Discord.Discord
 winget install Mozilla.Firefox
 winget install Valve.Steam
+winget install Syncthing.Syncthing
 ----
 
 Then setup WSL2 which defaults to Ubuntu.
@@ -54,6 +55,7 @@ The only GUI application running from Ubuntu is Emacs anyway.
 I use my hacktop exclusively for personal project development so I keep the system as minimal as possible.
 I don't even transport it much since the battery is ancient.
 This means I can omit audio control, media codecs, wifi, display managers and utilities for external drives; all things I would use in my daily driver.
+If I did need to transport it, I would install https://xubuntu.org/[xubuntu] in the interest of time.
 
 === Installing a minimal system
 I use the https://ubuntu.com/download/server[Ubuntu server] installer to get a super minimal system.
