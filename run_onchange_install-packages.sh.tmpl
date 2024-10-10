@@ -6,21 +6,21 @@ sudo apt-get upgrade --assume-yes
 
 {{   if not (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
 sudo apt-get install --assume-yes \
-        xinit \
-        ratpoison \
-        xterm \
+	xinit \
+	ratpoison \
+	xterm \
+	syncthing \
 {{   end }}
 
 sudo apt-get install --assume-yes \
 	age \
 	gh \
 	git \
-    golang-go \
+	golang-go \
 	gopls \
-    python3-venv \
-    pipx \
+	python3-venv \
+	pipx \
 	ripgrep \
-    syncthing \
 
 sudo apt autoremove --assume-yes
 

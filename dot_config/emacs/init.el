@@ -51,7 +51,8 @@
   (load-theme 'modus-operandi t) ; Use prot's modus themes
 
   ;; open fullscreen by default
-  (set-frame-parameter nil 'fullscreen 'fullboth)
+  ;; only relevant when using emacs as the window manager
+  ;; (set-frame-parameter nil 'fullscreen 'fullboth)
 
   ;; only enable font if available on system
   (if (equal system-type 'darwin)
@@ -372,14 +373,13 @@
   :ensure t
   :demand t
   ;; howm overwrites the default help key
-  :bind (("C-c ," . howm-transient)
-         :map howm-menu-mode-map ("C-h" . nil)
+  :bind (:map howm-menu-mode-map ("C-h" . nil)
          :map riffle-summary-mode-map ("C-h" . nil)
          :map howm-view-contents-mode-map ("C-h" . nil))
   :custom
-  (howm-directory "~/Notes/")
-  (howm-keyword-file (expand-file-name ".howm-keys" howm-directory))
-  (howm-history-file (expand-file-name ".howm-history" howm-directory))
+  (howm-directory xcc/howm-directory)
+  (howm-keyword-file (expand-file-name ".howm-keys" xcc/howm-directory))
+  (howm-history-file (expand-file-name ".howm-history" xcc/howm-directory))
   (howm-file-name-format "%Y%m%dT%H%M%S.txt")
   ;; Keep one window after "1" key in the summary buffer.
   (howm-view-keep-one-window t)
@@ -395,6 +395,11 @@
   ;;(howm menu-refresh-after-save nil)
   ;;(howm-menu-expiry-hours 2)  ;; cache menu N hours
   (howm-menu-file "00000000T000000.txt")  ;; don't *search*
+  :init
+  ;; Use Windows host filesystem on WSL
+  (if (equal system-name "capaldi-phampc")
+      (setq xcc/howm-directory "/mnt/c/Users/xavie/Notes")
+    (setq xcc/howm-directory "~/Notes/"))
   :config
   (add-hook 'howm-mode-hook 'howm-mode-set-buffer-name)
   (add-hook 'after-save-hook 'howm-mode-set-buffer-name)
