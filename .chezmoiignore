@@ -1,4 +1,4 @@
-README.org
+README.adoc
 Brewfile
 Brewfile.lock.json
 dnffile
@@ -6,15 +6,10 @@ dnffile
 .zshrc
 .psqlrc
 .ssh
-.vim
-.vim/pack/plugins/start/**
-.vim/pack/plugins/opt/**
-{{  if ne .chezmoi.osRelease.id "opensuse-tumbleweed" -}}
-.config/icewm
-{{  end -}}
-{{ else if ne .chezmoi.os "linux" -}}
+{{ else if not (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
+.xinitrc
 .Xresources
+{{ else if ne .chezmoi.os "linux" -}}
 .authinfo.age
 .config/emacs/gnus.el
-.config/icewm
 {{ end -}}

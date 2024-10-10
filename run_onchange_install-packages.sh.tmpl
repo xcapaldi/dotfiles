@@ -1,33 +1,4 @@
 {{ if eq .chezmoi.os "linux" -}}
-{{   if eq .chezmoi.osRelease.id "opensuse-tumbleweed" -}}
-#!/bin/sh
-
-sudo zypper --non-interactive refresh
-sudo zypper --non-interactive install \
-	age \
-	bitwarden \
-	chezmoi \
-	emacs \
-	flatpak \
-	gdouros-symbola-fonts \
-	gh \
-	git \
-	gnu-unifont-otf-fonts \
-	google-noto-coloremoji-fonts \
-	mpv \
-	python311-pipx \
-	zip \
-
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-sudo flatpak install -y \
-	com.valvesoftware.Steam \
-	com.discordapp.Discord \
-	com.bitwarden.desktop \
-	com.github.tchx84.Flatseal \
-
-# development tooling
-pipx install jedi-language-server
-{{   else if eq .chezmoi.osRelease.id "ubuntu" -}}
 #!/bin/sh
 
 sudo apt-get update --assume-yes
@@ -64,7 +35,6 @@ sudo snap install chezmoi --classic
 sudo snap install firefox
 {{   end }}
 
-{{   end -}}
 {{ else if eq .chezmoi.os "darwin" -}}
 #!/bin/sh
 
