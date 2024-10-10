@@ -107,10 +107,10 @@
 
 ;; ace-window
 
-;;(use-package adoc-mode
-;;  ;; https://github.com/bbatsov/adoc-mode/
-;;  ;; Support asciidoc markup format which I primarily want to use for HOWM notes.
-;;  :ensure t)
+(use-package adoc-mode
+  ;; https://github.com/bbatsov/adoc-mode/
+  ;; Support asciidoc markup format which I primarily want to use for HOWM notes.
+  :ensure t)
 
 (use-package age
   ;; https://github.com/anticomputer/age.el
