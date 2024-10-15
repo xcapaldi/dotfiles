@@ -6,7 +6,6 @@ dnffile
 .zshrc
 .psqlrc
 .ssh
-{{ else if not (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
 .xinitrc
 .Xresources
 {{ else if ne .chezmoi.os "linux" -}}
