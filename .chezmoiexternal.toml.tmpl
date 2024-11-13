@@ -1,0 +1,9 @@
+{{ if eq .chezmoi.os "darwin" -}}
+[".vim/pack/vendor/opt/lsp"]
+    type = "git-repo"
+    url = "https://github.com/yegappan/lsp.git"
+    refreshPeriod = "168h"
+{{ else if eq .chezmoi.os "linux" -}}
+{{ end -}}
+
+
