@@ -49,8 +49,8 @@ zstyle ':vcs_info:*' enable git svn
 zstyle ':vcs_info:*' check-for-changes true
 zstyle ':vcs_info:*' stagedstr '^'
 zstyle ':vcs_info:*' unstagedstr '*'
-zstyle ':vcs_info:git:*' formats '%b%u%c '
-zstyle ':vcs_info:git:*' actionformats '%b%u%c (%a) '
+zstyle ':vcs_info:git:*' formats '%b%u%c'
+zstyle ':vcs_info:git:*' actionformats '%b%u%c (%a)'
 precmd() { vcs_info }
 
 setopt PROMPT_SUBST
@@ -58,7 +58,7 @@ setopt PROMPT_SUBST
 #RPROMPT='${vcs_info_msg_0_}'
 
 #PROMPT='%~ $ '
-PROMPT='%F{blue}%~%f %F{007}${vcs_info_msg_0_}%f%F{magenta}❯%f '
+PROMPT='%F{blue}%~%f %F{green}$(kubectl config current-context)%f %F{007}${vcs_info_msg_0_}%f %F{magenta}❯%f '
 
 # draw a horizontal line before commands with a lot of output that is hard to distinguish from prior command
 preexec() {
