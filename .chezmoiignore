@@ -8,6 +8,7 @@ dnffile
 .ssh
 .xinitrc
 .Xresources
+.vim
 {{ else if ne .chezmoi.os "linux" -}}
 .authinfo.age
 .config/emacs/gnus.el
