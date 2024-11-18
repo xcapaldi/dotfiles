@@ -41,5 +41,7 @@ sudo snap install firefox
 # Brewfile hash: {{ include "Brewfile" | sha256sum }}
 brew bundle --file {{ joinPath .chezmoi.sourceDir "Brewfile" | quote }}
 gh extension install github/gh-copilot
+# tool-versions hash: {{ include "dot_tool-versions" | sha256sum }}
+asdf install
 {{ end -}}
 
