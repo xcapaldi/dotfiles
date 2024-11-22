@@ -9,6 +9,9 @@ if [ -f '/Users/xavier/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/xavier/g
 # The next line enables shell command completion for gcloud.
 if [ -f '/Users/xavier/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/xavier/google-cloud-sdk/completion.zsh.inc'; fi
 
+# The next line prepares a gcurl command to query metrics.
+alias gcurl='curl -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "Content-Type: application/json"'
+
 # The next line enables shell command completion for kubectl.
 source <(kubectl completion zsh)
 
