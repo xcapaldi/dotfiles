@@ -510,6 +510,12 @@
        (todo "NEXT" nil))
       nil))))
 
+(use-package pocket-reader
+  ;; https://github.com/alphapapa/pocket-reader.el
+  ;; Read Pocket articles directly in emacs.
+  :ensure t
+  :commands (pocket-reader))
+
 (use-package prism
   ;; https://github.com/alphapapa/prism.el
   ;; Highlight by depth. Very helpful for data modes or those those lacking
