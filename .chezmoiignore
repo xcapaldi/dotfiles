@@ -6,10 +6,13 @@ dnffile
 .zshrc
 .psqlrc
 .ssh
-.xinitrc
-.Xresources
 .vim
+private_Library
+.authinfo.age
+.config/emacs/gnus.el
 {{ else if ne .chezmoi.os "linux" -}}
 .authinfo.age
 .config/emacs/gnus.el
+.xinitrc
+.Xresources
 {{ end -}}
