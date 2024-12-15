@@ -108,11 +108,6 @@
 
 ;; ace-window
 
-(use-package adoc-mode
-  ;; https://github.com/bbatsov/adoc-mode/
-  ;; Support asciidoc markup format which I primarily want to use for HOWM notes.
-  :ensure t)
-
 (use-package age
   ;; https://github.com/anticomputer/age.el
   ;; Add support for Age encryption/decryption.
@@ -364,55 +359,6 @@
 (use-package hippie-exp
   :ensure nil
   :bind ([remap dabbrev-expand] . hippie-expand)) ;; M-/ and C-M-/
-
-;; (use-package howm
-;;   ;; https://github.com/kaorahi/howm
-;;   ;; howm is a note-taking and task management system. It predates org-mode and
-;;   ;; markdown and is very flexible at the cost of long-term note structure. I'm
-;;   ;; testing its usage for work notes and tasks.
-;;   :ensure t
-;;   :demand t
-;;   ;; howm overwrites the default help key
-;;   :bind (:map howm-menu-mode-map ("C-h" . nil)
-;;          :map riffle-summary-mode-map ("C-h" . nil)
-;;          :map howm-view-contents-mode-map ("C-h" . nil))
-;;   :custom
-;;   (howm-directory xcc/howm-directory)
-;;   (howm-keyword-file (expand-file-name ".howm-keys" xcc/howm-directory))
-;;   (howm-history-file (expand-file-name ".howm-history" xcc/howm-directory))
-;;   (howm-file-name-format "%Y%m%dT%H%M%S.txt")
-;;   ;; Keep one window after "1" key in the summary buffer.
-;;   (howm-view-keep-one-window t)
-;;   ;; Use ripgrep as grep
-;;   (howm-view-use-grep t)
-;;   (howm-view-grep-command "rg")
-;;   (howm-view-grep-option "-nH --no-heading --color never")
-;;   (howm-view-grep-extended-option nil)
-;;   (howm-view-grep-fixed-option "-F")
-;;   (howm-view-grep-expr-option nil)
-;;   (howm-view-grep-file-stdin-option nil)
-;;   ;; Search optimisations
-;;   ;;(howm menu-refresh-after-save nil)
-;;   ;;(howm-menu-expiry-hours 2)  ;; cache menu N hours
-;;   (howm-menu-file "00000000T000000.txt")  ;; don't *search*
-;;   :init
-;;   ;; Use Windows host filesystem on WSL
-;;   (if (equal system-name "capaldi-phampc")
-;;       (setq xcc/howm-directory "/mnt/c/Users/xavie/Notes")
-;;     (setq xcc/howm-directory "~/Notes/"))
-;;   :config
-;;   (add-hook 'howm-mode-hook 'howm-mode-set-buffer-name)
-;;   (add-hook 'after-save-hook 'howm-mode-set-buffer-name)
-;;   (defun xcc/howm-view-entries (&optional arg)
-;;       "Run a howm query searching for entries that match ARG days starting with
-;; the date indicated by the cursor position in the displayed calendar."
-;;       (interactive "p")
-;;       (howm-search (apply 'format (append (list "%3$d-%1$d-%2$d") (calendar-cursor-to-date t))) nil)))
-;;   ;; (defconst cal-menu-howm-menu
-;;   ;;   '("Howm"
-;;   ;;     ["Cursor Date" xcc/howm-view-entries])
-;;   ;;   "Key map for \"Howm\" menu in the calendar.")
-;;   ;; (easy-menu-define nil map nil xcc/howm-view-entries)
 
 (use-package ibuffer
   ;; Native nice replacement for buffer-menu.
