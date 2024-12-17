@@ -4,14 +4,6 @@
 sudo apt-get update --assume-yes
 sudo apt-get upgrade --assume-yes
 
-{{   if not (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
-sudo apt-get install --assume-yes \
-	xinit \
-	ratpoison \
-	xterm \
-	syncthing \
-{{   end }}
-
 sudo apt-get install --assume-yes \
 	age \
 	gh \
@@ -21,6 +13,17 @@ sudo apt-get install --assume-yes \
 	python3-venv \
 	pipx \
 	ripgrep \
+
+{{   if not (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
+sudo apt-get install --assume-yes \
+	syncthing \
+
+sudo apt-get install build-essential debhelper git pandoc shunit2
+git clone https://github.com/mkropat/jumpapp.git
+cd jumpapp
+make deb
+sudo dpkg -i jumpapp*all.deb
+{{   end }}
 
 sudo apt autoremove --assume-yes
 
@@ -33,6 +36,7 @@ sudo snap install chezmoi --classic
 
 {{   if not (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
 sudo snap install firefox
+sudo snap install thunderbird
 {{   end }}
 
 {{ else if eq .chezmoi.os "darwin" -}}
