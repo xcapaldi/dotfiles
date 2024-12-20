@@ -46,6 +46,8 @@ sudo snap install thunderbird
 brew bundle --file {{ joinPath .chezmoi.sourceDir "Brewfile" | quote }}
 gh extension install github/gh-copilot
 gh extension upgrade copilot
+gh extension install davidraviv/gh-clean-branches
+gh extension upgrade davidraviv/gh-clean-branches
 # tool-versions hash: {{ include "dot_tool-versions" | sha256sum }}
 asdf install
 {{ end -}}
