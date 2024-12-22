@@ -330,7 +330,7 @@
     "Flymake Transient"
     :transient-non-suffix 'transient--do-leave
     [("n" "next error" flymake-goto-next-error :transient t)
-     ("p" "prev error" flymake-goto-prev-error :transient t)
+     ("p" "prev error" flymake-goto-prev-error :transient t)Commits
      ("b" "show buffer diagnostics" flymake-show-buffer-diagnostics)
      ("r" "show project diagnostics" flymake-show-project-diagnostics)])
   (transient-append-suffix 'project-transient '(0 -1 -1) ;; in the last group
@@ -517,7 +517,7 @@
     [["Project"
       ("p" "switch project" project-switch-project)
       ("X" "forget project" project-forget-project)]
-     ["Files and buffers"
+     ["Files and buffers"Commits
       ("f" "find file" project-find-file)
       ("d" "dired" project-dired)
       ("b" "switch buffer" project-switch-to-buffer)
@@ -698,7 +698,7 @@
 
 (use-package terraform-mode
   ;; https://github.com/hcl-emacs/terraform-mode
-  ;; Support for Terraform configuration files.
+  ;; Support for Terraform configuration files.Commits
   :ensure t
   :if (eq system-type 'darwin)
   :mode ("\\.tf\\'" . terraform-mode))
@@ -771,6 +771,10 @@
   ;; Adds ability to edit grep buffers in same way as wdired allows editing of
   ;; files and directories.
   :vc (:fetcher github :repo mhayashi1120/Emacs-wgrep))
+
+(use-package yaml-mode
+  ;; https://github.com/yoshiki/yaml-mode
+  :ensure t)
 
 ;; load customization file
 (load custom-file)
