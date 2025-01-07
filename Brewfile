@@ -14,6 +14,7 @@ brew "gpg"
 brew "awscli"
 brew "age"
 brew "graphviz"
+brew "tenv"
 brew "typescript-language-server"
 
 cask "docker"

@@ -15,6 +15,9 @@ alias gcurl='curl -H "Authorization: Bearer $(gcloud auth print-access-token)" -
 # The next line enables shell command completion for kubectl.
 source <(kubectl completion zsh)
 
+# The next line enables shell command completion for tenv
+source <(tenv completion zsh)
+
 # add github cli aliases (ghcs/ghce)
 eval "$(gh copilot alias -- zsh)"
 
