@@ -344,6 +344,11 @@
   :mode (("\\.go\\'" . go-mode)
          ("\\.mod\\'" . go-dot-mod-mode)))
 
+(use-package gptel
+  ;; https://github.com/karthink/gptel
+  ;; Support for LLMs in Emacs.
+  :ensure t)
+
 (use-package grep
   ;; Native grep interface
   :ensure nil
