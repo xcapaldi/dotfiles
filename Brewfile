@@ -12,6 +12,7 @@ brew "git"
 brew "gnu-sed"
 brew "gpg"
 brew "graphviz"
+brew "grpcurl"
 brew "libpq", link: true
 brew "ripgrep"
 brew "tenv"
