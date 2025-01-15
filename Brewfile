@@ -18,6 +18,7 @@ brew "ripgrep"
 brew "tenv"
 brew "typescript-language-server"
 
+cask "apptivate"
 cask "docker"
 cask "emacs"
 cask "goland"
