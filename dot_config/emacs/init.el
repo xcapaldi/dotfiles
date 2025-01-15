@@ -243,6 +243,12 @@
   :ensure t
   :config (editorconfig-mode 1))
 
+(use-package ef-themes
+  ;; https://protesilaos.com/emacs/ef-themes
+  ;; More colorful (but still legible) themes in line with the modus themes.
+  :ensure t
+  :config (ef-themes-load-random))
+
 (use-package eglot
   ;; Native LSP client
   :ensure nil
