@@ -457,6 +457,7 @@
   :custom
   (org-adapt-indentation nil)
   (org-edit-src-content-indentation 0)
+  (org-tags-column 0) ;; don't right align tags
   ;; Agenda configuration
   (org-todo-keywords
    '((sequence "TODO(t)" "NEXT(n)" "PROG(p)" "INTR(i)" "DONE(d)")))

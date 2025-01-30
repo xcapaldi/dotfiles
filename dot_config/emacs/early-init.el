@@ -22,6 +22,6 @@
 (tool-bar-mode -1)
 (menu-bar-mode 1)
 (set-scroll-bar-mode 'right)
-(scroll-bar-mode 1)
+(scroll-bar-mode -1)
 
 ;;; early-init.el ends here
