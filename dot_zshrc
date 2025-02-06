@@ -66,14 +66,7 @@ setopt PROMPT_SUBST
 #RPROMPT='${vcs_info_msg_0_}'
 
 #PROMPT='%~ $ '
-PROMPT='%F{blue}%~%f %F{green}$(kubectl config current-context)%f %F{007}${vcs_info_msg_0_}%f %F{magenta}❯%f '
-
-# draw a horizontal line before commands with a lot of output that is hard to distinguish from prior command
-preexec() {
-  if [[ $1 == rg* || $1 == ls* ]]; then
-    printf '%.s═' $(seq 1 $(tput cols))
-  fi
-}
+PROMPT='%F{blue}%~%f %F{green}$(kubectl config current-context 2>/dev/null)%f %F{007}${vcs_info_msg_0_}%f %F{magenta}❯%f '
 
 # allow comments in the interactive command line
 setopt INTERACTIVE_COMMENTS

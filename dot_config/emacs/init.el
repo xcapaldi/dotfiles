@@ -353,7 +353,7 @@
     "Flymake Transient"
     :transient-non-suffix 'transient--do-leave
     [("n" "next error" flymake-goto-next-error :transient t)
-     ("p" "prev error" flymake-goto-prev-error :transient t)Commits
+     ("p" "prev error" flymake-goto-prev-error :transient t)
      ("b" "show buffer diagnostics" flymake-show-buffer-diagnostics)
      ("r" "show project diagnostics" flymake-show-project-diagnostics)])
   (transient-append-suffix 'project-transient '(0 -1 -1) ;; in the last group
@@ -728,7 +728,7 @@
 
 (use-package terraform-mode
   ;; https://github.com/hcl-emacs/terraform-mode
-  ;; Support for Terraform configuration files.Commits
+  ;; Support for Terraform configuration files.
   :ensure t
   :if (eq system-type 'darwin)
   :mode ("\\.tf\\'" . terraform-mode))
@@ -804,7 +804,8 @@
 
 (use-package yaml-mode
   ;; https://github.com/yoshiki/yaml-mode
-  :ensure t)
+  :ensure t
+  :mode ("\\.yml\\'" . yaml-mode))
 
 ;; load customization file
 (load custom-file)
