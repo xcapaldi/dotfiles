@@ -11,6 +11,11 @@
   :custom
   ;; Hide commands in M-x which do not work in the current mode
   (read-extended-command-predicate #'command-completion-default-include-p)
+  ;; list of directories or files which we trust the contents for execution
+  (trusted-content nil)
+  ;; make buffers holding files of the same name unique by preprending directory
+  ;; structure or the project info
+  (uniquify-dirname-transform 'project-uniquify-dirname-transform)
   :config
   ;; set variable defaults
   (setq-default
@@ -48,6 +53,7 @@
   (global-visual-line-mode -1)             ; Wrap lines instead of extending past view
   (auto-fill-mode -1)                      ; Don't auto-wrap lines
   (minibuffer-depth-indicate-mode 1)       ; Indicate minibuffer recursive depth when recursion enabled
+  (which-function-mode 1)                  ; Display the
 
   ;; other settings
   (fset 'yes-or-no-p 'y-or-n-p)  ; Replace yes/no prompts with y/n
@@ -93,9 +99,13 @@
 
 (require 'use-package)
 
-;; install package to enable version-controlled package management in use-package
-(unless (package-installed-p 'vc-use-package)
-  (package-vc-install "https://github.com/slotThe/vc-use-package"))
+(use-package package-vc
+  ;; Native ability of package.el to manage vc sources.
+  ;; Look at ~package-isolate~ for testing packages in controlled environment.
+  :ensure nil
+  :custom
+  ;; vc packages are registered as projects and can navigated with project.el
+  (package-vc-register-as-project t))
 
 ;;;; configure backups and keep config dir clean
 (use-package no-littering
@@ -144,7 +154,7 @@
   ;; asdf is a version manager used at my work to control developer tool
   ;; versions. This package makes tools installed by asdf accessible to
   ;; emacs.
-  :vc (:fetcher github :repo tabfugnic/asdf.el)
+  :vc (:url "https://github.com/tabfugnic/asdf.el.git")
   :if (eq system-type 'darwin)
   :config (asdf-enable))
 
@@ -178,10 +188,15 @@
   ;; convenience functions inside emacs.
   :ensure t)
 
+(use-package completion-preview
+  ;; Native emacs minor mode for viewing completions in a buffer with live update.
+  :ensure nil
+  :config (global-completion-preview-mode))
+
 (use-package copilot
   ;; https://github.com/zerolfx/copilot.el
   ;; Integrate Github Copilot with emacs. The licence is provided at my work.
-  :vc (:fetcher github :repo zerolfx/copilot.el)
+  :vc (:url "https://github.com/zerolfx/copilot.el.git")
   :if (eq system-type 'darwin)
   :hook (prog-mode . copilot-mode)
   :custom
@@ -200,6 +215,11 @@
               ("S-<SPC>" . copilot-accept-completion-by-word)
               ("C-c c" . copilot-prefix)))
 
+(use-package copilot-chat
+  ;; https://github.com/chep/copilot-chat.el
+  ;; Chat with Github Copilot from emacs. The license is provided at my work.
+  :ensure t)
+
 (use-package cua-rect
   ;; Native emulation for CUA keybindings (standard copy/paste/cut).
   ;; I use only for the enhanced rectangle selection.
@@ -209,7 +229,9 @@
 (use-package dired
   ;; Native file explorer
   :ensure nil
-  :custom (dired-listing-switches "-alh")
+  :custom
+  (dired-listing-switches "-alh")
+  (dired-movement-style 'cycle)
   ;; allow navigating directories in current buffer with 'a'
   :config
   (put 'dired-find-alternate-file 'disabled nil)
@@ -238,9 +260,7 @@
   :config (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 
 (use-package editorconfig
-  ;; https://github.com/editorconfig/editorconfig-emacs
-  ;; Make emacs respect EditorConfig.
-  :ensure t
+  ;; Native EditorConfig support.
   :config (editorconfig-mode 1))
 
 (use-package ef-themes
@@ -323,6 +343,9 @@
         ("C-c f p" . flymake-goto-prev-error)
         ("C-c f b" . flymake-show-buffer-diagnostics)
         ("C-c f r" . flymake-show-project-diagnostics))
+  :custom
+  ;; can also be set to short which only shows the most severe diagnostics
+  (flymake-show-diagnostics-at-end-of-line t)
   :config
   (advice-add 'flymake-goto-next-error :after #'flymake-transient)
   (advice-add 'flymake-goto-prev-error :after #'flymake-transient)
@@ -334,13 +357,13 @@
      ("b" "show buffer diagnostics" flymake-show-buffer-diagnostics)
      ("r" "show project diagnostics" flymake-show-project-diagnostics)])
   (transient-append-suffix 'project-transient '(0 -1 -1) ;; in the last group
-     '("F" "flymake" flymake-transient)))
+    '("F" "flymake" flymake-transient)))
 
 ;;(use-package go-dlv
 ;;   ;; https://github.com/benma/go-dlv.el
 ;;   ;; GDB doesn't understand Go well. Instead you should use Delve. This package
 ;;   ;; adds emacs support for Delve on top of GUD.
-;;   :vc (:fetcher github :repo benma/go-dlv.el))
+;;   :vc (:url "https://github.com/benma/go-dlv.el.git"))
 
 (use-package go-mode
   ;; https://github.com/dominikh/go-mode.el
@@ -387,6 +410,11 @@
   :custom
   (icomplete-prospects-height 1)
   (completion-styles '(flex basic)))
+
+(use-package indent-aux
+  ;; Native minor mode to deindent text which is saved to kill ring.
+  :ensure nil
+  :custom (kill-ring-deindent-mode))
 
 (use-package js
   ;; Native javascript mode.
@@ -497,6 +525,8 @@
   ;; Native project management
   :ensure nil
   :bind ("C-c p" . project-transient)
+  ;; display the current poject in the mode line
+  :custom (project-mode-line t)
   :config
   (executable-find "gh")
   (defun xcc/browse-at-remote ()
@@ -517,7 +547,7 @@
     [["Project"
       ("p" "switch project" project-switch-project)
       ("X" "forget project" project-forget-project)]
-     ["Files and buffers"Commits
+     ["Files and buffers"
       ("f" "find file" project-find-file)
       ("d" "dired" project-dired)
       ("b" "switch buffer" project-switch-to-buffer)
@@ -770,7 +800,7 @@
   ;; https://github.com/mhayashi1120/Emacs-wgrep
   ;; Adds ability to edit grep buffers in same way as wdired allows editing of
   ;; files and directories.
-  :vc (:fetcher github :repo mhayashi1120/Emacs-wgrep))
+  :vc (:url "https://github.com/mhayashi1120/Emacs-wgrep.git"))
 
 (use-package yaml-mode
   ;; https://github.com/yoshiki/yaml-mode
