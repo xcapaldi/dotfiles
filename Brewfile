@@ -1,6 +1,7 @@
 tap "homebrew/cask-fonts"
 
 brew "age"
+brew "asdf"
 brew "awscli"
 brew "ca-certificates"
 brew "chezmoi"
