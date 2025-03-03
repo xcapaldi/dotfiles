@@ -99,24 +99,6 @@
 
 (require 'use-package)
 
-(use-package package-vc
-  ;; Native ability of package.el to manage vc sources.
-  ;; Look at ~package-isolate~ for testing packages in controlled environment.
-  :ensure nil
-  :custom
-  ;; vc packages are registered as projects and can navigated with project.el
-  (package-vc-register-as-project t))
-
-;;;; configure backups and keep config dir clean
-(use-package no-littering
-  ;; https://github.com/emacscollective/no-littering
-  ;; Automagically keep config directory clean.
-  :ensure t
-  :config
-  ;; store backups and autosaves in centralized tmp directories
-  (no-littering-theme-backups))
-
-
 ;;;; packages configuration
 
 ;; ace-window
@@ -325,6 +307,7 @@
   ;; emacs on MacOS cannot access path properly. This package allows emacs to
   ;; access the same environment variables as in the shell.
   :ensure t
+  :demand t
   :if (memq window-system '(mac ns x))
   :config (exec-path-from-shell-initialize))
 
@@ -453,6 +436,15 @@
   :config (minions-mode 1)
   :custom (minions-prominent-modes '(flymake-mode)))
 
+(use-package no-littering
+  ;; https://github.com/emacscollective/no-littering
+  ;; Automagically keep config directory clean.
+  :ensure t
+  :demand t
+  :config
+  ;; store backups and autosaves in centralized tmp directories
+  (no-littering-theme-backups))
+
 (use-package ob-go
   ;; https://github.com/pope/ob-go
   ;; Support for Go in org mode code blocks.
@@ -460,6 +452,7 @@
   :after org-mode)
 
 (use-package orderless
+  :disabled
   ;; https://github.com/oantolin/orderless
   ;; An improved(?) completion style that allows out-of-order substring matching (as opposed to the in-order native flex matching).
   ;; There are some other differences but this orderless behavior is already a UX improvement as you don't need to recall the order in commands in the minibuffer or for completions..m
@@ -506,6 +499,15 @@
        (todo "PROG" nil)
        (todo "NEXT" nil))
       nil))))
+
+(use-package package-vc
+  ;; Native ability of package.el to manage vc sources.
+  ;; Look at ~package-isolate~ for testing packages in controlled environment.
+  :ensure nil
+  :demand t
+  :custom
+  ;; vc packages are registered as projects and can navigated with project.el
+  (package-vc-register-as-project t))
 
 (use-package pocket-reader
   ;; https://github.com/alphapapa/pocket-reader.el
