@@ -451,16 +451,11 @@
   :ensure t
   :after org-mode)
 
-(use-package orderless
-  :disabled
-  ;; https://github.com/oantolin/orderless
-  ;; An improved(?) completion style that allows out-of-order substring matching (as opposed to the in-order native flex matching).
-  ;; There are some other differences but this orderless behavior is already a UX improvement as you don't need to recall the order in commands in the minibuffer or for completions..m
+(use-package hotfuzz
+  ;; https://github.com/axelf4/hotfuzz
+  ;; Similarly to built-in flex completion but faster and better scoring algorithm.
   :ensure t
-  :after icomplete
-  :custom
-  (completion-styles '(orderless basic))
-  (completion-category-overrides '((file (styles basic partial-completion)))))
+  :custom (completion-styles '(hotfuzz basic)))
 
 (use-package org
   :ensure nil
