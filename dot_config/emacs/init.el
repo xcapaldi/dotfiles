@@ -20,7 +20,7 @@
   ;; set variable defaults
   (setq-default
    coding-system-for-read 'utf-8     ; Use UTF-8 by default
-   coding-system-for-write 'utf-8
+ nn  coding-system-for-write 'utf-8
    cursor-in-non-selected-windows t  ; Don't hide the cursor in inactive windows
    help-window-select t              ; Focus new help windows when opened
    indent-tabs-mode nil              ; Use spaces by default instead of tabs
@@ -102,20 +102,6 @@
 ;;;; packages configuration
 
 ;; ace-window
-
-(use-package age
-  ;; https://github.com/anticomputer/age.el
-  ;; Add support for Age encryption/decryption.
-  :ensure t
-  :demand t
-  :custom
-  (age-default-identity '("~/Documents/org/age_general"
-			  "~/Documents/org/age_chezmoi"))
-  (age-default-recipient '("~/Documents/org/age_general.pub"
-			   "~/Documents/org/age_chezmoi.pub"))
-  (auth-sources '("~/.authinfo" "~/.authinfo.gpg" "~/.authinfo.age" "~/.netrc"))
-  :config
-  (age-file-enable))
 
 (use-package anzu
   ;; https://github.com/emacsorphanage/anzu
@@ -202,7 +188,7 @@
   ;; Chat with Github Copilot from emacs. The license is provided at my work.
   :ensure t)
 
-(use-package cua-rect
+(use-package cua-rect         
   ;; Native emulation for CUA keybindings (standard copy/paste/cut).
   ;; I use only for the enhanced rectangle selection.
   :ensure nil
