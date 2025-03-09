@@ -20,7 +20,7 @@
   ;; set variable defaults
   (setq-default
    coding-system-for-read 'utf-8     ; Use UTF-8 by default
- nn  coding-system-for-write 'utf-8
+   coding-system-for-write 'utf-8
    cursor-in-non-selected-windows t  ; Don't hide the cursor in inactive windows
    help-window-select t              ; Focus new help windows when opened
    indent-tabs-mode nil              ; Use spaces by default instead of tabs
@@ -345,6 +345,7 @@
 (use-package gptel
   ;; https://github.com/karthink/gptel
   ;; Support for LLMs in Emacs.
+  :disabled
   :ensure t)
 
 (use-package grep
@@ -372,13 +373,9 @@
 (use-package icomplete
   ;; Native completion interface
   :ensure nil
-  :init (icomplete-mode)
-  ;; M-TAB is the normal keybind but often conflicts with window managers
-  :bind (:map icomplete-minibuffer-map
-			  ("C-k" . icomplete-force-complete))
+  :init (icomplete-vertical-mode)
   :custom
-  (icomplete-prospects-height 1)
-  (completion-styles '(flex basic)))
+  (icomplete-prospects-height 1))
 
 (use-package indent-aux
   ;; Native minor mode to deindent text which is saved to kill ring.
@@ -490,12 +487,6 @@
   ;; vc packages are registered as projects and can navigated with project.el
   (package-vc-register-as-project t))
 
-(use-package pocket-reader
-  ;; https://github.com/alphapapa/pocket-reader.el
-  ;; Read Pocket articles directly in emacs.
-  :ensure t
-  :commands (pocket-reader))
-
 (use-package prism
   ;; https://github.com/alphapapa/prism.el
   ;; Highlight by depth. Very helpful for data modes or those those lacking
@@ -556,95 +547,12 @@
   :if (eq system-type 'darwin)
   :mode ("\\.proto\\'"))
 
-;; (use-package pulsar
-;;   ;; https://protesilaos.com/emacs/pulsar
-;;   ;; Extends pulse.el to pulse line on move or command.
-;;   :ensure tg
-;;   :init (pulsar-global-mode 1)
-;;   ;; :bind (("C-c h p" . pulsar-pulse-line)
-;;   ;;       ("C-c h h" . pulsar-highlight-dwim))
-;;   :commands (recenter-top-bottom
-;;              move-to-window-line-top-bottom
-;;              reposition-window
-;;              bookmark-jump
-;;              other-window
-;;              ace-window
-;;              delete-window
-;;              delete-other-windows
-;;              forward-page
-;;              backward-page
-;;              scroll-up-command
-;;              scroll-down-command
-;;              windmove-right
-;;              windmove-left
-;;              windmove-up
-;;              windmove-down
-;;              windmove-swap-states-right
-;;              windmove-swap-states-left
-;;              windmove-swap-states-up
-;;              windmove-swap-states-down
-;;              tab-new
-;;              tab-close
-;;              tab-next
-;;              org-next-visible-heading
-;;              org-previous-visible-heading
-;;              org-forward-heading-same-level
-;;              org-backward-heading-same-level
-;;              outline-backward-same-level
-;;              outline-forward-same-level
-;;              outline-next-visible-heading
-;;              outline-previous-visible-heading
-;;              outline-up-heading)
-;;   :custom
-;;   (pulsar-pulse t)
-;;   (pulsar-delay 0.055)
-;;   (pulsar-iterations 10)
-;;   (pulsar-face 'pulsar-magenta)
-;;   (pulsar-highlight-face 'pulsar-yellow)
-;;   (pulsar-pulse-functions '(recenter-top-bottom
-;;                             move-to-window-line-top-bottom
-;;                             reposition-window
-;;                             bookmark-jump
-;;                             other-window
-;;                             ace-window
-;;                             delete-window
-;;                             delete-other-windows
-;;                             forward-page
-;;                             backward-page
-;;                             scroll-up-command
-;;                             scroll-down-command
-;;                             windmove-right
-;;                             windmove-left
-;;                             windmove-up
-;;                             windmove-down
-;;                             windmove-swap-states-right
-;;                             windmove-swap-states-left
-;;                             windmove-swap-states-up
-;;                             windmove-swap-states-down
-;;                             tab-new
-;;                             tab-close
-;;                             tab-next
-;;                             org-next-visible-heading
-;;                             org-previous-visible-heading
-;;                             org-forward-heading-same-level
-;;                             org-backward-heading-same-level
-;;                             outline-backward-same-level
-;;                             outline-forward-same-level
-;;                             outline-next-visible-heading
-;;                             outline-previous-visible-heading
-;;                             outline-up-heading)))
-
 ;; puni
 
 (use-package pyvenv
   ;; Activate python virtual environments so Emacs respects them.
   :ensure t
   :hook (python-mode . pyvenv-mode))
-
-;; (use-package rainbow-delimiters
-;;   ;; https://github.com/Fanael/rainbow-delimiters
-;;   :ensure t
-;;   :hook (prog-mode. rainbow-delimiters-mode))
 
 ;; rainbow-mode
 
@@ -663,16 +571,8 @@
   ;; Native dumb shell. It's non-interactive but retains emacs keybindings. For
   ;; an interactive terminal, use ansi-term instead.
   :ensure nil
-  :init (setq comint-process-echoes t) ; remove zsh echoing
+  :init (setq comint-process-echoes nil) ; remove zsh echoing
   :custom (show-trailing-whitespace nil))
-  ;; :config
-  ;; (defun xcc/shell-cur-dir ()
-  ;;   (interactive)
-  ;;   (shell (concat "*shell" default-directory "*")))
-  ;; (transient-define-prefix spawn-shell-prefix ()
-  ;;   "Prefix that allows spawning shells"
-  ;;   [("<return>" "current directory" xcc/shell-cur-dir)])
-  ;; :bind ("C-c s" . spawn-shell-prefix))
 
 (use-package shr
   ;; Native HTML renderer.

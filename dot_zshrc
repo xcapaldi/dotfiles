@@ -24,15 +24,19 @@ source <(tenv completion zsh)
 eval "$(gh copilot alias -- zsh)"
 
 # emacs M-x shell
-if [[ "dumb" == $TERM ]]; then
+if [[ $TERM == "dumb" ]]; then
   alias less='cat'
   alias more='cat'
   export PAGER=cat
   export TERM=xterm-256color
+  # prevent tramp from hanging on remote ssh zsh connection
+  # disable zsh line editor
+  unsetopt zle
+  # fix prompt behavior
+  unsetopt prompt_cr prompt_sp
+  # simplify the prompt
+  # PS1='$ '
 fi
-
-# prevent tramp from hanging on remote ssh zsh connection
-[[ $TERM == "dumb" ]] && unsetopt zle && PS1='$ '
 
 # better defaults for zsh history
 export HISTSIZE=1000000   # the number of items for the internal history list
