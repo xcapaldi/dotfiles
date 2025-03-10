@@ -261,6 +261,39 @@
 
 ;; elfeed
 
+(use-package embark
+  ;; https://github.com/oantolin/embark
+  ;; Contextual actions and capture of minibuffer listings.
+  :ensure t
+  :bind
+  (("<f5>" . embark-act)         ;; pick some comfortable binding
+   ("<f6>" . embark-dwim))       ;; good alternative: M-.
+  :config
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none))))
+  ;; Add target for go tests
+  (defun xcc/embark-go-test ()
+    "Target a go test at point of the form func Test___(_ *testing.T) { ___ }."
+    (when (and (derived-mode-p 'go-mode)
+               (thing-at-point-looking-at "^func \\(Test[A-Za-z0-9_]+\\)"))
+      (list 'go-test (match-string 1))))
+
+  (defun xcc/embark-run-go-test (test-name)
+    "Run Go test with the given name."
+    (let ((command (format "go test -run \"^%s$\"" test-name)))
+      (compile command)))
+
+  (add-to-list 'embark-target-finders 'xcc/embark-go-test)
+
+  (add-to-list 'embark-keymap-alist '(go-test . xcc/embark-go-test-map))
+  (defvar-keymap xcc/embark-go-test-map
+    :doc "Keymap for go test actions."
+    "t" #'xcc/embark-run-go-test)
+  )
+
 (use-package eshell
   :ensure nil
   :config
