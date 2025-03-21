@@ -14,6 +14,7 @@ brew "gnu-sed"
 brew "gpg"
 brew "graphviz"
 brew "grpcurl"
+brew "kubie"
 brew "libpq", link: true
 brew "ripgrep"
 brew "tenv"
