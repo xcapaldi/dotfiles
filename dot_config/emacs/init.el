@@ -178,6 +178,11 @@
      ("<tab>" "accept completion by line" copilot-accept-completion-by-line :transient t)
      ("<SPC>" "accept completion by word" copilot-accept-completion-by-word :transient t)
      ("<backspace>" "clear overlay" copilot-clear-overlay)])
+  (add-to-list 'copilot-indentation-alist '(prog-mode 2))
+  (add-to-list 'copilot-indentation-alist '(org-mode 2))
+  (add-to-list 'copilot-indentation-alist '(text-mode 2))
+  (add-to-list 'copilot-indentation-alist '(closure-mode 2))
+  (add-to-list 'copilot-indentation-alist '(emacs-lisp-mode 2))
   :bind (:map copilot-mode-map
               ("S-<tab>" . copilot-accept-completion)
               ("S-<SPC>" . copilot-accept-completion-by-word)
@@ -268,7 +273,7 @@
   :bind
   (("<f5>" . embark-act)         ;; pick some comfortable binding
    ("<f6>" . embark-dwim))       ;; good alternative: M-.
-  :config
+ :config
   ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
@@ -347,7 +352,7 @@
         ("C-c f r" . flymake-show-project-diagnostics))
   :custom
   ;; can also be set to short which only shows the most severe diagnostics
-  (flymake-show-diagnostics-at-end-of-line t)
+  (flymake-show-diagnostics-at-end-of-line nil)
   :config
   (advice-add 'flymake-goto-next-error :after #'flymake-transient)
   (advice-add 'flymake-goto-prev-error :after #'flymake-transient)
@@ -438,6 +443,17 @@
   ;; Highlight TODOs in magit interface.
 ;;  :ensure t
 ;;  :hook magit-mode)
+
+(use-package marginalia
+  ;; https://github.com/minad/marginalia
+  ;; Enable rich annotations using the Marginalia package
+  ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
+  ;; available in the *Completions* buffer, add it to the
+  ;; `completion-list-mode-map'.
+  :ensure t
+  :bind (:map minibuffer-local-map
+         ("M-A" . marginalia-cycle))
+  :init (marginalia-mode))
 
 (use-package markdown-mode
   ;; https://jblevins.org/projects/markdown-mode/
