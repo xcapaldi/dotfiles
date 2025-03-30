@@ -65,9 +65,9 @@ sudo snap install chezmoi --classic
 chezmoi init https://github.com/xcapaldi/dotfiles.git
 ```
 
-This will take care of installing my favorite minimal window manager; [ratpoison](https://www.nongnu.org/ratpoison/).
+This will take care of installing a simple window manager; [jwm](https://joewing.net/projects/jwm/).
 Then I can simply login via tty and run `startx` to get into a graphical session.
-Since I'm exclusively using this machine to work on personal projects I usually just have Emacs, Firefox and a terminal running.
+Since I'm exclusively using this machine to work on personal projects I usually just have Emacs, Vivaldi and a terminal running.
 
 ### Use posix-compliant shell (unused currently)
 Alias `sh` to `dash` instead of `bash`.

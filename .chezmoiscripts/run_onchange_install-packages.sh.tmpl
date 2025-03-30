@@ -15,14 +15,12 @@ sudo apt-get install --assume-yes \
 	ripgrep \
 
 {{   if not (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
-sudo apt-get install --assume-yes \
-	syncthing \
-
-sudo apt-get install build-essential debhelper git pandoc shunit2
-git clone https://github.com/mkropat/jumpapp.git
-cd jumpapp
-make deb
-sudo dpkg -i jumpapp*all.deb
+#sudo apt-get install jwm
+#sudo apt-get install build-essential debhelper git pandoc shunit2
+#git clone https://github.com/mkropat/jumpapp.git
+#cd jumpapp
+#make deb
+#sudo dpkg -i jumpapp*all.deb
 {{   end }}
 
 sudo apt autoremove --assume-yes
@@ -36,8 +34,7 @@ sudo snap install emacs --classic
 sudo snap install chezmoi --classic
 
 {{   if not (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
-sudo snap install firefox
-sudo snap install thunderbird
+sudo snap install vivaldi 
 {{   end }}
 
 {{ else if eq .chezmoi.os "darwin" -}}
