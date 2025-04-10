@@ -48,5 +48,7 @@ gh extension install davidraviv/gh-clean-branches
 gh extension upgrade davidraviv/gh-clean-branches
 # tool-versions hash: {{ include "dot_tool-versions" | sha256sum }}
 asdf install || true
+# The Software Development Kit Manager for Java
+curl -s "https://get.sdkman.io" | bash
 {{ end -}}
 
