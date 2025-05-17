@@ -140,6 +140,15 @@
   (avy-case-fold-search nil)
   (avy-background nil))
 
+(use-package beancount
+  ;; https://github.com/beancount/beancount-mode
+  ;; Beancount plain-text accounting support.
+  :vc (:url "https://github.com/beancount/beancount-mode.git")
+  :if (eq system-type 'gnu/linux)
+  :mode ("\\.beancount\\'" . beancount-mode)
+  :hook ((beancount-mode . outline-minor-mode)
+         (beancount-mode . flymake-bean-check-enable)))
+
 ;; (use-package browse-at-remote
 ;;   ;; https://github.com/rmuslimov/browse-at-remote
 ;;   ;; Jump to current line on VC remote repository.
