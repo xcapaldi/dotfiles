@@ -223,6 +223,13 @@
   :ensure nil)
   ;;:hook (prog-mode . display-line-numbers-mode))
 
+
+(use-package doric-themes
+  ;; https://github.com/protesilaos/doric-themes
+  ;; Minimal and readable themes.
+  :vc (:url "https://github.com/protesilaos/doric-themes.git")
+  :demand t)
+
 (use-package dumb-jump
   ;; https://github.com/jacktasia/dumb-jump
   ;; Use grep, ag or ripgrep with some baked language heuristics for fast goto
@@ -235,12 +242,6 @@
 (use-package editorconfig
   ;; Native EditorConfig support.
   :config (editorconfig-mode 1))
-
-(use-package ef-themes
-  ;; https://protesilaos.com/emacs/ef-themes
-  ;; More colorful (but still legible) themes in line with the modus themes.
-  :ensure t
-  :config (ef-themes-load-random))
 
 (use-package eglot
   ;; Native LSP client
