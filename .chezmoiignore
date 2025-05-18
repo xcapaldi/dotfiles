@@ -2,17 +2,16 @@ README.md
 Brewfile
 Brewfile.lock.json
 dnffile
+.config/emacs/gnus.el
 {{ if ne .chezmoi.os "darwin" -}}
 .zshrc
 .psqlrc
 .ssh
 .vim
 private_Library
-.authinfo.age
 .config/emacs/gnus.el
 {{ else if ne .chezmoi.os "linux" -}}
-.authinfo.age
-.config/emacs/gnus.el
+.authinfo.gpg
 .xinitrc
 .Xresources
 {{ end -}}

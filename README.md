@@ -79,17 +79,9 @@ sudo rm /bin/sh
 sudo ln -s /bin/dash /bin/sh
 ```
 
-### Email (unused currently)
+### Email
 Fetching email locally can be the most complex configuration managed via Chezmoi.
 I am trying Gnus inside Emacs as my email client (instead of `isync` + `notmuch` + `msmtp`).
 Gnus relies on the `.authinfo` file to contain mail server information and credentials.
 Gnus' own configuration includes some personal information as well.
-While GPG is standard for encryption, I prefer to use [age](https://github.com/FiloSottile/age) because it is far easier use for this purpose.
-I generate two keyfiles; one for Chezmoi's native encrypted configuration support and one for general use.
-The Gnus configuration (`gnus.el`) is encrypted by Chezmoi using that key: `encrypted_gnus.el.age`.
-This means inside the repo, it is encrypted.
-However on my local machine, it lives in plain text.
-This would work for the `.authinfo` as well but it is best practice to keep it encrypted even locally so the passwords are not stored in plain text.
-So `.authinfo` is encrypted with the general key (`.authinfo.age`) even locally.
-These keys are the only important pieces that are not maintained with the rest of my configuration.
-
+My `.authinfo` and sensitive Gnus configuration are encrypted via GPG.

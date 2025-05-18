@@ -16,6 +16,8 @@
   ;; make buffers holding files of the same name unique by preprending directory
   ;; structure or the project info
   (uniquify-dirname-transform 'project-uniquify-dirname-transform)
+  ;; ask for gpg passphrase directly in emacs
+  (epg-pinentry-mode 'loopback)
   :config
   ;; set variable defaults
   (setq-default
@@ -233,11 +235,11 @@
   ;;:hook (prog-mode . display-line-numbers-mode))
 
 
-(use-package doric-themes
-  ;; https://github.com/protesilaos/doric-themes
-  ;; Minimal and readable themes.
-  :vc (:url "https://github.com/protesilaos/doric-themes.git")
-  :demand t)
+;;(use-package doric-themes
+;;  ;; https://github.com/protesilaos/doric-themes
+;;  ;; Minimal and readable themes.
+;;  :vc (:url "https://github.com/protesilaos/doric-themes.git")
+;;  :demand t)
 
 (use-package dumb-jump
   ;; https://github.com/jacktasia/dumb-jump
@@ -347,10 +349,6 @@
 
 ;; focus
 
-;; email configuration -- stored in separate encrypted file
-;;(if (eq system-type 'gnu/linux)
-;;  (load-file (concat user-emacs-directory "gnus.el")))
-
 (use-package flymake
   ;; Native mode for on-the-fly syntax checking.
   :ensure nil
@@ -375,6 +373,30 @@
      ("r" "show project diagnostics" flymake-show-project-diagnostics)])
   (transient-append-suffix 'project-transient '(0 -1 -1) ;; in the last group
     '("F" "flymake" flymake-transient)))
+
+(use-package gnus
+  ;; Native email/feed client.
+  :ensure nil
+  :custom
+  ;; disable default select method
+  (gnus-select-method '(nnnil nil))
+
+  ;; speed gnus up
+  (gnus-asynchronous t)
+  (gnus-use-cache t)
+  (gnus-use-header-prefetch t)
+
+  ;; use native smtpmail to send emails
+  (message-send-mail-function 'message-use-send-mail-function
+                              send-mail-function 'smtpmail-send-it)
+
+  ;; when exiting a group, process messages marked as expired
+  (gnus-exit-group-hook 'gnus-summary-expire-articles)
+
+  (gnus-directory (concat user-emacs-directory "/etc/gnus/news/"))
+  :config
+  (if (equal system-type 'gnu/linux)
+      (load-file (concat user-emacs-directory "gnus.el.gpg"))))
 
 ;;(use-package go-dlv
 ;;   ;; https://github.com/benma/go-dlv.el
