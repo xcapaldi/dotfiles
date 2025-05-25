@@ -9,9 +9,11 @@ sudo apt-get install --assume-yes \
 	git \
 	golang-go \
 	gopls \
+	npm \
 	python3-venv \
 	pipx \
 	ripgrep \
+	sqlite3 \
 
 {{   if not (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
 #sudo apt-get install jwm
@@ -27,6 +29,10 @@ sudo apt autoremove --assume-yes
 pipx install jedi-language-server
 pipx install beancount
 pipx ensurepath
+
+mkdir -p ~/.npm-global/lib
+npm config set prefix '~/.npm-global'
+npm install -g @devcontainers/cli
 
 sudo snap refresh
 sudo snap install emacs --classic
