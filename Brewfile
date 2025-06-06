@@ -23,6 +23,7 @@ brew "tenv"
 brew "typescript-language-server"
 
 cask "apptivate"
+cask "chatgpt"
 cask "cursor"
 cask "docker"
 cask "emacs"
