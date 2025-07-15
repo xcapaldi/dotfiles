@@ -435,6 +435,39 @@
   :ensure nil
   :bind ([remap dabbrev-expand] . hippie-expand)) ;; M-/ and C-M-/
 
+(use-package howm
+  ;; https://github.com/kaorahi/howm
+  ;; Opinionated note-taking and planning tool implemented in Emacs.
+  :vc (:url "https://github.com/kaorahi/howm.git"
+            :rev :newest)
+  :init
+  (require 'howm-org)
+  ;; fix for bug in howm-org.el
+  ;;(setq howm-keyword-body-regexp "[^\r\n]+")
+  (setq howm-file-name-format "%Y%m%dT%H%M%S.org")
+  ;; Use Windows host filesystem on WSL
+  (if (equal system-name "capaldi-phampc")
+    (setq xcc/howm-directory "/mnt/c/Users/xavie/Notes")
+  (setq xcc/howm-directory "~/Notes/"))
+  :custom
+  (howm-directory xcc/howm-directory)
+  (howm-keyword-file (expand-file-name ".howm-keys" xcc/howm-directory))
+  (howm-history-file (expand-file-name ".howm-history" xcc/howm-directory))
+  ;; Keep one window after "1" key in the summary buffer.
+  (howm-view-keep-one-window t)
+  ;; Use ripgrep as grep
+  (howm-view-use-grep t)
+  (howm-view-grep-command "rg")
+  (howm-view-grep-option "-nH --no-heading --color never")
+  (howm-view-grep-extended-option nil)
+  (howm-view-grep-fixed-option "-F")
+  (howm-view-grep-expr-option nil)
+  (howm-view-grep-file-stdin-option nil)
+  ;; Search optimisations
+  (howm menu-refresh-after-save nil)
+  (howm-menu-expiry-hours 2)  ;; cache menu N hours
+  (howm-menu-file "00000000T000000.org"))
+
 (use-package ibuffer
   ;; Native nice replacement for buffer-menu.
   :ensure nil
