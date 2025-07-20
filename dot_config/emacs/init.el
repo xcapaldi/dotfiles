@@ -447,7 +447,7 @@
   (setq howm-file-name-format "%Y%m%dT%H%M%S.org")
   ;; Use Windows host filesystem on WSL
   (if (equal system-name "capaldi-phampc")
-    (setq xcc/howm-directory "/mnt/c/Users/xavie/Notes")
+    (setq xcc/howm-directory "/mnt/c/Users/xavie/org")
   (setq xcc/howm-directory "~/Notes/"))
   :custom
   (howm-directory xcc/howm-directory)
