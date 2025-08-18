@@ -435,39 +435,6 @@
   :ensure nil
   :bind ([remap dabbrev-expand] . hippie-expand)) ;; M-/ and C-M-/
 
-(use-package howm
-  ;; https://github.com/kaorahi/howm
-  ;; Opinionated note-taking and planning tool implemented in Emacs.
-  :vc (:url "https://github.com/kaorahi/howm.git"
-            :rev :newest)
-  :init
-  (require 'howm-org)
-  ;; fix for bug in howm-org.el
-  ;;(setq howm-keyword-body-regexp "[^\r\n]+")
-  (setq howm-file-name-format "%Y%m%dT%H%M%S.org")
-  ;; Use Windows host filesystem on WSL
-  (if (equal system-name "capaldi-phampc")
-    (setq xcc/howm-directory "/mnt/c/Users/xavie/org")
-  (setq xcc/howm-directory "~/Notes/"))
-  :custom
-  (howm-directory xcc/howm-directory)
-  (howm-keyword-file (expand-file-name ".howm-keys" xcc/howm-directory))
-  (howm-history-file (expand-file-name ".howm-history" xcc/howm-directory))
-  ;; Keep one window after "1" key in the summary buffer.
-  (howm-view-keep-one-window t)
-  ;; Use ripgrep as grep
-  (howm-view-use-grep t)
-  (howm-view-grep-command "rg")
-  (howm-view-grep-option "-nH --no-heading --color never")
-  (howm-view-grep-extended-option nil)
-  (howm-view-grep-fixed-option "-F")
-  (howm-view-grep-expr-option nil)
-  (howm-view-grep-file-stdin-option nil)
-  ;; Search optimisations
-  (howm menu-refresh-after-save nil)
-  (howm-menu-expiry-hours 2)  ;; cache menu N hours
-  (howm-menu-file "00000000T000000.org"))
-
 (use-package ibuffer
   ;; Native nice replacement for buffer-menu.
   :ensure nil
@@ -565,17 +532,17 @@
   (add-to-list 'org-modules 'org-habit)
   ;; Use Windows host filesystem on WSL
   (if (equal system-name "capaldi-phampc")
-      (setq org-agenda-files (quote ("/mnt/c/Users/xavie/Notes")))
+      (setq org-agenda-files (quote ("/mnt/c/Users/xavie/org/obtf.org")))
     (setq org-agenda-files (quote ("~/Notes/"))))
   :custom
   (org-adapt-indentation nil)
   (org-edit-src-content-indentation 0)
   (org-tags-column 0) ;; don't right align tags
+  ;; Capture
+  (org-capture-templates
+   '(("t" "Todo" entry (file+headline "/mnt/c/Users/xavie/org/obtf.org" "Inbox")
+         "* TODO %?\n  %i\n  %a")))
   ;; Agenda configuration
-  (org-todo-keywords
-   '((sequence "TODO(t)" "NEXT(n)" "PROG(p)" "INTR(i)" "DONE(d)")))
-  (org-log-done 'time)
-  (org-log-into-drawer 'LOGBOOK)
   (org-agenda-span 'week)
   ;; Hide tasks that are scheduled in the future.
   (org-agenda-todo-ignore-scheduled 'future)
@@ -583,14 +550,7 @@
   ;; It hides tasks with a scheduled time like "<2020-11-15 Sun 11:30>"
   (org-agenda-todo-ignore-time-comparison-use-seconds t)
   ;; Hide the deadline prewarning prior to scheduled date.
-  (org-agenda-skip-deadline-prewarning-if-scheduled 'pre-scheduled)
-  (org-agenda-custom-commands
-   '(("n" "Agenda / INTR / PROG / NEXT"
-      ((agenda "" nil)
-       (todo "INTR" nil)
-       (todo "PROG" nil)
-       (todo "NEXT" nil))
-      nil))))
+  (org-agenda-skip-deadline-prewarning-if-scheduled 'pre-scheduled))
 
 (use-package package-vc
   ;; Native ability of package.el to manage vc sources.
