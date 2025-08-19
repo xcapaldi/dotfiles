@@ -443,7 +443,7 @@
 (use-package icomplete
   ;; Native completion interface
   :ensure nil
-  :init (icomplete-vertical-mode)
+  ;;:init (icomplete-vertical-mode)
   :custom
   (icomplete-prospects-height 1))
 
@@ -476,16 +476,16 @@
 ;;  :ensure t
 ;;  :hook magit-mode)
 
-(use-package marginalia
-  ;; https://github.com/minad/marginalia
-  ;; Enable rich annotations using the Marginalia package
-  ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
-  ;; available in the *Completions* buffer, add it to the
-  ;; `completion-list-mode-map'.
-  :ensure t
-  :bind (:map minibuffer-local-map
-         ("M-A" . marginalia-cycle))
-  :init (marginalia-mode))
+;;(use-package marginalia
+;;  ;; https://github.com/minad/marginalia
+;;  ;; Enable rich annotations using the Marginalia package
+;;  ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
+;;  ;; available in the *Completions* buffer, add it to the
+;;  ;; `completion-list-mode-map'.
+;;  :ensure t
+;;  :bind (:map minibuffer-local-map
+;;         ("M-A" . marginalia-cycle))
+;;  :init (marginalia-mode))
 
 (use-package markdown-mode
   ;; https://jblevins.org/projects/markdown-mode/
