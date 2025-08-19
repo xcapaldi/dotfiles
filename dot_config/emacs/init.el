@@ -172,38 +172,6 @@
   :ensure nil
   :config (global-completion-preview-mode))
 
-(use-package copilot
-  ;; https://github.com/zerolfx/copilot.el
-  ;; Integrate Github Copilot with emacs. The licence is provided at my work.
-  :vc (:url "https://github.com/zerolfx/copilot.el.git")
-  :if (eq system-type 'darwin)
-  :hook (prog-mode . copilot-mode)
-  :custom
-  (copilot-indent-warning-suppress t)
-  :config
-  (transient-define-prefix copilot-prefix ()
-    "Prefix that allow control of copilot suggestions"
-    [("<return>" "accept completion" copilot-accept-completion)
-     ("n" "next completion" copilot-next-completion :transient t)
-     ("p" "prev completion" copilot-previous-completion :transient t)
-     ("<tab>" "accept completion by line" copilot-accept-completion-by-line :transient t)
-     ("<SPC>" "accept completion by word" copilot-accept-completion-by-word :transient t)
-     ("<backspace>" "clear overlay" copilot-clear-overlay)])
-  (add-to-list 'copilot-indentation-alist '(prog-mode 2))
-  (add-to-list 'copilot-indentation-alist '(org-mode 2))
-  (add-to-list 'copilot-indentation-alist '(text-mode 2))
-  (add-to-list 'copilot-indentation-alist '(closure-mode 2))
-  (add-to-list 'copilot-indentation-alist '(emacs-lisp-mode 2))
-  :bind (:map copilot-mode-map
-              ("S-<tab>" . copilot-accept-completion)
-              ("S-<SPC>" . copilot-accept-completion-by-word)
-              ("C-c c" . copilot-prefix)))
-
-(use-package copilot-chat
-  ;; https://github.com/chep/copilot-chat.el
-  ;; Chat with Github Copilot from emacs. The license is provided at my work.
-  :ensure t)
-
 (use-package cua-rect         
   ;; Native emulation for CUA keybindings (standard copy/paste/cut).
   ;; I use only for the enhanced rectangle selection.
