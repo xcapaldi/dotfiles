@@ -167,10 +167,10 @@
   ;; convenience functions inside emacs.
   :ensure t)
 
-(use-package completion-preview
-  ;; Native emacs minor mode for viewing completions in a buffer with live update.
-  :ensure nil
-  :config (global-completion-preview-mode))
+;; (use-package completion-preview
+;;   ;; Native emacs minor mode for viewing completions in a buffer with live update.
+;;   :ensure nil
+;;   :config (global-completion-preview-mode))
 
 (use-package cua-rect         
   ;; Native emulation for CUA keybindings (standard copy/paste/cut).
@@ -201,7 +201,6 @@
   ;; Native method of displaying line numbers.
   :ensure nil)
   ;;:hook (prog-mode . display-line-numbers-mode))
-
 
 ;;(use-package doric-themes
 ;;  ;; https://github.com/protesilaos/doric-themes
@@ -411,9 +410,28 @@
 (use-package icomplete
   ;; Native completion interface
   :ensure nil
-  ;;:init (icomplete-vertical-mode)
+  :bind (:map icomplete-minibuffer-map
+              ("C-n" . icomplete-forward-completions)
+              ("C-p" . icomplete-backward-completions)
+              ("RET" . icomplete-force-complete-and-exit))
+  ;;(setq icomplete-delay-completions-threshold 0)
+  ;;(setq icomplete-compute-delay 0)
+  ;;(setq icomplete-show-matches-on-no-input t)
+  ;;(setq icomplete-hide-common-prefix nil)
+  ;;(setq icomplete-prospects-height 10)
+  ;;(setq icomplete-separator " . ")
+  ;;(setq icomplete-max-delay-chars 0)
+  ;;(setq icomplete-scroll t)
+  ;;(advice-add 'completion-at-point
+  ;;            :after #'minibuffer-hide-completions)
   :custom
-  (icomplete-prospects-height 1))
+  (icomplete-mode 1)
+  (icomplete-prospects-height 1)
+  ;; Inline completions using icomplete. This is a really nice interface and
+  ;; can probably be made even nicer with icomplete-vertical; however it
+  ;; doesn't seem to work with completions provided by eglot (lsp). 
+  ;;(icomplete-in-buffer t)
+  (icomplete-with-completion-tables t))
 
 (use-package indent-aux
   ;; Native minor mode to deindent text which is saved to kill ring.
@@ -460,6 +478,15 @@
   ;; Mode for markdown markup format.
   :ensure t
   :mode ("README\\.md\\'" . gfm-mode))
+
+(use-package minibuffer
+  ;; Native minibuffer and completion
+  :ensure nil
+  :custom
+  (completion 'always)
+  (completion-auto-help 'visible)
+  (completion-auto-select 'second-tab)
+  (completions-max-height 12))
 
 (use-package minions
   ;; https://github.com/tarsius/minions
