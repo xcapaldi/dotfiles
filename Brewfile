@@ -1,5 +1,3 @@
-tap "homebrew/cask-fonts"
-
 brew "asdf"
 brew "awscli"
 brew "bitwarden-cli"
