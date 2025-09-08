@@ -22,6 +22,7 @@ brew "typescript-language-server"
 
 cask "apptivate"
 cask "chatgpt"
+cask "claude"
 cask "claude-code"
 cask "cursor"
 cask "docker"
