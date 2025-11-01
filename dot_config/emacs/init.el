@@ -172,7 +172,14 @@
 ;;   :ensure nil
 ;;   :config (global-completion-preview-mode))
 
-(use-package cua-rect         
+(use-package cook-mode
+  :vc (:url "https://github.com/cooklang/cook-mode"
+            :rev :newest
+            :branch "master")
+  :if (eq system-type 'gnu/linux)
+  :mode ("\\.cook\\'" . cook-mode))
+
+(use-package cua-rect
   ;; Native emulation for CUA keybindings (standard copy/paste/cut).
   ;; I use only for the enhanced rectangle selection.
   :ensure nil
