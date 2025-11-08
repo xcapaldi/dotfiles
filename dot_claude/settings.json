@@ -13,5 +13,15 @@
     ]
   },
   "alwaysThinkingEnabled": true,
-  "autoUpdates": false
+  "autoUpdates": false,
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh",
+    "padding": 0
+  },
+  "sandbox": {
+    "enabled": false,
+    "autoAllowBashIfSandboxed": true,
+    "allowUnsandboxedCommands": true
+  }
 }
