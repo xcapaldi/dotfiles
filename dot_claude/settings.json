@@ -1,0 +1,17 @@
+{
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "allow": [
+      "Bash(go build:*)",
+      "Bash(gofmt:*)",
+      "Bash(go test:*)",
+      "Bash(GOOGLE_CLOUD_PROJECT=\"optable-platform-dev\" GOOGLE_CLOUD_REGION=\"northamerica-northeast1\" go test:*)",
+      "Bash(go test:*)",
+      "Bash(grep:*)",
+      "Bash(golangci-lint:*)",
+      "Bash(git show:*)"
+    ]
+  },
+  "alwaysThinkingEnabled": true,
+  "autoUpdates": false
+}
