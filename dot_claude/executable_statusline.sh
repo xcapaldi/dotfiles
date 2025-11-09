@@ -1,4 +1,9 @@
 #!/bin/bash
+# Don't show statusline in vterm
+if [ "$INSIDE_EMACS" = "vterm" ] || [ -n "$VTERM" ]; then
+    exit 0
+fi
+
 # Read JSON input from stdin
 input=$(cat)
 

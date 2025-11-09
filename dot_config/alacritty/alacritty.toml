@@ -1,7 +1,9 @@
 [window]
-padding.x = 8
-padding.y = 8
+padding.x = 0
+padding.y = 0
 
 decorations = "Full"
 startup_mode = "Windowed" # look at options here
+
+option_as_alt = "Both"  # or "OnlyLeft" or "OnlyRight"
 

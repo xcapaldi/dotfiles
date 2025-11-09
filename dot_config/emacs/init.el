@@ -383,12 +383,6 @@
   :mode (("\\.go\\'" . go-mode)
          ("\\.mod\\'" . go-dot-mod-mode)))
 
-(use-package gptel
-  ;; https://github.com/karthink/gptel
-  ;; Support for LLMs in Emacs.
-  :disabled
-  :ensure t)
-
 (use-package grep
   ;; Native grep interface
   :ensure nil
@@ -713,6 +707,14 @@
   :init
   (transient-append-suffix 'version-control-transient '(0 -1)
     '("b" "blame" vc-annotate)))
+
+(use-package vterm
+  ;; https://github.com/akermu/emacs-libvterm
+  ;; Full terminal emulator running inside Emacs.
+  ;; Requires external dependencies:
+  ;; brew install cmake libtool libvterm
+  :ensure t
+  :if (eq system-type 'darwin))
 
 (use-package vundo
   ;; https://github.com/casouri/vundo
