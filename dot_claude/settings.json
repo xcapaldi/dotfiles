@@ -12,16 +12,19 @@
       "Bash(git show:*)"
     ]
   },
-  "alwaysThinkingEnabled": true,
-  "autoUpdates": false,
   "statusLine": {
     "type": "command",
     "command": "~/.claude/statusline.sh",
     "padding": 0
   },
+  "enabledPlugins": {
+    "devtools-unstable@optable": true
+  },
   "sandbox": {
-    "enabled": true,
     "autoAllowBashIfSandboxed": true,
-    "allowUnsandboxedCommands": true
-  }
+    "allowUnsandboxedCommands": true,
+    "enabled": true
+  },
+  "alwaysThinkingEnabled": true,
+  "autoUpdates": false
 }

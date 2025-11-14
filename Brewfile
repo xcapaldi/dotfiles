@@ -3,7 +3,6 @@ brew "awscli"
 brew "bitwarden-cli"
 brew "ca-certificates"
 brew "chezmoi"
-brew "cmake" # for vterm
 brew "coreutils"
 brew "dnsmasq"
 brew "docker-compose"
@@ -18,17 +17,15 @@ brew "grpcurl"
 brew "helix"
 brew "kubie"
 brew "libpq", link: true
-brew "libtool" # for vterm
-brew "libvterm" # for vterm
 brew "ripgrep"
 brew "tenv"
 brew "typescript-language-server"
 
-cask "alacritty"
 cask "claude"
 cask "claude-code"
 cask "docker-desktop"
 cask "emacs"
+cask "ghostty"
 cask "google-chrome"
 cask "notunes"
 cask "slack"
