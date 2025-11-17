@@ -9,7 +9,9 @@
       "Bash(go test:*)",
       "Bash(grep:*)",
       "Bash(golangci-lint:*)",
-      "Bash(git show:*)"
+      "Bash(git show:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)"
     ]
   },
   "statusLine": {
