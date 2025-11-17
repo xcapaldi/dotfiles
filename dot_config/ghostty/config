@@ -49,5 +49,8 @@
 # resize-overlay-duration = 4s 200ms
 theme = dark:Catppuccin Mocha,light:Catppuccin Latte
 
+font-family = "Atkinson Hyperlegible Mono"
+font-style = Medium
+
 # For claude code
 keybind = shift+enter=text:\n

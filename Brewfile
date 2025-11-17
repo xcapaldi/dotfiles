@@ -21,6 +21,7 @@ brew "ripgrep"
 brew "tenv"
 brew "typescript-language-server"
 
+cask "font-atkinson-hyperlegible-mono"
 cask "claude"
 cask "claude-code"
 cask "docker-desktop"
