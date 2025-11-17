@@ -47,7 +47,7 @@
 # # which is explained in the docs for that config option.
 # # Just for example:
 # resize-overlay-duration = 4s 200ms
-theme = dark:Rose Pine,light:Rose Pine Dawn
+theme = dark:Catppuccin Mocha,light:Catppuccin Latte
 
 # For claude code
 keybind = shift+enter=text:\n
