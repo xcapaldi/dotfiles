@@ -98,7 +98,7 @@ bindkey " " aliasmap
 bindkey "^ " magic-space           # control-space to bypass completion
 bindkey -M isearch " " magic-space # normal space during searches
 
-source $HOME/.aliases
+alias vi='hx'
 
 # C-x C-e to edit command line in editor
 autoload -z edit-command-line
