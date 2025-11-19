@@ -1,4 +1,8 @@
 {
+  "env": {
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1"
+  },
   "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
@@ -20,16 +24,13 @@
     "padding": 0
   },
   "enabledPlugins": {
-    "devtools-unstable@optable": true
+    "devtools-stable@optable": true,
+    "devtools-experimental@optable": true
   },
   "sandbox": {
     "autoAllowBashIfSandboxed": true,
     "allowUnsandboxedCommands": true,
     "enabled": true
-  },
-  "env": {
-    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": 1,
-    "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": 1
   },
   "alwaysThinkingEnabled": true,
   "autoUpdates": false
