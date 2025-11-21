@@ -48,7 +48,8 @@
 # # Just for example:
 # resize-overlay-duration = 4s 200ms
 #theme = dark:Catppuccin Mocha,light:Catppuccin Latte
-theme = dark:tangere-dark,light:tangere-light
+#theme = dark:Gruvbox Dark Hard,light:Gruvbox Light Hard
+theme = dark:Rose Pine,light:Rose Pine Dawn
 
 font-family = "Maple Mono"
 
