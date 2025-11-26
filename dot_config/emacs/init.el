@@ -59,7 +59,7 @@
 
   ;; other settings
   (fset 'yes-or-no-p 'y-or-n-p)  ; Replace yes/no prompts with y/n
-  ;;(load-theme 'modus-operandi t) ; Use prot's modus themes
+  (load-theme 'modus-operandi t) ; Use prot's modus themes
 
   ;; open fullscreen by default
   ;; only relevant when using emacs as the window manager
@@ -202,15 +202,15 @@
   :ensure nil)
   ;;:hook (prog-mode . display-line-numbers-mode))
 
-(use-package doric-themes
-  ;; https://github.com/protesilaos/doric-themes
-  ;; Similar to Modus themes but more minimal
-  :ensure t
-  :demand t
-  :custom
-  (doric-themes-to-toggle '(doric-light doric-dark))
-  (doric-themes-to-rotate doric-themes-collection)
-  :config (doric-themes-select 'doric-light))
+;;(use-package doric-themes
+;;  ;; https://github.com/protesilaos/doric-themes
+;;  ;; Similar to Modus themes but more minimal
+;;  :ensure t
+;;  :demand t
+;;  :custom
+;;  (doric-themes-to-toggle '(doric-light doric-dark))
+;;  (doric-themes-to-rotate doric-themes-collection)
+;;  :config (doric-themes-select 'doric-light))
 
 (use-package dumb-jump
   ;; https://github.com/jacktasia/dumb-jump
@@ -449,10 +449,10 @@
 
 ;; This package may still be useful, but vc-annotate (C-x v g) serves
 ;; my current needs. I otherwise interact with git via the cli.
-;;(use-package magit
+(use-package magit
   ;; https://magit.vc/
-  ;; Git porcelain.
-;;  :ensure t)
+  ;; git porcelain
+  :ensure t)
 
 ;;(use-package magit-todos
   ;; https://github.com/alphapapa/magit-todos
