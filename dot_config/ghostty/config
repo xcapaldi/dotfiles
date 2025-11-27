@@ -47,9 +47,8 @@
 # # which is explained in the docs for that config option.
 # # Just for example:
 # resize-overlay-duration = 4s 200ms
-#theme = dark:Catppuccin Mocha,light:Catppuccin Latte
-#theme = dark:Gruvbox Dark Hard,light:Gruvbox Light Hard
-theme = dark:Rose Pine,light:Rose Pine Dawn
+# theme = dark:Rose Pine,light:Rose Pine Dawn
+theme = "Alabaster"
 
 font-family = "Maple Mono"
 
