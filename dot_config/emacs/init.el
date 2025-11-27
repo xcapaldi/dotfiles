@@ -105,6 +105,12 @@
 
 ;; ace-window
 
+(use-package alabaster-theme
+  ;; https://github.com/uzhne/alabaster-emacs
+  ;;
+  :vc (modus-themes :url "https://github.com/xcapaldi/alabaster-emacs"
+                    :branch "remove-reference-to-espresso"))
+  
 (use-package anzu
   ;; https://github.com/emacsorphanage/anzu
   ;; Improve UX of isearch and query replace (M-%) in isearch.
@@ -215,16 +221,6 @@
   ;; Native method of displaying line numbers.
   :ensure nil)
   ;;:hook (prog-mode . display-line-numbers-mode))
-
-;;(use-package doric-themes
-;;  ;; https://github.com/protesilaos/doric-themes
-;;  ;; Similar to Modus themes but more minimal
-;;  :ensure t
-;;  :demand t
-;;  :custom
-;;  (doric-themes-to-toggle '(doric-light doric-dark))
-;;  (doric-themes-to-rotate doric-themes-collection)
-;;  :config (doric-themes-select 'doric-light))
 
 (use-package dumb-jump
   ;; https://github.com/jacktasia/dumb-jump
