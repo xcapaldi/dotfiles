@@ -718,6 +718,35 @@
   (transient-append-suffix 'version-control-transient '(0 -1)
     '("b" "blame" vc-annotate)))
 
+(use-package vterm
+  ;; https://github.com/akermu/emacs-libvterm
+  ;; Full terminal emulator running inside Emacs.
+  ;; Requires external dependencies:
+  ;; brew install cmake libtool libvterm
+  :ensure t
+  :if (eq system-type 'darwin)
+  :bind (:map vterm-mode-map
+              ("C-y" . vterm-yank))
+  :config
+  (defun xcc/vterm-project (arg)
+    "Start vterm in current project root. Buffer is associated with project.
+With prefix ARG, create new vterm with unique suffix."
+    (interactive "P")
+    (let* ((default-directory (project-root (project-current t)))
+           (project (project-name (project-current t)))
+           (base-name (format "*vterm[%s]*" project))
+           (buffer-name (if arg
+                            (let ((n 2))
+                              (while (get-buffer (format "*vterm[%s]<%d>*" project n))
+                                (setq n (1+ n)))
+                              (format "*vterm[%s]<%d>*" project n))
+                          base-name)))
+      (if (and (not arg) (get-buffer buffer-name))
+          (switch-to-buffer buffer-name)
+        (vterm buffer-name))))
+  (transient-append-suffix 'project-transient '(0 3 -1) ;; after eshell in shell group
+    '("t" "vterm" xcc/vterm-project)))
+
 (use-package vundo
   ;; https://github.com/casouri/vundo
   ;; Undo tree visualization for the native emacs undo system.
