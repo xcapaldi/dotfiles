@@ -61,26 +61,56 @@ setopt INC_APPEND_HISTORY_TIME  # append command to history file immediately aft
 
 # configure prompt with git info
 autoload -Uz vcs_info
-#zstyle ':vcs_info:*' enable git svn
-#zstyle ':vcs_info:*' check-for-changes true
-#zstyle ':vcs_info:*' stagedstr '➕'
-#zstyle ':vcs_info:*' unstagedstr '❗'
-#zstyle ':vcs_info:git*' actionformats "%u%c (%F{red}%a%f) %b"
-
 zstyle ':vcs_info:*' enable git svn
 zstyle ':vcs_info:*' check-for-changes true
 zstyle ':vcs_info:*' stagedstr '^'
 zstyle ':vcs_info:*' unstagedstr '*'
-zstyle ':vcs_info:git:*' formats '%b%u%c'
-zstyle ':vcs_info:git:*' actionformats '%b%u%c (%a)'
+zstyle ':vcs_info:git:*' formats '%b|%u|%c'
+zstyle ':vcs_info:git:*' actionformats '%b|%u|%c|%a'
+
+git_prompt_path() {
+  local gitroot=$(git rev-parse --show-toplevel 2>/dev/null)
+  if [[ -n $gitroot ]]; then
+    local gitname=$(basename $gitroot)
+    local relpath=${PWD#$gitroot/}
+    [[ $relpath == $PWD ]] && echo "$gitname" || echo "$gitname/$relpath"
+  else
+    echo "%~"
+  fi
+}
+
+git_prompt_info() {
+  if [[ -z $vcs_info_msg_0_ ]]; then
+    return
+  fi
+
+  local parts=(${(s:|:)vcs_info_msg_0_})
+  local branch=$parts[1]
+  local unstaged=$parts[2]
+  local staged=$parts[3]
+  local action=$parts[4]
+
+  local gitroot=$(git rev-parse --show-toplevel 2>/dev/null)
+  local gitname=$(basename $gitroot)
+
+  local branch_display
+  if [[ $branch == $gitname ]]; then
+    branch_display="[-]"
+  else
+    branch_display="[$branch]"
+  fi
+
+  local git_status="${staged}${unstaged}"
+  local action_display=""
+  [[ -n $action ]] && action_display=" ($action)"
+
+  echo "${branch_display}${git_status}${action_display}"
+}
+
 precmd() { vcs_info }
 
 setopt PROMPT_SUBST
-#PROMPT='${vcs_info_msg_0_} | %~ $ '
-#RPROMPT='${vcs_info_msg_0_}'
-
-#PROMPT='%~ $ '
-PROMPT='%F{blue}%~%f %F{green}$(kubectl config current-context 2>/dev/null)%f %F{007}${vcs_info_msg_0_}%f %F{magenta}❯%f '
+PROMPT='%(?.%F{black}.%F{red})$(git_prompt_path) $(git_prompt_info) >%f '
 
 # allow comments in the interactive command line
 setopt INTERACTIVE_COMMENTS
