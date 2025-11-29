@@ -7,13 +7,13 @@ filetype off
 " Load plugins here
 packadd lsp
 " Go language server
-call LspAddServer([#{
-	\    name: 'golang',
-	\    filetype: ['go', 'gomod'],
-	\    path: '/Users/xavier/go/bin/gopls',
-	\    args: ['serve'],
-	\    syncInit: v:true
-	\  }])
+"call LspAddServer([#{
+"	\    name: 'golang',
+"	\    filetype: ['go', 'gomod'],
+"	\    path: '/Users/xavier/go/bin/gopls',
+"	\    args: ['serve'],
+"	\    syncInit: v:true
+"	\  }])
 
 " Turn on syntax highlighting
 syntax on
