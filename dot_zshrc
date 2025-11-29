@@ -110,7 +110,7 @@ git_prompt_info() {
 precmd() { vcs_info }
 
 setopt PROMPT_SUBST
-PROMPT='%(?.%F{black}.%F{red})$(git_prompt_path) $(git_prompt_info) >%f '
+PROMPT='%(?.%K{10}%F{black}.%K{9}%F{black})$(git_prompt_path) $(git_prompt_info) >%k%f '
 
 # allow comments in the interactive command line
 setopt INTERACTIVE_COMMENTS

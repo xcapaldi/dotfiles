@@ -106,3 +106,6 @@ flycheck_*.el
 
 # network security
 /network-security.data
+
+# claude code
+**/.claude/settings.local.json

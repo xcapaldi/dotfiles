@@ -28,9 +28,9 @@
     "devtools-experimental@optable": true
   },
   "sandbox": {
+    "enabled": true,
     "autoAllowBashIfSandboxed": true,
-    "allowUnsandboxedCommands": true,
-    "enabled": true
+    "allowUnsandboxedCommands": true
   },
   "alwaysThinkingEnabled": true,
   "autoUpdates": false
