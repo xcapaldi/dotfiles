@@ -1,5 +1,5 @@
 eval "$(/opt/homebrew/bin/brew shellenv)"
-export EDITOR=hx
+export EDITOR=vim
 export VISUAL="$EDITOR"
 export GOPATH="$HOME/go"
 export PATH="$PATH:$HOME/go/bin:$HOME/bin"
@@ -127,8 +127,6 @@ zle -N aliasmap
 bindkey " " aliasmap
 bindkey "^ " magic-space           # control-space to bypass completion
 bindkey -M isearch " " magic-space # normal space during searches
-
-alias vi='hx'
 
 # C-x C-e to edit command line in editor
 autoload -z edit-command-line
