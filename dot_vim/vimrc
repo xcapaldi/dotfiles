@@ -35,7 +35,7 @@ set relativenumber
 " Show file stats
 set ruler
 
-" Blink cursor on error instead of beeping (grr)
+" Blink cursor on error instead of beeping
 set visualbell
 
 " Encoding
@@ -43,7 +43,7 @@ set encoding=utf-8
 
 " Whitespace
 set wrap
-set textwidth=79
+set textwidth=80
 set formatoptions=tcqrn1
 set tabstop=2
 set shiftwidth=2
@@ -96,11 +96,7 @@ set listchars=tab:▸\ ,eol:¬
 " set list " To enable by default
 " Or use your leader key + l to toggle on/off
 map <leader>l :set list!<CR> " Toggle tabs and EOL
-" Color scheme (terminal)
-" set t_Co=256
-" set background=dark
-" let g:solarized_termcolors=256
-" let g:solarized_termtrans=1
-" put https://raw.github.com/altercation/vim-colors-solarized/master/colors/solarized.vim
-" in ~/.vim/colors/ and uncomment:
-" colorscheme solarized
+
+" Color scheme
+set background=light
+colorscheme alabaster
