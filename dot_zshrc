@@ -22,6 +22,10 @@ source <(kubectl completion zsh)
 
 # The next line enables shell command completion for tenv
 source <(tenv completion zsh)
+export TENV_QUIET=true # Comment out to see more info
+export TENV_AUTO_INSTALL=true
+#export TENV_LOG=debug # Remove comment if need more info
+#export TENV_DETACHED_PROXY=false
 
 # add github cli aliases (ghcs/ghce)
 eval "$(gh copilot alias -- zsh)"

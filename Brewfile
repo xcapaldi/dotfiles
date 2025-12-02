@@ -24,7 +24,6 @@ brew "libpq", link: true
 brew "libtool" # for vterm
 brew "libvterm" # for vterm
 brew "ripgrep"
-brew "tenv"
 brew "typescript-language-server"
 
 cask "claude"

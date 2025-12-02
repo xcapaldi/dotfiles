@@ -2,8 +2,14 @@
     type = "git-repo"
     url = "https://github.com/yegappan/lsp.git"
 {{ if eq .chezmoi.os "darwin" -}}
+{{- $tenvVersion := (gitHubLatestRelease "tofuutils/tenv").TagName -}}
+["bin/tenv"]
+    type = "archive-file"
+    url = "https://github.com/tofuutils/tenv/releases/download/{{ $tenvVersion }}/tenv_{{ $tenvVersion }}_{{ .chezmoi.os | title }}_{{ .chezmoi.arch }}.tar.gz"
+    path = "tenv"
+    refreshPeriod = "168h"
 {{ else if eq .chezmoi.os "linux" -}}
-["/bin/cook"]
+["bin/cook"]
 type = "archive"
     url = "https://github.com/cooklang/cookcli/releases/latest/download/cook-x86_64-unknown-linux-gnu.tar.gz"
     exact = true
