@@ -8,6 +8,7 @@ brew "coreutils"
 brew "dnsmasq"
 brew "docker-compose"
 brew "findutils"
+brew "fzf"
 brew "gh"
 brew "git"
 brew "git-lfs"
@@ -16,7 +17,9 @@ brew "gpg"
 brew "graphviz"
 brew "grpcurl"
 brew "helix"
-brew "kubie"
+# brew "kubectx"
+# brew "kubens"
+brew "kubie" # alternative above
 brew "libpq", link: true
 brew "libtool" # for vterm
 brew "libvterm" # for vterm
