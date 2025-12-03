@@ -7,6 +7,7 @@ brew "cmake" # for vterm
 brew "coreutils"
 brew "dnsmasq"
 brew "docker-compose"
+brew "elixir"
 brew "findutils"
 brew "fzf"
 brew "gh"
