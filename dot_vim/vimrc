@@ -43,8 +43,13 @@ set encoding=utf-8
 
 " Whitespace
 set wrap
-set textwidth=80
-set formatoptions=tcqrn1
+set textwidth=0
+set formatoptions=cqrn1
+" Column indicator (after max chars)
+set colorcolumn=81
+autocmd FileType gitcommit setlocal colorcolumn=51,73
+autocmd WinLeave * setlocal colorcolumn=0
+autocmd WinEnter * setlocal colorcolumn=+0
 set tabstop=2
 set shiftwidth=2
 set softtabstop=2
@@ -100,3 +105,4 @@ map <leader>l :set list!<CR> " Toggle tabs and EOL
 " Color scheme
 set background=light
 colorscheme alabaster
+highlight ColorColumn ctermbg=254 guibg=#e4e4e4
