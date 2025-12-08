@@ -6,6 +6,7 @@
   "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
+      "mcp__gopls",
       "Bash(go build:*)",
       "Bash(gofmt:*)",
       "Bash(go test:*)",
