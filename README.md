@@ -25,10 +25,10 @@ I don't manage the host Windows 11 system with chezmoi because configuration is 
 
 ``` powershell
 winget install Bitwarden.Bitwarden
+winget install Anthropic.Claude
+winget install Google.Chrome
 winget install Discord.Discord
-winget install Mozilla.Firefox
 winget install Valve.Steam
-winget install Syncthing.Syncthing
 ```
 
 Then setup WSL2 which defaults to Ubuntu.

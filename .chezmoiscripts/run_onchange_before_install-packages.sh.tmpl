@@ -1,0 +1,43 @@
+#!/bin/sh
+{{ if (and (eq .chezmoi.os "linux") (not (.chezmoi.kernel.osrelease | lower | contains "microsoft"))) -}}
+# bare metal linux 
+{{ else if (and (eq .chezmoi.os "linux") (.chezmoi.kernel.osrelease | lower | contains "microsoft")) -}}
+# WSL2
+
+sudo apt-get update --assume-yes
+sudo apt-get upgrade --assume-yes
+sudo apt autoremove --assume-yes
+sudo apt-get install --assume-yes \
+	build-essential \
+	# python3-venv \
+	# pipx \
+
+#pipx install jedi-language-server
+#pipx install beancount
+#pipx ensurepath
+
+#mkdir -p ~/.npm-global/lib
+#npm config set prefix '~/.npm-global'
+#npm install -g @devcontainers/cli
+#npm install -g @google/gemini-cli
+
+# Snaps
+
+sudo snap refresh
+sudo snap install emacs --classic
+sudo snap install chezmoi --classic
+{{ else if (eq .chezmoi.os "darwin") -}}
+# MacOS
+
+gh extension install github/gh-copilot
+gh extension upgrade copilot
+gh extension install davidraviv/gh-clean-branches
+gh extension upgrade davidraviv/gh-clean-branches
+# tool-versions hash: {{ include "dot_tool-versions" | sha256sum }}
+asdf install || true
+# The Software Development Kit Manager for Java
+curl -s "https://get.sdkman.io" | bash
+# Genkit CLI
+curl -sL cli.genkit.dev | uninstall=true bash
+curl -sL cli.genkit.dev | bash
+{{ end -}}

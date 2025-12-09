@@ -1,3 +1,19 @@
+#!/bin/sh
+
+brew bundle --file=/dev/stdin <<EOF
+
+{{ if (and (eq .chezmoi.os "linux") (.chezmoi.kernel.osrelease | lower | contains "microsoft")) -}}
+brew "beancount"
+brew "gcc"
+brew "gh"
+brew "git"
+brew "go"
+brew "gopls"
+brew "ripgrep"
+brew "sqlite"
+
+cask "claude-code"
+{{ else if (eq .chezmoi.os "darwin") -}}
 brew "asdf"
 brew "awscli"
 brew "bitwarden-cli"
@@ -37,3 +53,5 @@ cask "google-chrome"
 cask "notunes"
 cask "slack"
 cask "visual-studio-code"
+{{ end -}}
+EOF

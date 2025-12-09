@@ -1,6 +1,4 @@
 README.md
-Brewfile
-Brewfile.lock.json
 dnffile
 .config/emacs/gnus.el
 {{ if ne .chezmoi.os "darwin" -}}

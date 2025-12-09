@@ -9,13 +9,17 @@
 	conflictstyle = diff3
 [credential "https://github.com"]
 	helper = 
-{{ if eq .chezmoi.os "linux" -}}
+{{ if (and (eq .chezmoi.os "linux") (not (.chezmoi.kernel.osrelease | lower | contains "microsoft"))) -}}
 	helper = !/usr/bin/gh auth git-credential
+{{ else if (and (eq .chezmoi.os "linux") (.chezmoi.kernel.osrelease | lower | contains "microsoft")) -}}
+	helper = !/home/linuxbrew/.linuxbrew/bin/gh auth git-credential
 {{ end -}}
 [credential "https://gist.github.com"]
 	helper = 
-{{ if eq .chezmoi.os "linux" -}}
+{{ if (and (eq .chezmoi.os "linux") (not (.chezmoi.kernel.osrelease | lower | contains "microsoft"))) -}}
 	helper = !/usr/bin/gh auth git-credential
+{{ else if (and (eq .chezmoi.os "linux") (.chezmoi.kernel.osrelease | lower | contains "microsoft")) -}}
+	helper = !/home/linuxbrew/.linuxbrew/bin/gh auth git-credential
 {{ end -}}
 [filter "lfs"]
 	process = git-lfs filter-process
