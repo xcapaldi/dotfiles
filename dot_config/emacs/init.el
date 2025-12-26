@@ -190,12 +190,12 @@
   :ensure nil
   :init (cua-selection-mode 1))
 
-(use-package diff-hl
-  ;; Highlight git diffs
-  ;; https://github.com/dgutov/diff-hl
-  :ensure t
-  :init (global-diff-hl-mode)
-  :config (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
+;; (use-package diff-hl
+;;   ;; Highlight git diffs
+;;   ;; https://github.com/dgutov/diff-hl
+;;   :ensure t
+;;   :init (global-diff-hl-mode)
+;;   :config (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
 
 (use-package dired
   ;; Native file explorer
