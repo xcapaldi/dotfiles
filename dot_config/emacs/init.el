@@ -107,7 +107,6 @@
 
 (use-package alabaster-theme
   ;; https://github.com/uzhne/alabaster-emacs
-  ;;
   :vc (modus-themes :url "https://github.com/xcapaldi/alabaster-emacs"
                     :branch "remove-reference-to-espresso"))
   
@@ -266,7 +265,9 @@
   :bind
   (("<f5>" . embark-act)         ;; pick some comfortable binding
    ("<f6>" . embark-dwim))       ;; good alternative: M-.
- :config
+  :config
+  ;; Use embark as keybind completion helper
+  (setq prefix-help-command #'embark-prefix-help-command)
   ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
