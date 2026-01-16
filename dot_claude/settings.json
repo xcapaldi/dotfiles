@@ -20,7 +20,8 @@
       "Bash(git show:*)",
       "Bash(gh pr view:*)",
       "Bash(gh pr diff:*)",
-      "Bash(kubectl logs:*)"
+      "Bash(kubectl logs:*)",
+      "Bash(kubectl get pods:*)"
     ]
   },
   "statusLine": {
@@ -28,10 +29,7 @@
     "command": "~/.claude/statusline.sh",
     "padding": 0
   },
-  "enabledPlugins": {
-    "devtools-stable@optable": true,
-    "devtools-experimental@optable": true
-  },
+  "enabledPlugins": {},
   "sandbox": {
     "enabled": true,
     "autoAllowBashIfSandboxed": true,
