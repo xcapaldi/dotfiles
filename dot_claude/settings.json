@@ -19,7 +19,8 @@
       "Bash(golangci-lint:*)",
       "Bash(git show:*)",
       "Bash(gh pr view:*)",
-      "Bash(gh pr diff:*)"
+      "Bash(gh pr diff:*)",
+      "Bash(kubectl logs:*)"
     ]
   },
   "statusLine": {
