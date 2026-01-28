@@ -22,7 +22,8 @@
       "Bash(gh pr diff:*)",
       "Bash(kubectl logs:*)",
       "Bash(kubectl get pods:*)",
-      "Bash(go doc:*)"
+      "Bash(go doc:*)",
+      "WebFetch(domain:github.com)"
     ]
   },
   "statusLine": {
