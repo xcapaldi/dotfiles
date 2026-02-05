@@ -30,9 +30,6 @@ export TENV_AUTO_INSTALL=true
 #export TENV_LOG=debug # Remove comment if need more info
 #export TENV_DETACHED_PROXY=false
 
-# add github cli aliases (ghcs/ghce)
-eval "$(gh copilot alias -- zsh)"
-
 # emacs M-x shell
 if [[ $TERM == "dumb" ]]; then
   alias less='cat'
