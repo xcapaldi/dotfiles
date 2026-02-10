@@ -23,7 +23,8 @@
       "Bash(kubectl logs:*)",
       "Bash(kubectl get pods:*)",
       "Bash(go doc:*)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "WebSearch"
     ]
   },
   "statusLine": {
