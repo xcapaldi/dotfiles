@@ -15,6 +15,7 @@
       "Bash(go test:*)",
       "Bash(GOOGLE_CLOUD_PROJECT=\"optable-platform-dev\" GOOGLE_CLOUD_REGION=\"northamerica-northeast1\" go test:*)",
       "Bash(go test:*)",
+      "Bash(go mod tidy)",
       "Bash(grep:*)",
       "Bash(golangci-lint:*)",
       "Bash(git show:*)",
@@ -34,7 +35,7 @@
   },
   "enabledPlugins": {},
   "sandbox": {
-    "enabled": true,
+    "enabled": false,
     "autoAllowBashIfSandboxed": true,
     "allowUnsandboxedCommands": true
   },
