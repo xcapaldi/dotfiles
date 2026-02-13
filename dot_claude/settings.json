@@ -25,6 +25,7 @@
       "Bash(kubectl get pods:*)",
       "Bash(go doc:*)",
       "WebFetch(domain:github.com)",
+      "WebFetch(domain:docs.cloud.google.com)",
       "WebSearch"
     ]
   },
