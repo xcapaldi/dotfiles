@@ -10,6 +10,7 @@
   "permissions": {
     "allow": [
       "mcp__gopls",
+      "Bash(ls:*)",
       "Bash(go build:*)",
       "Bash(gofmt:*)",
       "Bash(go test:*)",
@@ -28,11 +29,6 @@
       "WebFetch(domain:docs.cloud.google.com)",
       "WebSearch"
     ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "~/.claude/statusline.sh",
-    "padding": 0
   },
   "enabledPlugins": {},
   "sandbox": {

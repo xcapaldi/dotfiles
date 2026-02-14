@@ -52,5 +52,6 @@ theme = "Alabaster"
 
 font-family = "Maple Mono"
 
+desktop-notifications = true
 # For claude code
 keybind = shift+enter=text:\n
