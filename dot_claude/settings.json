@@ -17,6 +17,7 @@
       "Bash(GOOGLE_CLOUD_PROJECT=\"optable-platform-dev\" GOOGLE_CLOUD_REGION=\"northamerica-northeast1\" go test:*)",
       "Bash(go mod tidy)",
       "Bash(go tool pprof:*)",
+      "Bash(go vet:*)",
       "Bash(grep:*)",
       "Bash(golangci-lint:*)",
       "Bash(git show:*)",
