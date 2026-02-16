@@ -21,6 +21,7 @@
       "Bash(grep:*)",
       "Bash(golangci-lint:*)",
       "Bash(git show:*)",
+      "Bash(git status:*)",
       "Bash(gh pr view:*)",
       "Bash(gh pr diff:*)",
       "Bash(kubectl logs:*)",
