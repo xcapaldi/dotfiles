@@ -27,6 +27,7 @@
       "Bash(go doc:*)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:docs.cloud.google.com)",
+      "WebFetch(domain:docs.sentry.io)",
       "WebSearch"
     ]
   },
