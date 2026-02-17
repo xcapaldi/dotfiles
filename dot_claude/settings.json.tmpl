@@ -9,27 +9,28 @@
   },
   "permissions": {
     "allow": [
-      "mcp__gopls",
-      "Bash(ls:*)",
-      "Bash(go build:*)",
-      "Bash(gofmt:*)",
-      "Bash(go test:*)",
+      {{- if eq .chezmoi.os "darwin" }}
       "Bash(GOOGLE_CLOUD_PROJECT=\"optable-platform-dev\" GOOGLE_CLOUD_REGION=\"northamerica-northeast1\" go test:*)",
-      "Bash(go mod tidy)",
-      "Bash(go tool pprof:*)",
-      "Bash(go vet:*)",
-      "Bash(grep:*)",
-      "Bash(golangci-lint:*)",
+      {{- end }}
+      "Bash(gh pr diff:*)",
+      "Bash(gh pr view:*)",
       "Bash(git show:*)",
       "Bash(git status:*)",
-      "Bash(gh pr view:*)",
-      "Bash(gh pr diff:*)",
-      "Bash(kubectl logs:*)",
-      "Bash(kubectl get pods:*)",
+      "Bash(go build:*)",
       "Bash(go doc:*)",
-      "WebFetch(domain:github.com)",
+      "Bash(go mod tidy)",
+      "Bash(go test:*)",
+      "Bash(go tool pprof:*)",
+      "Bash(go vet:*)",
+      "Bash(gofmt:*)",
+      "Bash(golangci-lint:*)",
+      "Bash(grep:*)",
+      "Bash(kubectl get pods:*)",
+      "Bash(kubectl logs:*)",
+      "Bash(ls:*)",
       "WebFetch(domain:docs.cloud.google.com)",
       "WebFetch(domain:docs.sentry.io)",
+      "WebFetch(domain:github.com)",
       "WebSearch"
     ]
   },
@@ -60,7 +61,12 @@
     "command": "~/.claude/statusline.py",
     "padding": 0
   },
-  "enabledPlugins": {},
+  "enabledPlugins": {
+    {{- if eq .chezmoi.os "darwin" }}
+    "typescript-lsp@claude-plugins-official": true,
+    {{- end }}
+    "gopls-lsp@claude-plugins-official": true
+  },
   "sandbox": {
     "enabled": false,
     "autoAllowBashIfSandboxed": true,
