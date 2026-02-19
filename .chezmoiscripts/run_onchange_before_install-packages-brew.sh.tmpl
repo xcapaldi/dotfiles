@@ -14,7 +14,6 @@ brew "sqlite"
 
 cask "claude-code"
 {{ else if (eq .chezmoi.os "darwin") -}}
-brew "asdf"
 brew "awscli"
 brew "bitwarden-cli"
 brew "ca-certificates"
@@ -41,6 +40,8 @@ brew "lazygit"
 brew "libpq", link: true
 brew "libtool" # for vterm
 brew "libvterm" # for vterm
+brew "mise"
+brew "pre-commit"
 brew "rclone"
 brew "ripgrep"
 brew "tmux"

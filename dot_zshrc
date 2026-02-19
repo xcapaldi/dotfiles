@@ -1,11 +1,10 @@
 eval "$(/opt/homebrew/bin/brew shellenv)"
+eval "$(mise activate zsh)"
 export EDITOR=vim
 export VISUAL="$EDITOR"
 export GOPATH="$HOME/go"
 export PATH="$PATH:$HOME/go/bin:$HOME/bin"
 export PATH="$HOME/bin:$PATH"
-export ASDF_DATA_DIR="$HOME/.asdf"
-export PATH="$ASDF_DATA_DIR/shims:$PATH"
 export PATH="$PATH:$HOME/npm-global/bin"
 # Needed because this must be set for tilt if I don't have a tilt-config.json
 # which I don't because I use git worktrees
