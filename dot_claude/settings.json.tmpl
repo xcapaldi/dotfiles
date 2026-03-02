@@ -81,21 +81,27 @@
       }
     ]
   },
-  "enabledPlugins": {
-    {{- if eq .chezmoi.os "darwin" }}
-    "typescript-lsp@claude-plugins-official": true,
-    {{- end }}
-    "gopls-lsp@claude-plugins-official": true
-  },
   "statusLine": {
     "type": "command",
     "command": "~/.claude/statusline.py",
     "padding": 0
   },
+  "enabledPlugins": {
+    {{- if eq .chezmoi.os "darwin" }}
+    "typescript-lsp@claude-plugins-official": true,
+    {{- end }}
+    "gopls-lsp@claude-plugins-official": true,
+    "wait@my-plugins": true
+  },
   "sandbox": {
     "enabled": true,
     "autoAllowBashIfSandboxed": true,
-    "allowUnsandboxedCommands": true
+    "allowUnsandboxedCommands": true,
+    "network": {
+      "allowedDomains": [
+        "api.github.com"
+      ]
+    }
   },
   "alwaysThinkingEnabled": true,
   "autoUpdates": false
