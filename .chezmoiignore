@@ -1,4 +1,5 @@
 README.md
+.claude/my-plugins/plugins/general/agents/sample-mcp-wrapper.md
 dnffile
 .config/emacs/gnus.el
 {{ if ne .chezmoi.os "darwin" -}}

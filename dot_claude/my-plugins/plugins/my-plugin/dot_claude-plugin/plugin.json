@@ -1,5 +1,0 @@
-{
-  "name": "wait",
-  "description": "Adds a /wait skill for delayed execution and condition-based polling",
-  "version": "0.1.0"
-}
