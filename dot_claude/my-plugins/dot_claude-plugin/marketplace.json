@@ -1,0 +1,13 @@
+{
+  "name": "my-plugins",
+  "owner": {
+    "name": "Xavier Capaldi"
+  },
+  "plugins": [
+    {
+      "name": "wait",
+      "source": "./plugins/my-plugin",
+      "description": "Adds a /wait skill for delayed execution and condition-based polling"
+    }
+  ]
+}
