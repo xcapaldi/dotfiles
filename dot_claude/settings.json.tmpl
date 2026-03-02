@@ -12,6 +12,7 @@
       {{- if eq .chezmoi.os "darwin" }}
       "Bash(GOOGLE_CLOUD_PROJECT=\"optable-platform-dev\" GOOGLE_CLOUD_REGION=\"northamerica-northeast1\" go test:*)",
       {{- end }}
+      "Bash(find:*)",
       "Bash(gh pr diff:*)",
       "Bash(gh pr view:*)",
       "Bash(gh search code:*)",
@@ -38,6 +39,17 @@
     ]
   },
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/find-guard.sh"
+          }
+        ]
+      }
+    ],
     "Notification": [
       {
         "hooks": [
