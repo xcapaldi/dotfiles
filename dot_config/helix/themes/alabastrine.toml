@@ -1,0 +1,42 @@
+# Alabastrine — terminal-adaptive, foreground variant
+# Colors sourced from terminal ANSI palette; no hardcoded hex
+
+# UI
+"ui.background"           = {}
+"ui.text"                 = "default"
+"ui.linenr"               = { fg = "dark-gray" }
+"ui.linenr.selected"      = "default"
+"ui.selection"            = { bg = "light-blue" }
+"ui.cursor"               = { modifiers = ["reversed"] }
+"ui.cursor.match"         = { bg = "light-blue" }
+"ui.cursorline.primary"   = {}
+"ui.statusline"           = { modifiers = ["reversed"] }
+"ui.statusline.inactive"  = { fg = "dark-gray" }
+"ui.virtual.ruler"        = {}
+"ui.virtual.inlay-hint"   = { fg = "dark-gray" }
+"ui.popup"                = {}
+"ui.menu"                 = {}
+"ui.menu.selected"        = { bg = "light-blue" }
+"ui.window"               = {}
+"ui.bufferline"           = {}
+"ui.bufferline.active"    = { modifiers = ["bold"] }
+
+# Syntax — Alabaster principle: highlight only what matters
+"string"          = "green"
+"comment"         = "red"
+"constant"        = "magenta"
+"function"        = "blue"
+"function.method" = "blue"
+
+# Diagnostics
+"error"                       = "red"
+"warning"                     = "yellow"
+"diagnostic.error"            = { underline = { style = "curl" } }
+"diagnostic.warning"          = { underline = { color = "yellow", style = "curl" } }
+"diagnostic.unnecessary"      = { modifiers = ["dim"] }
+"diagnostic.deprecated"       = { modifiers = ["crossed_out"] }
+
+# Diff
+"diff.plus"  = "green"
+"diff.minus" = "red"
+"diff.delta" = "yellow"

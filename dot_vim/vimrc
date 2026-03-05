@@ -104,5 +104,5 @@ map <leader>l :set list!<CR> " Toggle tabs and EOL
 
 " Color scheme
 set background=light
-colorscheme alabaster
+colorscheme alabastrine-bg
 highlight ColorColumn ctermbg=254 guibg=#e4e4e4
