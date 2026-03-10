@@ -50,7 +50,7 @@
 # theme = dark:Rose Pine,light:Rose Pine Dawn
 theme = "Alabaster"
 
-font-family = "Maple Mono"
+font-family = "Hack"
 
 desktop-notifications = true
 # For claude code

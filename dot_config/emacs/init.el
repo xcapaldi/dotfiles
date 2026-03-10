@@ -67,10 +67,10 @@
 
   ;; only enable font if available on system
   (if (equal system-type 'darwin)
-      (when (member "Maple Mono" (font-family-list))
-        (progn (set-frame-font "Maple Mono-15:regular" nil t)
-               (add-to-list 'initial-frame-alist '(font . "Maple Mono-15:regular"))
-               (add-to-list 'default-frame-alist '(font . "Maple Mono-15:regular"))))
+      (when (member "Hack" (font-family-list))
+        (progn (set-frame-font "Hack-15:regular" nil t)
+               (add-to-list 'initial-frame-alist '(font . "Hack-15:regular"))
+               (add-to-list 'default-frame-alist '(font . "Hack-15:regular"))))
     (when (member "Unifont" (font-family-list))
       (progn (set-frame-font "Unifont-12:regular" nil t)
              (add-to-list 'initial-frame-alist '(font . "Unifont-12:regular"))

@@ -5,7 +5,7 @@
     "alabaster": true,
   },
   // use ".ZedMono" for the bundled default monospace (currently Lilex)
-  "buffer_font_family": "Maple Mono",
+  "buffer_font_family": "Hack",
   "buffer_font_size": 14,
   "buffer_font_weight": 400,
   "buffer_line_height": "comfortable",
@@ -43,7 +43,7 @@
     "metrics": false,
   },
   "terminal": {
-    "font_family": "Maple Mono",
+    "font_family": "Hack",
     "font_size": 15,
     "line_height": "standard",
   },
@@ -58,7 +58,7 @@
   },
   // UI Font. Use ".SystemUIFont" to use the default system font (SF Pro on macOS),
   // or ".ZedSans" for the bundled default (currently IBM Plex)
-  "ui_font_family": "Maple Mono",
+  "ui_font_family": "Hack",
   "ui_font_weight": 400,
   "ui_font_size": 14,
 }
