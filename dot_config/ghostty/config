@@ -48,7 +48,7 @@
 # # Just for example:
 # resize-overlay-duration = 4s 200ms
 # theme = dark:Rose Pine,light:Rose Pine Dawn
-theme = "Alabaster"
+theme = "dark:GitHub Dark,light:GitHub"
 
 font-family = "Hack"
 

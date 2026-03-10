@@ -1,6 +1,9 @@
 [".vim/pack/vendor/opt/lsp"]
     type = "git-repo"
     url = "https://github.com/yegappan/lsp.git"
+[".vim/pack/vendor/opt/nofrils"]
+    type = "git-repo"
+    url = "https://github.com/robertmeta/nofrils.git"
 {{ if eq .chezmoi.os "darwin" -}}
 {{- $tenvVersion := (gitHubLatestRelease "tofuutils/tenv").TagName -}}
 ["bin/tenv"]

@@ -107,4 +107,10 @@ set listchars=tab:▸\ ,eol:¬
 map <leader>l :set list!<CR> " Toggle tabs and EOL
 
 " Color scheme
-" highlight ColorColumn ctermbg=254 guibg=#e4e4e4
+packadd! nofrils
+let g:nofrils_heavycomments = 1
+if &background == "dark"
+    colorscheme nofrils-dark
+else
+    colorscheme nofrils-light
+endif
