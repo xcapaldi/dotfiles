@@ -11,7 +11,11 @@ packadd lsp
 call LspAddServer([#{
 	\    name: 'golang',
 	\    filetype: ['go', 'gomod'],
+	{{ if (and (eq .chezmoi.os "linux") (.chezmoi.kernel.osrelease | lower | contains "microsoft")) -}}
+	\    path: '/home/linuxbrew/.linuxbrew/bin/gopls',
+	{{ else if (eq .chezmoi.os "darwin") -}}
 	\    path: '/Users/xavier/go/bin/gopls',
+	{{ end -}}
 	\    args: ['serve'],
 	\    syncInit: v:true
 	\  }])

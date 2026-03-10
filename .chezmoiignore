@@ -6,7 +6,6 @@ dnffile
 .zshrc
 .psqlrc
 .ssh
-.vim
 private_Library
 .config/emacs/gnus.el
 {{ else if ne .chezmoi.os "linux" -}}
