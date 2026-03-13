@@ -109,8 +109,14 @@ map <leader>l :set list!<CR> " Toggle tabs and EOL
 " Color scheme
 packadd! nofrils
 let g:nofrils_heavycomments = 1
+{{ if eq .chezmoi.os "darwin" -}}
+if system('defaults read -g AppleInterfaceStyle 2>/dev/null') =~? 'dark'
+{{ else -}}
 if &background == "dark"
+{{ end -}}
+    set background=dark
     colorscheme nofrils-dark
 else
+    set background=light
     colorscheme nofrils-light
 endif
