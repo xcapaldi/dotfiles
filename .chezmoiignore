@@ -7,9 +7,9 @@ dnffile
 .psqlrc
 .ssh
 private_Library
-.config/emacs/gnus.el
 {{ else if ne .chezmoi.os "linux" -}}
 .authinfo.gpg
 .xinitrc
 .Xresources
+.config/emacs/
 {{ end -}}
