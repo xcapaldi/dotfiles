@@ -1,9 +1,15 @@
 #!/bin/sh
+
+gh extension install davidraviv/gh-clean-branches
+gh extension upgrade davidraviv/gh-clean-branches
+gh extension install dlvhdr/gh-dash
+gh extension upgrade dlvhdr/gh-dash
+gh extension install dlvhdr/gh-enhance
+gh extension upgrade dlvhdr/gh-enhance
+
 {{ if (and (eq .chezmoi.os "linux") (not (.chezmoi.kernel.osrelease | lower | contains "microsoft"))) -}}
 # bare metal linux 
 {{ else if (and (eq .chezmoi.os "linux") (.chezmoi.kernel.osrelease | lower | contains "microsoft")) -}}
-# WSL2
-
 sudo apt-get update --assume-yes
 sudo apt-get upgrade --assume-yes
 sudo apt autoremove --assume-yes
@@ -27,15 +33,6 @@ sudo snap refresh
 sudo snap install emacs --classic
 sudo snap install chezmoi --classic
 {{ else if (eq .chezmoi.os "darwin") -}}
-# MacOS
-
-gh extension install github/gh-copilot
-gh extension upgrade copilot
-gh extension install davidraviv/gh-clean-branches
-gh extension upgrade davidraviv/gh-clean-branches
 # The Software Development Kit Manager for Java
 curl -s "https://get.sdkman.io" | bash
-# Genkit CLI
-curl -sL cli.genkit.dev | uninstall=true bash
-curl -sL cli.genkit.dev | bash
 {{ end -}}
