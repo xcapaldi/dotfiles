@@ -575,12 +575,6 @@
   :ensure t
   :after org-mode)
 
-(use-package hotfuzz
-  ;; https://github.com/axelf4/hotfuzz
-  ;; Similarly to built-in flex completion but faster and better scoring algorithm.
-  :ensure t
-  :custom (completion-styles '(hotfuzz basic)))
-
 (use-package org
   :ensure nil
   :config
@@ -621,6 +615,12 @@
   ;; vc packages are registered as projects and can navigated with project.el
   (package-vc-register-as-project t))
 
+(use-package prescient
+  ;; https://github.com/radian-software/prescient.el
+  ;; Improved completions with history
+  :ensure t
+  :custom (completion-styles '(prescient basic)))
+
 (use-package prism
   ;; https://github.com/alphapapa/prism.el
   ;; Highlight by depth. Very helpful for data modes or those those lacking
@@ -633,7 +633,7 @@
   ;; Native project management
   :ensure nil
   :bind ("C-c p" . project-transient)
-  ;; display the current poject in the mode line
+  ;; display the current project in the mode line
   :custom (project-mode-line t)
   :config
   (executable-find "gh")
