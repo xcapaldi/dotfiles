@@ -21,8 +21,6 @@
   :config
   ;; set variable defaults
   (setq-default
-   coding-system-for-read 'utf-8     ; Use UTF-8 by default
-   coding-system-for-write 'utf-8
    cursor-in-non-selected-windows t  ; Don't hide the cursor in inactive windows
    help-window-select t              ; Focus new help windows when opened
    indent-tabs-mode nil              ; Use spaces by default instead of tabs
@@ -58,8 +56,9 @@
   (which-function-mode 1)                  ; Display the
 
   ;; other settings
-  (fset 'yes-or-no-p 'y-or-n-p)  ; Replace yes/no prompts with y/n
-  (load-theme 'modus-operandi t) ; Use prot's modus themes
+  (set-default-coding-systems 'utf-8) ; UTF8 by default
+  (fset 'yes-or-no-p 'y-or-n-p)       ; Replace yes/no prompts with y/n
+  (load-theme 'modus-operandi t)      ; Use prot's modus themes
 
   ;; open fullscreen by default
   ;; only relevant when using emacs as the window manager
@@ -76,9 +75,10 @@
              (add-to-list 'initial-frame-alist '(font . "Unifont-12:regular"))
              (add-to-list 'default-frame-alist '(font . "Unifont-12:regular")))))
   ;; set fallback fonts for symbols and emoji
-  (if (equal system-type 'darwin)
-      (progn (set-fontset-font t 'symbol (font-spec :family "Apple Symbols") nil 'prepend)
-             (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend)))
+  (set-fontset-font t 'symbol (font-spec :family "Noto Emoji") nil 'prepend)
+  ;;(if (equal system-type 'darwin)
+  ;;    (progn (set-fontset-font t 'symbol (font-spec :family "Apple Symbols") nil 'prepend)
+  ;;           (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend)))
   ;; set line spacing (0.1 == 1x)
   (setq-default line-spacing 0.1)
   (when (equal system-type 'darwin)
@@ -233,7 +233,8 @@
 (use-package eat
   ;; https://codeberg.org/akib/emacs-eat
   ;; Improved terminal emulator
-  :ensure t)
+  :ensure t
+  :hook (eat-mode . (lambda () (setq-local line-spacing 0))))
 
 (use-package editorconfig
   ;; Native EditorConfig support.
