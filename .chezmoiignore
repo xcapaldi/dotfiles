@@ -11,5 +11,4 @@ private_Library
 .authinfo.gpg
 .xinitrc
 .Xresources
-.config/emacs/
 {{ end -}}

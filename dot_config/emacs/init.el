@@ -34,7 +34,7 @@
    inhibit-startup-screen t          ; Remove default start screen
    select-enable-clipboard t         ; Merge Emacs and system clipboard
    view-read-only t                  ; Always open read-only buffers in view-mode
-   visible-bell t                    ; Use a visual bell
+   visible-bell nil                  ; Don't use a visual bell
    vc-follow-symlinks t              ; Don't ask for confirmation following symlinked files
    sentence-end-double-space nil     ; Sentences end with punctuation and a single space
    show-paren-delay 0                ; No delay on highlighting matching paren
@@ -230,6 +230,11 @@
   :custom (dumb-jump-force-searcher 'rg)
   :config (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 
+(use-package eat
+  ;; https://codeberg.org/akib/emacs-eat
+  ;; Improved terminal emulator
+  :ensure t)
+
 (use-package editorconfig
   ;; Native EditorConfig support.
   :config (editorconfig-mode 1))
@@ -255,6 +260,17 @@
      ("r" "rename" eglot-rename)])
   (transient-append-suffix 'project-transient '(0 -1 -1) ;; in the last group
      '("l" "lsp" eglot-transient)))
+
+(use-package eink-theme
+  ;; Minimal colorscheme
+  ;; https://github.com/maio/eink-emacs
+  :ensure t
+  :init (load-theme 'eink t)
+  :config
+  ;; this theme reduces the mode line size
+  (custom-set-faces
+   '(mode-line ((t (:height 1.0))))
+   '(mode-line-inactive ((t (:height 1.0))))))
 
 ;; elfeed
 
@@ -498,6 +514,12 @@
   ;; https://magit.vc/
   ;; git porcelain
   :ensure t)
+
+(use-package magit-gh
+  ;; https://github.com/jonathanchu/magit-gh
+  ;; Interact with Github CLI from magit
+  :ensure t
+  :after magit)
 
 ;;(use-package magit-todos
   ;; https://github.com/alphapapa/magit-todos
