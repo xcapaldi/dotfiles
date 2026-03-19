@@ -458,6 +458,12 @@
   ;;(icomplete-in-buffer t)
   (icomplete-with-completion-tables t))
 
+(use-package idle-highlight-mode
+  ;; https://github.com/nonsequitur/idle-highlight-mode
+  ;; Highlight thing under point in buffer if idle.
+  :ensure t
+  :hook (prog-mode . idle-highlight-mode))
+
 (use-package indent-aux
   ;; Native minor mode to deindent text which is saved to kill ring.
   :ensure nil
