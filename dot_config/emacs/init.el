@@ -641,6 +641,7 @@
      ["Shell and compilation"
       ("s" "shell" project-shell)
       ("e" "eshell" project-eshell)
+      ("t" "eat" eat-project)
       ("c" "compile" project-compile)
       ("!" "shell command" project-shell-command)
       ("&" "async shell command" project-async-shell-command)]
@@ -649,7 +650,7 @@
 
 (use-package protobuf-mode
   ;; https://github.com/protocolbuffers/protobuf/blob/main/editors/protobuf-mode.el
-  ;; Suuport for Protocol Buffer (protobuf) serialized structured data syntax.
+  ;; Support for Protocol Buffer (protobuf) serialized structured data syntax.
   :ensure t
   :if (eq system-type 'darwin)
   :mode ("\\.proto\\'"))
