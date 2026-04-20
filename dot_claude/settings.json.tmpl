@@ -8,8 +8,10 @@
       {{- if eq .chezmoi.os "darwin" }}
       "Bash(GOOGLE_CLOUD_PROJECT=\"optable-platform-dev\" GOOGLE_CLOUD_REGION=\"northamerica-northeast1\" go test:*)",
       {{- end }}
+      "Bash(gh pr checks:*)",
       "Bash(gh pr diff:*)",
       "Bash(gh pr view:*)",
+      "Bash(gh run view:*)",
       "Bash(gh search code:*)",
       "Bash(git log:*)",
       "Bash(git show:*)",
