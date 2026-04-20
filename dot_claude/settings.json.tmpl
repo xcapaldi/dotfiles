@@ -46,6 +46,12 @@
       {
         "matcher": "Bash",
         "hooks": [
+          {{- if eq .chezmoi.os "darwin" }}
+          {
+            "type": "command",
+            "command": "atuin hook claude-code"
+          },
+          {{- end }}
           {
             "type": "command",
             "command": "~/.claude/find-guard.sh"
@@ -53,6 +59,30 @@
         ]
       }
     ],
+    {{- if eq .chezmoi.os "darwin" }}
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "atuin hook claude-code"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "atuin hook claude-code"
+          }
+        ]
+      }
+    ],
+    {{- end }}
     "Notification": [
       {
         "hooks": [
