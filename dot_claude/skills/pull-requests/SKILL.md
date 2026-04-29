@@ -125,9 +125,9 @@ Prefer Mermaid over pasted screenshots of diagrams: it stays editable, diffable,
 
 ## Putting it together — example skeleton
 
-```markdown
-## Summary
+Don't start the PR with `# Summary` -- that's redundent. Just start with the summary itself.
 
+```markdown
 Fixes the 5-second auth timeout that caused intermittent 504s for users on
 high-latency connections (see #4821).
 
