@@ -48,9 +48,8 @@
 # # Just for example:
 # resize-overlay-duration = 4s 200ms
 
-theme = "dark:Catpuccin Mocha,light:Catppuccin Latte"
-minimum-contrast = 3.0
-
+theme = dark:warm-burnout-dark,light:warm-burnout-light
+# minimum-contrast = 3.0
 
 font-family = "Hack"
 
