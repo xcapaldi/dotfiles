@@ -93,7 +93,7 @@ The `diff` language is especially useful in PR descriptions to show the conceptu
 
 Reference: <https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams>
 
-When the change touches control flow, data flow, or system architecture, a small diagram saves paragraphs of prose. GitHub renders Mermaid, GeoJSON, TopoJSON, and ASCII STL from fenced code blocks.
+When the change touches control flow, data flow, or system architecture, a small diagram saves paragraphs of prose. GitHub renders Mermaid, GeoJSON, TopoJSON, and ASCII STL from fenced code blocks. Make sure you keep in mind Github's UI is vertical and narrow. Prefer to build diagrams that are taller rather than wider.
 
 **Flowchart:**
 
@@ -175,4 +175,5 @@ sequenceDiagram
 - [ ] Long logs / output hidden behind `<details>`
 - [ ] Code blocks have language tags
 - [ ] Alerts used only for genuinely critical notes
+- [ ] Lines are **not** split
 - [ ] A future reader doing `git blame` six months from now will have what they need
