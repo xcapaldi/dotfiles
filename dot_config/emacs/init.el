@@ -676,6 +676,7 @@
      ["Shell and compilation"
       ("s" "shell" project-shell)
       ("e" "eshell" project-eshell)
+      ("h" "ghostel" ghostel-project)
       ("t" "eat" eat-project)
       ("c" "compile" project-compile)
       ("!" "shell command" project-shell-command)
