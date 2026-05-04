@@ -373,6 +373,10 @@
   (transient-append-suffix 'project-transient '(0 -1 -1) ;; in the last group
     '("F" "flymake" flymake-transient)))
 
+(use-package ghostel
+  ;; Terminal emulation powered by libghostty.
+  :ensure t)
+
 (use-package gnus
   ;; Native email/feed client.
   :ensure nil
