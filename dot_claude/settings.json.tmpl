@@ -1,13 +1,15 @@
 {
   "env": {
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-    "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1"
+    "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1",
+    "CLAUDE_CODE_PACKAGE_MANAGER_AUTO_UPDATE": "1"
   },
   "permissions": {
     "allow": [
       {{- if eq .chezmoi.os "darwin" }}
       "Bash(GOOGLE_CLOUD_PROJECT=\"optable-platform-dev\" GOOGLE_CLOUD_REGION=\"northamerica-northeast1\" go test:*)",
       {{- end }}
+      "Bash(gh label list:*)",
       "Bash(gh pr checks:*)",
       "Bash(gh pr diff:*)",
       "Bash(gh pr view:*)",
@@ -113,7 +115,9 @@
       ]
     }
   },
+  "worktree": {
+    "baseRef": "fresh"
+  },
   "alwaysThinkingEnabled": true,
-  "autoUpdates": false,
   "tui": "fullscreen"
 }
