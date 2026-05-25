@@ -51,7 +51,7 @@
 theme = dark:warm-burnout-dark,light:warm-burnout-light
 # minimum-contrast = 3.0
 
-font-family = "Hack"
+font-family = "Menlo"
 
 desktop-notifications = true
 

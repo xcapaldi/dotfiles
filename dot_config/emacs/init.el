@@ -66,10 +66,10 @@
 
   ;; only enable font if available on system
   (if (equal system-type 'darwin)
-      (when (member "Hack" (font-family-list))
-        (progn (set-frame-font "Hack-15:regular" nil t)
-               (add-to-list 'initial-frame-alist '(font . "Hack-15:regular"))
-               (add-to-list 'default-frame-alist '(font . "Hack-15:regular"))))
+      (when (member "Menlo" (font-family-list))
+        (progn (set-frame-font "Menlo-15:regular" nil t)
+               (add-to-list 'initial-frame-alist '(font . "Menlo-15:regular"))
+               (add-to-list 'default-frame-alist '(font . "Menlo-15:regular"))))
     (when (member "Unifont" (font-family-list))
       (progn (set-frame-font "Unifont-12:regular" nil t)
              (add-to-list 'initial-frame-alist '(font . "Unifont-12:regular"))
@@ -308,6 +308,28 @@
   (defvar-keymap xcc/embark-go-test-map
     :doc "Keymap for go test actions."
     "t" #'xcc/embark-run-go-test)
+
+  ;; Target a Claude Code session row in a ghostel agent-view buffer.
+  ;; Matches the current line against `claude agents --json' names.
+  (defun xcc/embark-claude-session ()
+    "Target a Claude session row at point in a ghostel buffer."
+    (when (derived-mode-p 'ghostel-mode)
+      (let* ((line (buffer-substring-no-properties
+                    (line-beginning-position) (line-end-position)))
+             (match (seq-find (lambda (s)
+                                (let ((name (alist-get 'name s)))
+                                  (and name
+                                       (not (string-empty-p name))
+                                       (string-match-p (regexp-quote name) line))))
+                              (ignore-errors (xcc/claude--sessions)))))
+        (when match
+          (list 'claude-session (alist-get 'name match))))))
+
+  (add-to-list 'embark-target-finders 'xcc/embark-claude-session)
+  (add-to-list 'embark-keymap-alist '(claude-session . xcc/embark-claude-session-map))
+  (defvar-keymap xcc/embark-claude-session-map
+    :doc "Keymap for Claude session actions."
+    "a" #'xcc/claude-attach-by-name)
   )
 
 (use-package eshell
@@ -375,7 +397,54 @@
 
 (use-package ghostel
   ;; Terminal emulation powered by libghostty.
-  :ensure t)
+  :ensure t
+  :commands (xcc/claude-attach xcc/claude-attach-by-name)
+  :config
+  ;; Claude Code background sessions (`claude agents') each run in a
+  ;; linked git worktree under `.claude/worktrees/'. Attaching from
+  ;; a buffer whose `default-directory' points at the worktree lets
+  ;; `project.el' resolve files to the session's worktree instead of
+  ;; the parent repo.
+  (defun xcc/claude--sessions ()
+    "Return the parsed `claude agents --json' output (list of alists)."
+    (with-temp-buffer
+      (unless (zerop (call-process "claude" nil t nil "agents" "--json"))
+        (error "claude agents --json failed: %s" (buffer-string)))
+      (goto-char (point-min))
+      (json-parse-buffer :object-type 'alist :array-type 'list)))
+
+  (defun xcc/claude--attach-session (session)
+    "Open a ghostel buffer rooted at SESSION's worktree and copy the
+matching `claude attach' command to the kill ring."
+    (let* ((id (alist-get 'sessionId session))
+           (cwd (alist-get 'cwd session))
+           (default-directory (file-name-as-directory cwd)))
+      (kill-new (format "claude attach %s" id))
+      (message "Yank to attach: claude attach %s" id)
+      (ghostel-project)))
+
+  (defun xcc/claude-attach ()
+    "Pick a Claude Code session and open a ghostel buffer at its worktree."
+    (interactive)
+    (let* ((sessions (xcc/claude--sessions))
+           (entries (mapcar (lambda (s)
+                              (cons (format "%-30s %-10s %s"
+                                            (or (alist-get 'name s) "(unnamed)")
+                                            (or (alist-get 'status s) "")
+                                            (or (alist-get 'sessionId s) ""))
+                                    s))
+                            sessions))
+           (pick (cdr (assoc (completing-read "Claude session: " entries nil t)
+                             entries))))
+      (xcc/claude--attach-session pick)))
+
+  (defun xcc/claude-attach-by-name (name)
+    "Attach to the Claude session named NAME (exact match)."
+    (interactive "sSession name: ")
+    (let ((session (seq-find (lambda (s) (equal (alist-get 'name s) name))
+                             (xcc/claude--sessions))))
+      (unless session (user-error "No Claude session named %s" name))
+      (xcc/claude--attach-session session))))
 
 (use-package gnus
   ;; Native email/feed client.
@@ -677,6 +746,7 @@
       ("s" "shell" project-shell)
       ("e" "eshell" project-eshell)
       ("h" "ghostel" ghostel-project)
+      ("a" "claude attach" xcc/claude-attach)
       ("t" "eat" eat-project)
       ("c" "compile" project-compile)
       ("!" "shell command" project-shell-command)
