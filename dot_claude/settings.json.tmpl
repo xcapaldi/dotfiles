@@ -64,11 +64,15 @@
       }
     ]
   },
+  "worktree": {
+    "baseRef": "fresh"
+  },
   "enabledPlugins": {
     {{- if eq .chezmoi.os "darwin" }}
     "typescript-lsp@claude-plugins-official": true,
-    {{- end }}
+    {{- else if (eq .chezmoi.os "linux") }}
     "gopls-lsp@claude-plugins-official": true,
+    {{- end }}
     "chrome-devtools-mcp@chrome-devtools-plugins": true
   },
   "extraKnownMarketplaces": {
@@ -92,9 +96,7 @@
       ]
     }
   },
-  "worktree": {
-    "baseRef": "fresh"
-  },
   "alwaysThinkingEnabled": true,
-  "tui": "fullscreen"
+  "tui": "fullscreen",
+  "theme": "auto"
 }
