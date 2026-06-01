@@ -54,6 +54,14 @@
   (auto-fill-mode -1)                      ; Don't auto-wrap lines
   (minibuffer-depth-indicate-mode 1)       ; Indicate minibuffer recursive depth when recursion enabled
   (which-function-mode 1)                  ; Display the
+  ;; Pin the server socket to a TMPDIR-independent path so emacsclient run
+  ;; from sandboxed shells (e.g. Claude Code) finds the same socket as the GUI.
+  ;; server-start refuses dirs with group/other access, so enforce 0700.
+  (let ((dir (expand-file-name "~/.cache/emacs")))
+    (unless (file-directory-p dir) (make-directory dir t))
+    (set-file-modes dir #o700)
+    (setq server-socket-dir dir))
+  (server-start)                           ; Start Emacs server so emacsclient can attach
 
   ;; other settings
   (set-default-coding-systems 'utf-8) ; UTF8 by default

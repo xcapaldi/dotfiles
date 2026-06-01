@@ -10,6 +10,7 @@
       {{- if eq .chezmoi.os "darwin" }}
       "Bash(GOOGLE_CLOUD_PROJECT=\"optable-platform-dev\" GOOGLE_CLOUD_REGION=\"northamerica-northeast1\" go test:*)",
       {{- end }}
+      "Bash(emacsclient:*)",
       "Bash(gh label list:*)",
       "Bash(gh pr checks:*)",
       "Bash(gh pr diff:*)",
@@ -18,6 +19,7 @@
       "Bash(gh search code:*)",
       "Bash(git blame:*)",
       "Bash(git log:*)",
+      "Bash(git rev-parse:*)",
       "Bash(git show:*)",
       "Bash(git status:*)",
       "Bash(go build:*)",
@@ -36,6 +38,7 @@
       "Bash(kubectl logs:*)",
       "Bash(ls:*)",
       "Bash(lsof:*)",
+      "Bash(pwd:*)",
       "Bash(wc:*)",
       "Bash(which:*)",
       {{- if eq .chezmoi.os "darwin" }}
