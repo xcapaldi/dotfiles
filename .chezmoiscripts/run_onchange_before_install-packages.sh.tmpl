@@ -2,10 +2,6 @@
 
 gh extension install davidraviv/gh-clean-branches
 gh extension upgrade davidraviv/gh-clean-branches
-gh extension install dlvhdr/gh-dash
-gh extension upgrade dlvhdr/gh-dash
-gh extension install dlvhdr/gh-enhance
-gh extension upgrade dlvhdr/gh-enhance
 
 {{ if (and (eq .chezmoi.os "linux") (not (.chezmoi.kernel.osrelease | lower | contains "microsoft"))) -}}
 # bare metal linux 
