@@ -1,4 +1,6 @@
 eval "$(/opt/homebrew/bin/brew shellenv)"
+# initialize completion system (provides compdef, used by mise/kubectl/tenv below)
+autoload -Uz compinit && compinit
 eval "$(mise activate zsh)"
 export EDITOR=vim
 export VISUAL="$EDITOR"
