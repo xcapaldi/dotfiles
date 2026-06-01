@@ -1,9 +1,10 @@
 #!/bin/sh
 
+{{ if (eq .chezmoi.os "darwin") -}}
+xcode-select --install
 gh extension install davidraviv/gh-clean-branches
 gh extension upgrade davidraviv/gh-clean-branches
-
-{{ if (and (eq .chezmoi.os "linux") (not (.chezmoi.kernel.osrelease | lower | contains "microsoft"))) -}}
+{{ else if (and (eq .chezmoi.os "linux") (not (.chezmoi.kernel.osrelease | lower | contains "microsoft"))) -}}
 # bare metal linux 
 {{ else if (and (eq .chezmoi.os "linux") (.chezmoi.kernel.osrelease | lower | contains "microsoft")) -}}
 sudo apt-get update --assume-yes
