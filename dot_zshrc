@@ -8,6 +8,7 @@ export GOPATH="$HOME/go"
 export PATH="$PATH:$HOME/go/bin:$HOME/bin"
 export PATH="$HOME/bin:$PATH"
 export PATH="$PATH:$HOME/npm-global/bin"
+export DOCKER_HOST="unix://$HOME/.docker/run/docker.sock"
 # Needed because this must be set for tilt if I don't have a tilt-config.json
 # which I don't because I use git worktrees
 export TILT_USE_DEV_VAULT_SPREADING=true
