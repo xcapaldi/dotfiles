@@ -2,3 +2,9 @@
 go = "1.26.4"
 jq = "1.7.1"
 
+[settings]
+# config files with these prefixes will be trusted by default
+trusted_config_paths = [
+    '~/Src/optable-sandbox',
+]
+
