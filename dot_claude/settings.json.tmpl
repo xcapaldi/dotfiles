@@ -95,10 +95,16 @@
     "enabled": true,
     "autoAllowBashIfSandboxed": true,
     "allowUnsandboxedCommands": true,
+    {{- if eq .chezmoi.os "darwin" }}
+    "filesystem": {
+      "allowWrite": ["~/Library/Caches/go-build"]
+    },
+    {{- end }}
     "network": {
       "allowedDomains": [
         "api.clickup.com",
         "api.github.com",
+        "code.claude.com",
         "github.com",
         "sentry.io"
       ]
