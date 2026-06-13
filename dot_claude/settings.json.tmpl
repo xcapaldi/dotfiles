@@ -108,7 +108,10 @@
     "allowUnsandboxedCommands": true,
     {{- if eq .chezmoi.os "darwin" }}
     "filesystem": {
-      "allowWrite": ["~/Library/Caches/go-build"]
+      "allowWrite": [
+        "~/Library/Caches/go-build",
+        "~/.cache/prek/prek.log"
+      ]
     },
     {{- end }}
     "network": {
