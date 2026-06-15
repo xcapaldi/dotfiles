@@ -25,13 +25,6 @@ alias gcurl='curl -H "Authorization: Bearer $(gcloud auth print-access-token)" -
 # The next line enables shell command completion for kubectl.
 source <(kubectl completion zsh)
 
-# The next line enables shell command completion for tenv
-source <(tenv completion zsh)
-export TENV_QUIET=true # Comment out to see more info
-export TENV_AUTO_INSTALL=true
-#export TENV_LOG=debug # Remove comment if need more info
-#export TENV_DETACHED_PROXY=false
-
 # emacs M-x shell
 if [[ $TERM == "dumb" ]]; then
   alias less='cat'
