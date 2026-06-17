@@ -51,7 +51,7 @@
 theme = dark:warm-burnout-dark,light:warm-burnout-light
 # minimum-contrast = 3.0
 
-font-family = "Menlo"
+font-family = "Comic Code"
 
 desktop-notifications = true
 
