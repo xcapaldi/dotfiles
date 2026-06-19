@@ -26,3 +26,7 @@
 	required = true
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
+{{ if (eq .chezmoi.os "darwin") -}}
+[http]
+       sslCAInfo = /Library/Application Support/AikidoSecurity/EndpointProtection/run/endpoint-protection-openssl-combined-ca.pem
+{{ end -}}
