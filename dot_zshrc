@@ -23,7 +23,7 @@ if [ -f "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc" ]; then . "
 alias gcurl='curl -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "Content-Type: application/json"'
 
 # The next line enables shell command completion for kubectl.
-source <(kubectl completion zsh)
+command -v kubectl >/dev/null && source <(kubectl completion zsh)
 
 # emacs M-x shell
 if [[ $TERM == "dumb" ]]; then
