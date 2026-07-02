@@ -1,12 +1,12 @@
 README.md
 CLAUDE.md
-.claude/my-plugins/plugins/general/agents/sample-mcp-wrapper.md
 dnffile
 .config/emacs/gnus.el
 {{ if ne .chezmoi.os "darwin" -}}
 .zshrc
 .psqlrc
 .ssh
+.claude/agents/slack-explore.md
 private_Library
 {{ else if ne .chezmoi.os "linux" -}}
 .authinfo.gpg
