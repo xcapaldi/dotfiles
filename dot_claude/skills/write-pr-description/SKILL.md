@@ -15,7 +15,34 @@ Aim for a description that answers, without the reader needing to click anywhere
 - **How** to verify it works (test plan, manual steps, screenshots)
 - **Risks / follow-ups** the reader should know about
 
-Use GitHub's advanced markdown features to keep long descriptions scannable. Below are the tools worth reaching for.
+## Optimizing description length and readability
+
+Keep the **visible** description between **200 and 400 words**. Shorter than that and reviewers lack context; longer and the key details get buried under noise.
+
+A few structural choices make a real difference:
+
+- **Lead with a one- or two-sentence summary** of what the PR does and why, so reviewers get their bearings before reading the diff.
+- **Use short paragraphs** — four to six lines each — instead of dense blocks of text. They stay scannable.
+- **Break multi-step reasoning or lists of changes into bullets** rather than embedding them in prose.
+
+### Match length to PR size
+
+Not every PR warrants the same level of detail. A good rule of thumb:
+
+| PR scope | Suggested description length |
+| --- | --- |
+| Small bug fix or typo | 50–100 words |
+| Single feature or refactor | 150–250 words |
+| Multi-component change | 300–400 words |
+| Breaking change or migration | 400 words + a migration note |
+
+Resist the urge to write more just because the diff is large. A long diff still only needs a description that covers **what changed, why, and what reviewers should watch for**.
+
+When more detail is genuinely useful (full rationale, alternatives considered, exhaustive change lists), move it into a collapsed `<details>` block (see below) so the visible copy stays within the lengths above.
+
+## GitHub markdown features
+
+Use GitHub's advanced markdown to keep descriptions scannable. Below are the tools worth reaching for.
 
 ## 1. Alerts (callouts)
 
@@ -125,7 +152,7 @@ Prefer Mermaid over pasted screenshots of diagrams: it stays editable, diffable,
 
 ## Putting it together — example skeleton
 
-Don't start the PR with `# Summary` -- that's redundent. Just start with the summary itself.
+Don't start the PR with `# Summary` — that's redundant. Just start with the summary itself.
 
 ```markdown
 Fixes the 5-second auth timeout that caused intermittent 504s for users on
@@ -171,8 +198,9 @@ sequenceDiagram
 ## Checklist before submitting
 
 - [ ] Title is imperative and under ~70 chars
+- [ ] Visible description length matches the PR's scope (see the table above)
 - [ ] Reader can understand *why* without opening linked tickets
-- [ ] Long logs / output hidden behind `<details>`
+- [ ] Long logs / output / extra detail hidden behind `<details>`
 - [ ] Code blocks have language tags
 - [ ] Alerts used only for genuinely critical notes
 - [ ] Lines are **not** split
