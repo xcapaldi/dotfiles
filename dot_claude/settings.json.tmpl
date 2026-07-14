@@ -14,6 +14,9 @@
     "NODE_OPTIONS": "--max-old-space-size=8192"
   },
   "permissions": {
+    {{- if eq .chezmoi.os "darwin" }}
+    "defaultMode": "auto", 
+    {{- end }}
     "allow": [
       {{- if eq .chezmoi.os "darwin" }}
       "Bash(GOOGLE_CLOUD_PROJECT=\"optable-platform-dev\" GOOGLE_CLOUD_REGION=\"northamerica-northeast1\" go test:*)",
