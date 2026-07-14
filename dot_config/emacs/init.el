@@ -233,12 +233,6 @@
   :custom (dumb-jump-force-searcher 'rg)
   :config (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 
-(use-package eat
-  ;; https://codeberg.org/akib/emacs-eat
-  ;; Improved terminal emulator
-  :ensure t
-  :hook (eat-mode . (lambda () (setq-local line-spacing 0))))
-
 (use-package editorconfig
   ;; Native EditorConfig support.
   :config (editorconfig-mode 1))
@@ -509,8 +503,9 @@ matching `claude attach' command to the kill ring."
   ;; Opinionated note-taking and planning tool implemented in Emacs.
   :ensure t
   :init
-  (require 'howm-markdown)
-  (setq howm-file-name-format "%Y-%m-%dT%H%M%S.md")
+  ;; Use markdown on Mac and plain howm txt format at home
+  (when (equal system-type 'darwin)
+        (require 'howm-markdown))
   ;; Use Windows host filesystem on WSL
   (if (equal system-name "capaldi-phampc")
     (setq xcc/howm-directory "/mnt/c/Users/xavie/notes")
@@ -532,8 +527,30 @@ matching `claude attach' command to the kill ring."
   (howm-view-grep-file-stdin-option nil)
   ;; Search optimisations
   (howm menu-refresh-after-save nil)
-  (howm-menu-expiry-hours 2))  ;; cache menu N hours
-  ;;(howm-menu-file "0000-00-00-000000.md"))
+  (howm-menu-expiry-hours 2)  ;; cache menu N hours
+  (howm-file-name-format (if (eq system-type 'darwin)
+                             "%Y%m%dT%H%M%S.md"
+                           "%Y%m%dT%H%M%S.txt"))
+  (howm-menu-file (expand-file-name
+                   (if (eq system-type 'darwin)
+                       "00000000T000000.md"
+                     "00000000T000000.txt")
+                   xcc/howm-directory))
+  :config
+  ;; Howm's menu entry point only generates the skeleton template when
+  ;; `howm-menu-file' is nil; with it set, opening the menu would just
+  ;; find-file an empty buffer. So generate the skeleton into that path
+  ;; ourselves the first time the menu is opened and the file is missing.
+  ;; `howm-menu-copy-skel' targets `(or howm-menu-file ...)', so it writes
+  ;; straight to our chosen name.
+  (defun xcc/howm-ensure-menu-file (&rest _)
+    "Generate the howm menu skeleton at `howm-menu-file' if it is missing."
+    (when (and howm-menu-file (not (file-exists-p howm-menu-file)))
+      (let ((menu-sym (howm-get-symbol nil "howm-menu-" howm-menu-lang)))
+        (require menu-sym)
+        (howm-menu-copy-skel (symbol-value menu-sym))
+        (ignore-errors (howm-view-kill-buffer)))))
+  (advice-add 'howm-menu :before #'xcc/howm-ensure-menu-file))
 
 (use-package ibuffer
   ;; Native nice replacement for buffer-menu.
@@ -750,7 +767,6 @@ matching `claude attach' command to the kill ring."
       ("e" "eshell" project-eshell)
       ("h" "ghostel" ghostel-project)
       ("a" "claude attach" xcc/claude-attach)
-      ("t" "eat" eat-project)
       ("c" "compile" project-compile)
       ("!" "shell command" project-shell-command)
       ("&" "async shell command" project-async-shell-command)]
