@@ -3,10 +3,6 @@
     "type": "command",
     "command": "~/.claude/file-suggestion.sh"
   },
-  "statusLine": {
-    "type": "command",
-    "command": "~/.claude/statusline.py"
-  },
   "env": {
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
     "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1",
@@ -14,9 +10,6 @@
     "NODE_OPTIONS": "--max-old-space-size=8192"
   },
   "permissions": {
-    {{- if eq .chezmoi.os "darwin" }}
-    "defaultMode": "auto", 
-    {{- end }}
     "allow": [
       {{- if eq .chezmoi.os "darwin" }}
       "Bash(GOOGLE_CLOUD_PROJECT=\"optable-platform-dev\" GOOGLE_CLOUD_REGION=\"northamerica-northeast1\" go test:*)",
@@ -64,7 +57,8 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:google.aip.dev)",
       "WebSearch"
-    ]
+    ],
+    "defaultMode": "auto"
   },
   "hooks": {
     "PreToolUse": [
@@ -82,9 +76,14 @@
   "worktree": {
     "baseRef": "fresh"
   },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.py"
+  },
   "enabledPlugins": {
     {{- if eq .chezmoi.os "darwin" }}
     "typescript-lsp@claude-plugins-official": true,
+    "temporal@temporal-marketplace": true,
     {{- else if (eq .chezmoi.os "linux") }}
     "gopls-lsp@claude-plugins-official": true,
     {{- end }}
@@ -95,6 +94,12 @@
       "source": {
         "source": "github",
         "repo": "ChromeDevTools/chrome-devtools-mcp"
+      }
+    },
+    "temporal-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "temporalio/agent-skills"
       }
     }
   },
