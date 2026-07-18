@@ -45,6 +45,23 @@ if [[ $TERM == "eat-truecolor" || "$INSIDE_EMACS" = 'vterm' ]]; then
   export TERM=xterm-256color
 fi
 
+# em [path]: open PATH (default: current dir) in Emacs, launching Emacs first if
+# no server is running. Socket is pinned in ~/.config/emacs/init.el via
+# (setq server-socket-dir "~/.cache/emacs"); emacsclient needs -s because it
+# otherwise derives the socket from $TMPDIR and won't find the GUI's socket.
+em() {
+  local dir="${1:-$PWD}" sock="$HOME/.cache/emacs/server" i
+  if ! emacsclient -s "$sock" -n "$dir" 2>/dev/null; then
+    echo "No Emacs server — launching Emacs…"
+    open -a Emacs || return 1
+    for i in {1..40}; do
+      sleep 0.5
+      emacsclient -s "$sock" -n "$dir" 2>/dev/null && break
+    done
+  fi
+  osascript -e 'tell application "Emacs" to activate' 2>/dev/null
+}
+
 # better defaults for zsh history
 export HISTSIZE=1000000   # the number of items for the internal history list
 export SAVEHIST=1000000   # maximum number of items for the history file
