@@ -1,0 +1,41 @@
+#!/bin/sh
+# Open a directory ($1, default cwd) in the running Emacs server.
+# If no server is running, launch Emacs, wait for the pinned socket, then retry.
+#
+# Requires (see ~/.config/emacs/init.el):
+#   (setq server-socket-dir "~/.cache/emacs") with the dir at mode 0700, and
+#   (server-start) — emacsclient is called with `-s ~/.cache/emacs/server`
+#   because emacsclient ignores server-socket-dir and otherwise looks under
+#   $TMPDIR, which differs between the GUI Emacs and sandboxed shells.
+set -u
+DIR="${1:-$PWD}"
+SOCK="$HOME/.cache/emacs/server"
+
+open_it() { emacsclient -s "$SOCK" -n "$DIR" 2>/dev/null; }
+
+if open_it; then
+  osascript -e 'tell application "Emacs" to activate' 2>/dev/null
+  echo "Opened $DIR in Emacs."
+  exit 0
+fi
+
+echo "No Emacs server at $SOCK — launching Emacs…"
+if ! open -a Emacs 2>/dev/null; then
+  echo "FAILED: could not launch Emacs (is Emacs.app installed?)."
+  exit 1
+fi
+
+# Poll up to ~20s for the server socket to come up and accept the dir.
+i=0
+while [ "$i" -lt 40 ]; do
+  sleep 0.5
+  if open_it; then
+    osascript -e 'tell application "Emacs" to activate' 2>/dev/null
+    echo "Launched Emacs and opened $DIR."
+    exit 0
+  fi
+  i=$((i + 1))
+done
+
+echo "Emacs launched but its server didn't come up within 20s. Run /emacs again once it's ready."
+exit 1

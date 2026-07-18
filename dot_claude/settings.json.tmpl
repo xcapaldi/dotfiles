@@ -15,6 +15,7 @@
       "Bash(GOOGLE_CLOUD_PROJECT=\"optable-platform-dev\" GOOGLE_CLOUD_REGION=\"northamerica-northeast1\" go test:*)",
       {{- end }}
       "Bash(emacsclient:*)",
+      "Bash(~/.claude/scripts/claude-emacs:*)",
       "Bash(gh label list:*)",
       "Bash(gh pr checks:*)",
       "Bash(gh pr diff:*)",
@@ -124,7 +125,10 @@
         "github.com",
         "sentry.io"
       ]
-    }
+    },
+    "excludedCommands": [
+      "~/.claude/scripts/claude-emacs *"
+    ]
   },
   "alwaysThinkingEnabled": true,
   "tui": "fullscreen",
