@@ -1,7 +1,7 @@
 {
   "fileSuggestion": {
     "type": "command",
-    "command": "~/.claude/file-suggestion.sh"
+    "command": "~/.claude/scripts/file-suggestion.sh"
   },
   "env": {
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
@@ -67,7 +67,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/find-guard.sh"
+            "command": "~/.claude/scripts/find-guard.sh"
           }
         ]
       }
@@ -78,7 +78,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "~/.claude/statusline.py"
+    "command": "~/.claude/scripts/statusline.py"
   },
   "enabledPlugins": {
     {{- if eq .chezmoi.os "darwin" }}
