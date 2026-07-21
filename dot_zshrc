@@ -45,11 +45,11 @@ if [[ $TERM == "eat-truecolor" || "$INSIDE_EMACS" = 'vterm' ]]; then
   export TERM=xterm-256color
 fi
 
-# em [path]: open PATH (default: current dir) in Emacs, launching Emacs first if
+# dired [path]: open PATH (default: current dir) in Emacs, launching Emacs first if
 # no server is running. Socket is pinned in ~/.config/emacs/init.el via
 # (setq server-socket-dir "~/.cache/emacs"); emacsclient needs -s because it
 # otherwise derives the socket from $TMPDIR and won't find the GUI's socket.
-em() {
+dired() {
   local dir="${1:-$PWD}" sock="$HOME/.cache/emacs/server" i
   if ! emacsclient -s "$sock" -n "$dir" 2>/dev/null; then
     echo "No Emacs server — launching Emacs…"
