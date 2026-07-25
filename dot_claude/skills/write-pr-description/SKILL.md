@@ -6,49 +6,96 @@ user-invocable: false
 
 # Pull Requests
 
-A PR description is a **permanent record**, not a disposable ticket. The current reviewer reads it once; future engineers read it when they `git blame` a line of code months or years later trying to understand *why* a change was made. Write for both audiences.
+A PR description is a **permanent record**, not a disposable ticket.
+The current reviewer reads it once; future engineers read it when they `git blame` a line of code years later trying to understand *why* a change was made. 
+Write succinctly for both audiences.
 
-Aim for a description that answers, without the reader needing to click anywhere else:
+The visible description should fit in **a single screen height**, read top to bottom without scrolling. 
+Everything else (screenshots, test steps, logs, full rationale) goes into collapsed `<details>` blocks **if needed** which the reviewer can expand on demand.
 
-- **Why** the change exists (motivation, linked issue, user report)
-- **What** changed at a high level (not a line-by-line diff — that's what the diff is for)
-- **How** to verify it works (test plan, manual steps, screenshots)
-- **Risks / follow-ups** the reader should know about
+## What the visible copy must answer
 
-## Optimizing description length and readability
+Study of real-world PRs shows human-written descriptions have a *median of 56 words* and reviewers do best on small, single-purpose changes (~200–400 lines).
+Lead with brevity. 
+The visible copy needs only:
 
-Keep the **visible** description between **200 and 400 words**. Shorter than that and reviewers lack context; longer and the key details get buried under noise.
+- **Why** the change exists -- the motivation, linked issue, or user report.
+  This is the part `git blame` readers come back for.
+- **What** changed, in one or two sentences at a high level.
 
-A few structural choices make a real difference:
+That's it.
+Do **not**:
 
-- **Lead with a one- or two-sentence summary** of what the PR does and why, so reviewers get their bearings before reading the diff.
-- **Use short paragraphs** — four to six lines each — instead of dense blocks of text. They stay scannable.
-- **Break multi-step reasoning or lists of changes into bullets** rather than embedding them in prose.
+- Restate the diff.
+  The diff is one click away and always more accurate than prose.
+- Paste code-change diffs into the description. 
+  Reviewers read the real diff in the Files tab.
+- Enumerate every file or function touched. 
+  If the change list is long, the PR is probably too big -- consider splitting it.
 
-### Match length to PR size
+Aim for **roughly 50–150 words visible**.
+A one-line fix may need a single sentence.
+When you feel the urge to write more, that detail almost always belongs in a `<details>` block instead.
 
-Not every PR warrants the same level of detail. A good rule of thumb:
+## Structure that stays scannable
 
-| PR scope | Suggested description length |
-| --- | --- |
-| Small bug fix or typo | 50–100 words |
-| Single feature or refactor | 150–250 words |
-| Multi-component change | 300–400 words |
-| Breaking change or migration | 400 words + a migration note |
+- **Start with the text, not a heading.**
+  The PR title is already the first heading -- open the body with a plain paragraph of *why + what*. 
+  No `# Summary`, no heading of any kind before the first words.
+- **Avoid sections.** 
+  Most PRs need none.
+  A single text block plus a couple of folded `<details>` is the target shape.
+  Add a heading only when there is genuinely distinct content that earns one.
+- **Never use generic section titles.** 
+  `What` / `Why` / `How`, `Summary`, `Overview`, `Description`, `Changes` -- these carry no information.
+  If a section is worth a heading, name it for its actual content (`Migration steps`, `Rollback`), otherwise drop the heading entirely.
+- Keep prose in short lines; break reasoning or notable points into bullets.
+- Fold anything optional (see below).
 
-Resist the urge to write more just because the diff is large. A long diff still only needs a description that covers **what changed, why, and what reviewers should watch for**.
+## Write in Simplified Technical English
 
-When more detail is genuinely useful (full rationale, alternatives considered, exhaustive change lists), move it into a collapsed `<details>` block (see below) so the visible copy stays within the lengths above.
+Write the description in the spirit of Simplified Technical English -- short active sentences, plain consistent words, no jargon or filler. 
+See the `simplified-technical-english` skill for the full rules.
 
 ## GitHub markdown features
 
-Use GitHub's advanced markdown to keep descriptions scannable. Below are the tools worth reaching for.
+Use GitHub's advanced markdown to keep the visible copy tight and push detail out of the way.
 
-## 1. Alerts (callouts)
+### 1. Collapsed sections — your main tool
+
+Reference: <https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/organizing-information-with-collapsed-sections>
+
+This is how you keep the description to one screen.
+Put **test steps, screenshots, logs, stack traces, and any extended rationale** behind `<details>` blocks. 
+The content stays searchable and permanently archived, but the reviewer chooses when to see it.
+
+```markdown
+<details>
+<summary>Test plan</summary>
+
+- [x] Unit test covering the new timeout value
+- [x] Manual: reproduced the original 504 on staging, confirmed fixed
+
+</details>
+
+<details>
+<summary>Screenshots</summary>
+
+![before](https://.../before.png)
+![after](https://.../after.png)
+
+</details>
+```
+
+Add `open` to start expanded: `<details open>`.
+Leave one blank line after `<summary>` so nested markdown renders correctly.
+
+### 2. Alerts (callouts)
 
 Reference: <https://github.com/orgs/community/discussions/16925>
 
-Highlight critical information so reviewers cannot miss it. Five types, case-sensitive, on their own line:
+Highlight critical information so reviewers cannot miss it. 
+Five types, case-sensitive, on their own line:
 
 ```markdown
 > [!NOTE]
@@ -67,74 +114,29 @@ Highlight critical information so reviewers cannot miss it. Five types, case-sen
 > Negative consequences possible — data loss risk, security implication.
 ```
 
-Use sparingly. Everything-is-important means nothing is.
+Use sparingly, and only for something genuinely critical. 
+Everything-is-important means nothing is.
 
-## 2. Collapsed sections
-
-Reference: <https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/organizing-information-with-collapsed-sections>
-
-Hide long output (logs, full stack traces, verbose test results, auxiliary screenshots) behind a `<details>` block so the main narrative stays readable. The content remains searchable and permanently archived.
-
-```markdown
-<details>
-<summary>Full test output (142 lines)</summary>
-
-```
-$ cargo test --all
-    Finished test [unoptimized + debuginfo] target(s) in 0.12s
-     Running unittests src/lib.rs
-...
-```
-
-</details>
-```
-
-Add `open` to start expanded: `<details open>`. Leave one blank line after `<summary>` so nested markdown renders correctly.
-
-## 3. Code blocks with syntax highlighting
+### 3. Code blocks with syntax highlighting
 
 Reference: <https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-and-highlighting-code-blocks>
 
-Always tag fenced blocks with a language identifier. Highlighted code is faster to read and signals intent (shell command vs. config vs. source).
+Tag fenced blocks with a language identifier when you *do* need code -- a command to reproduce a bug, a config snippet, sample output. 
+Not for restating the diff.
 
 ~~~markdown
-```rust
-fn main() {
-    println!("Hello, world!");
-}
-```
-
 ```bash
-$ cargo run --release
-```
-
-```diff
-- let timeout = Duration::from_secs(5);
-+ let timeout = Duration::from_secs(30);
+$ cargo test --all
 ```
 ~~~
 
-The `diff` language is especially useful in PR descriptions to show the conceptual change without quoting the real diff.
-
-## 4. Diagrams
+### 4. Diagrams
 
 Reference: <https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams>
 
-When the change touches control flow, data flow, or system architecture, a small diagram saves paragraphs of prose. GitHub renders Mermaid, GeoJSON, TopoJSON, and ASCII STL from fenced code blocks. Make sure you keep in mind Github's UI is vertical and narrow. Prefer to build diagrams that are taller rather than wider.
-
-**Flowchart:**
-
-~~~markdown
-```mermaid
-flowchart LR
-    A[Client] -->|POST /auth| B(API)
-    B --> C{Valid token?}
-    C -->|yes| D[Issue session]
-    C -->|no| E[401]
-```
-~~~
-
-**Sequence diagram — useful for request/response changes:**
+When the change touches control flow, data flow, or architecture, a small diagram can replace paragraphs -- but if it's large, fold it.
+GitHub renders Mermaid, GeoJSON, TopoJSON, and ASCII STL from fenced code blocks. 
+GitHub's UI is vertical and narrow, so prefer diagrams that are taller rather than wider.
 
 ~~~markdown
 ```mermaid
@@ -150,46 +152,31 @@ sequenceDiagram
 
 Prefer Mermaid over pasted screenshots of diagrams: it stays editable, diffable, and readable on mobile.
 
-## Putting it together — example skeleton
+## Putting it together -- example
 
-Don't start the PR with `# Summary` — that's redundant. Just start with the summary itself.
+The entire thing above the fold is three short lines.
+Everything else is one expand away.
 
 ```markdown
 Fixes the 5-second auth timeout that caused intermittent 504s for users on
-high-latency connections (see #4821).
+high-latency connections (see #4821). Raises the default request timeout to 30s.
 
 > [!IMPORTANT]
-> Increases default request timeout from 5s → 30s. Downstream services
-> relying on the old timeout should review before merging.
+> Downstream services relying on the old 5s timeout should review before merging.
 
-## Change
+<details>
+<summary>Test plan</summary>
 
-```diff
-- let timeout = Duration::from_secs(5);
-+ let timeout = Duration::from_secs(30);
-```
+- [x] Unit test covering the new timeout value
+- [x] Manual: reproduced the original 504 on staging, confirmed fixed
 
-## Flow
-
-```mermaid
-sequenceDiagram
-    Client->>API: request
-    API->>Upstream: forward (now 30s budget)
-    Upstream-->>API: response
-    API-->>Client: 200
-```
-
-## Test plan
-
-- [x] Unit test covering new timeout value
-- [x] Manual: reproduced original 504 on staging, confirmed fixed
+</details>
 
 <details>
 <summary>Repro logs (before fix)</summary>
 
 ```
 2026-04-22T14:03:11Z ERROR upstream timeout after 5.01s
-...
 ```
 
 </details>
@@ -198,10 +185,14 @@ sequenceDiagram
 ## Checklist before submitting
 
 - [ ] Title is imperative and under ~70 chars
-- [ ] Visible description length matches the PR's scope (see the table above)
+- [ ] Body opens with a plain text block, no heading before the first words
+- [ ] No generic section titles (`What`/`Why`/`How`/`Summary`/`Changes`); ideally no sections at all
+- [ ] Written in Simplified Technical English — short active sentences, consistent plain words
+- [ ] Visible description fits in one screen height (~50–150 words)
 - [ ] Reader can understand *why* without opening linked tickets
-- [ ] Long logs / output / extra detail hidden behind `<details>`
-- [ ] Code blocks have language tags
-- [ ] Alerts used only for genuinely critical notes
+- [ ] No diff restated and no code-change diffs pasted into the description
+- [ ] Screenshots, test steps, logs, and extended detail are behind `<details>`
+- [ ] At most one alert, used only for a genuinely critical note
+- [ ] Any code blocks have language tags
 - [ ] Lines are **not** split
 - [ ] A future reader doing `git blame` six months from now will have what they need
