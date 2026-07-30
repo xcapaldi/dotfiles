@@ -3,6 +3,11 @@
     "type": "command",
     "command": "~/.claude/scripts/file-suggestion.sh"
   },
+  {{- if eq .chezmoi.hostname "capaldi-phampc" }}
+  "autoMemoryDirectory": "/mnt/c/Users/xavie/notes/inbox",
+  {{- else }}
+  "autoMemoryDirectory": "~/Notes/inbox",
+  {{- end }}
   "env": {
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
     "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1",

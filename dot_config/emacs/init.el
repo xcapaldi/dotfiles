@@ -475,6 +475,12 @@
                      "00000000T000000.txt")
                    xcc/howm-directory))
   :config
+  ;; Claude Code writes its memories into <howm-directory>/inbox, so they are
+  ;; searchable as soon as they are written. MEMORY.md is an index of that
+  ;; directory rather than a note, so keep it out of the graph.
+  (unless (string-match-p "MEMORY" howm-excluded-file-regexp)
+    (setq howm-excluded-file-regexp
+          (concat howm-excluded-file-regexp "\\|\\(^\\|/\\)MEMORY\\.md\\'")))
   ;; Howm's menu entry point only generates the skeleton template when
   ;; `howm-menu-file' is nil; with it set, opening the menu would just
   ;; find-file an empty buffer. So generate the skeleton into that path
