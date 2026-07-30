@@ -53,12 +53,29 @@ ls ~/Notes/memory/*.md                       # exclude MEMORY.md
 find ~/Notes -maxdepth 1 -name '[0-9]*T[0-9]*.md' ! -name '*--*'
 ```
 
-Transcripts, scoped to sessions since the last run:
+Transcripts, scoped to sessions since the last run. `.dream-state` holds one ISO
+timestamp, written at the end of the previous run. It exists only for transcripts,
+which are the one input with no sentinel: a scratch memory moves out of `memory/`
+when it is processed and a capture gets renamed, but a transcript is only ever read,
+so nothing about it records that the dreamer has seen it.
+
+Guard the empty case. An absent or empty state file makes `-newermt` fail with
+`Invalid timestamp`, and scanning every transcript instead would fan out over
+hundreds of files and hundreds of megabytes:
 
 ```sh
-cat ~/Notes/memory/.dream-state              # ISO timestamp, absent on first run
-find ~/.claude/projects -name '*.jsonl' -newermt "$(cat ~/Notes/memory/.dream-state)"
+since=$(cat ~/Notes/memory/.dream-state 2>/dev/null)
+if [ -n "$since" ]; then
+  find ~/.claude/projects -name '*.jsonl' -newermt "$since"
+else
+  echo "no state file: skip transcripts this run"
+fi
 ```
+
+With no state file, skip transcripts and process only the scratch memories and
+captures. The run still writes `.dream-state` at the end, so the next run is
+incremental. This is the correct behaviour for the first run, which seeds the graph
+from memories that already exist rather than from transcripts.
 
 Transcripts run to tens of megabytes per day. Never read them directly. Spawn one subagent per transcript file and have each return only candidate insights, in this shape:
 
