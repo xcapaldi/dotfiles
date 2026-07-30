@@ -15,24 +15,24 @@ The graph is the store of truth. `MEMORY.md` is only an index that points into i
 | Path | Role |
 |---|---|
 | `~/Notes/` | howm graph. Persistent notes. Git tracked. |
-| `~/Notes/inbox/` | `autoMemoryDirectory`. Scratch memories Claude wrote today. |
-| `~/Notes/inbox/MEMORY.md` | Index loaded into every session. Excluded from howm indexing. |
-| `~/Notes/inbox/.dream-state` | ISO timestamp of the last run. Dot prefix hides it from howm. |
+| `~/Notes/memory/` | `autoMemoryDirectory`. Scratch memories Claude wrote today. |
+| `~/Notes/memory/MEMORY.md` | Index loaded into every session. Excluded from howm indexing. |
+| `~/Notes/memory/.dream-state` | ISO timestamp of the last run. Dot prefix hides it from howm. |
 | `~/Notes/.howm-keys` | Controlled vocabulary. |
 
 On the WSL host the notes root is `/mnt/c/Users/xavie/notes/` instead. Read `howm-directory` from `dot_config/emacs/init.el` if unsure.
 
-`~/Notes/inbox/` is a subdirectory on purpose. Claude's auto memory only writes inside `autoMemoryDirectory`, so it can never edit or delete a persistent note. This skill is the only actor that touches `~/Notes/*.md`.
+`~/Notes/memory/` is a subdirectory on purpose. Claude's auto memory only writes inside `autoMemoryDirectory`, so it can never edit or delete a persistent note. This skill is the only actor that touches `~/Notes/*.md`.
 
 ## Three states
 
 | Form | Location | Meaning |
 |---|---|---|
-| `some-slug.md` | `inbox/` | Scratch memory. Needs promotion. |
+| `some-slug.md` | `memory/` | Scratch memory. Needs promotion. |
 | `20260730T140800.md` | `~/Notes/` | howm quick capture. Needs a name and tags. |
 | `20260730T140800--title__kw1_kw2.md` | `~/Notes/` | Processed. |
 
-Consume the first two. Only ever emit the third. Move a scratch file out of `inbox/` when you promote or merge it, so presence in `inbox/` always means unprocessed. Never invent bookkeeping that duplicates this signal.
+Consume the first two. Only ever emit the third. Move a scratch file out of `memory/` when you promote or merge it, so presence in `memory/` always means unprocessed. Never invent bookkeeping that duplicates this signal.
 
 ## Procedure
 
@@ -49,15 +49,15 @@ Graph edges come from keyword co-occurrence, so an off-vocabulary tag creates a 
 Scratch memories and captures:
 
 ```sh
-ls ~/Notes/inbox/*.md                       # exclude MEMORY.md
+ls ~/Notes/memory/*.md                       # exclude MEMORY.md
 find ~/Notes -maxdepth 1 -name '[0-9]*T[0-9]*.md' ! -name '*--*'
 ```
 
 Transcripts, scoped to sessions since the last run:
 
 ```sh
-cat ~/Notes/inbox/.dream-state              # ISO timestamp, absent on first run
-find ~/.claude/projects -name '*.jsonl' -newermt "$(cat ~/Notes/inbox/.dream-state)"
+cat ~/Notes/memory/.dream-state              # ISO timestamp, absent on first run
+find ~/.claude/projects -name '*.jsonl' -newermt "$(cat ~/Notes/memory/.dream-state)"
 ```
 
 Transcripts run to tens of megabytes per day. Never read them directly. Spawn one subagent per transcript file and have each return only candidate insights, in this shape:
@@ -81,7 +81,7 @@ rg -l --no-heading 'topic phrase' ~/Notes/
 | **merge** | A note already covers the topic. Keep its ID and filename. Add only the new fact. |
 | **promote** | Nothing covers it and the fact is durable. Write a new note. |
 | **drop** | Trivial, superseded, or already true in the graph. |
-| **hold** | Ambiguous. Leave the file in `inbox/` and ask in the digest. |
+| **hold** | Ambiguous. Leave the file in `memory/` and ask in the digest. |
 
 ### 4. Tier the actions
 
@@ -147,7 +147,7 @@ The user answers in the digest. Read the previous digest at the start of the nex
 Then record the run and commit:
 
 ```sh
-date -u +%Y-%m-%dT%H:%M:%SZ > ~/Notes/inbox/.dream-state
+date -u +%Y-%m-%dT%H:%M:%SZ > ~/Notes/memory/.dream-state
 git -C ~/Notes add -A && git -C ~/Notes commit -m "chore: dream <date>"
 ```
 

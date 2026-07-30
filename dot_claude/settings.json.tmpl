@@ -4,9 +4,9 @@
     "command": "~/.claude/scripts/file-suggestion.sh"
   },
   {{- if eq .chezmoi.hostname "capaldi-phampc" }}
-  "autoMemoryDirectory": "/mnt/c/Users/xavie/notes/inbox",
+  "autoMemoryDirectory": "/mnt/c/Users/xavie/notes/memory",
   {{- else }}
-  "autoMemoryDirectory": "~/Notes/inbox",
+  "autoMemoryDirectory": "~/Notes/memory",
   {{- end }}
   "env": {
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",

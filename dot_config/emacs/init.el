@@ -475,7 +475,7 @@
                      "00000000T000000.txt")
                    xcc/howm-directory))
   :config
-  ;; Claude Code writes its memories into <howm-directory>/inbox, so they are
+  ;; Claude Code writes its memories into <howm-directory>/memory, so they are
   ;; searchable as soon as they are written. MEMORY.md is an index of that
   ;; directory rather than a note, so keep it out of the graph.
   (unless (string-match-p "MEMORY" howm-excluded-file-regexp)
@@ -635,7 +635,7 @@
   (org-tags-column 0) ;; don't right align tags
   ;; Capture
   (org-capture-templates
-   '(("t" "Todo" entry (file+headline "/mnt/c/Users/xavie/org/obtf.org" "Inbox")
+   '(("t" "Todo" entry (file+headline "/mnt/c/Users/xavie/org/obtf.org" "Memory")
          "* TODO %?\n  %i\n  %a")))
   ;; Agenda configuration
   (org-agenda-span 'week)
