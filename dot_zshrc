@@ -8,6 +8,7 @@ export GOPATH="$HOME/go"
 export PATH="$PATH:$HOME/go/bin:$HOME/bin"
 export PATH="$HOME/bin:$PATH"
 export PATH="$PATH:$HOME/npm-global/bin"
+export PATH="$HOME/.docker/bin:$PATH"
 export DOCKER_HOST="unix://$HOME/.docker/run/docker.sock"
 # Needed because this must be set for tilt if I don't have a tilt-config.json
 # which I don't because I use git worktrees
@@ -172,7 +173,8 @@ export UV_SYSTEM_CERTS=true
 # Allow Ruby Bundler to trust the SafeChain MITM CA while preserving public roots.
 export BUNDLE_SSL_CA_CERT="/Library/Application Support/AikidoSecurity/EndpointProtection/run/endpoint-protection-ruby-combined-ca.pem"
 # aikido-endpoint-ruby-cert-config-end
-# aikido-endpoint-curl-cert-config-start
+# aikido-endpoint-curl-cert-config-v2-start
 # Allow curl and other OpenSSL-linked tools to trust the SafeChain MITM CA while preserving the system roots.
+export SSL_CERT_FILE="/Library/Application Support/AikidoSecurity/EndpointProtection/run/endpoint-protection-openssl-combined-ca.pem"
 export CURL_CA_BUNDLE="/Library/Application Support/AikidoSecurity/EndpointProtection/run/endpoint-protection-openssl-combined-ca.pem"
-# aikido-endpoint-curl-cert-config-end
+# aikido-endpoint-curl-cert-config-v2-end
