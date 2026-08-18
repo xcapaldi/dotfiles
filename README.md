@@ -58,23 +58,13 @@ sudo snap install chezmoi --classic
 chezmoi init https://github.com/xcapaldi/dotfiles.git
 ```
 
-## Ubuntu
-Since my main desktop is running Ubuntu under WSL, Windows is taking care of window management.
-I use my hacktop exclusively for personal project development so I keep the system as minimal as possible.
-I don't even transport it much since the battery is ancient.
-This means I could omit audio control, media codecs, wifi, display manager and utilities for external drives; all things I would use in my daily driver.
-In the interest of time though, [xubuntu](https://xubuntu.org/) is probably sufficient.
+## Homelab
 
-### Installing a minimal system
-Use [Ubuntu server](https://ubuntu.com/download/server) installer to get a super minimal system.
-Once inside, install chezmoi and initialize:
-
-``` shell
-sudo snap refresh
-sudo snap install chezmoi --classic
-chezmoi init https://github.com/xcapaldi/dotfiles.git
-```
-
-This will take care of installing a simple window manager; [jwm](https://joewing.net/projects/jwm/).
-Then I can simply login via tty and run `startx` to get into a graphical session.
-Since I'm exclusively using this machine to work on personal projects I usually just have a browser and a terminal (with tmux) running.
+- Install [Fedora Server (44)](https://fedoraproject.org/server/) with no `root` user AND with encrypted harddrive.
+- This will automatically run [Cockpit](https://cockpit-project.org) which is very nice for remote management.
+- Install [Docker](https://docs.docker.com/engine/install/fedora/#set-up-the-repository)
+  - Set up the repository: `sudo dnf config-manager addrepo --from-repofile https://download.docker.com/linux/fedora/docker-ce.repo`
+  - Install latest version: `sudo dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin`
+  - Start docker engine automatically: `sudo systemctl enable --now docker`
+- Install [Immich](https://docs.immich.app/overview/quick-start/)
+- Install [Syncthing](https://syncthing.net)
