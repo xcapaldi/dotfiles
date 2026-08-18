@@ -60,11 +60,22 @@ chezmoi init https://github.com/xcapaldi/dotfiles.git
 
 ## Homelab
 
-- Install [Fedora Server (44)](https://fedoraproject.org/server/) with no `root` user AND with encrypted harddrive.
-- This will automatically run [Cockpit](https://cockpit-project.org) which is very nice for remote management.
-- Install [Docker](https://docs.docker.com/engine/install/fedora/#set-up-the-repository)
-  - Set up the repository: `sudo dnf config-manager addrepo --from-repofile https://download.docker.com/linux/fedora/docker-ce.repo`
-  - Install latest version: `sudo dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin`
-  - Start docker engine automatically: `sudo systemctl enable --now docker`
-- Install [Immich](https://docs.immich.app/overview/quick-start/)
-- Install [Syncthing](https://syncthing.net)
+### OS and tools
+Install [Fedora Server (44)](https://fedoraproject.org/server/) with no `root` user AND with encrypted harddrive.
+This will automatically run [Cockpit](https://cockpit-project.org) which is very nice for remote management.
+
+Can access Cockpit UI at `https://ip-address-of-machine:9090`.
+
+Install [Docker](https://docs.docker.com/engine/install/fedora/#set-up-the-repository)
+- Set up the repository: `sudo dnf config-manager addrepo --from-repofile https://download.docker.com/linux/fedora/docker-ce.repo`
+- Install latest version: `sudo dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin`
+- Start docker engine automatically: `sudo systemctl enable --now docker`
+
+### Immich
+Install [Immich](https://docs.immich.app/overview/quick-start/).
+Follow the [post-install guide](https://docs.immich.app/install/post-install):
+
+- Navigate to `http://<machine-ip-address>:2283` and create an admin user.
+
+### Syncthing
+Install [Syncthing](https://syncthing.net)
