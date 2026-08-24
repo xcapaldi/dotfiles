@@ -1,8 +1,4 @@
 {
-  "fileSuggestion": {
-    "type": "command",
-    "command": "~/.claude/scripts/file-suggestion.sh"
-  },
   {{- if eq .chezmoi.hostname "capaldi-phampc" }}
   "autoMemoryDirectory": "/mnt/c/Users/xavie/notes/memory",
   {{- else }}
@@ -14,7 +10,7 @@
     "CLAUDE_CODE_PACKAGE_MANAGER_AUTO_UPDATE": "1",
     "NODE_OPTIONS": "--max-old-space-size=8192"
   },
-  "outputStyle": "Simplified Technical English",
+  "outputStyle": "Concise",
   "permissions": {
     "allow": [
       {{- if eq .chezmoi.os "darwin" }}
