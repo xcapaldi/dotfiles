@@ -59,6 +59,10 @@ cask "bitwarden"
 cask "chatgpt"
 cask "claude"
 cask "claude-code@latest"
+# no_binaries keeps the CLI tools out of /usr/local/bin. Homebrew does not store
+# the flag, so upgrade by hand with:
+#   brew upgrade --cask --no-binaries docker-desktop && chezmoi apply
+# See .chezmoiscripts/run_after_link-docker-cli.sh.tmpl for the reason.
 cask "docker-desktop", args: { no_binaries: true }
 cask "emacs"
 # cask "font-maple-mono"

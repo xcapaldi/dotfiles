@@ -17,6 +17,28 @@ Not much to say here... chezmoi takes care of installing [Homebrew](https://brew
 It also manages my `zshrc`, `psqlrc` git and ssh configs.
 There is some additional corporate configuration that must be done manually on a fresh install.
 
+### Docker CLI tools
+
+The `docker-desktop` cask links `docker`, `kubectl` and the `docker-credential-*` helpers into `/usr/local/bin`.
+Root owns that directory, so root makes the links under the login umask.
+A umask of `027` makes the links unreadable to me.
+The `docker` command still runs, because macOS ignores symlink modes when it resolves a path.
+But `docker-credential-desktop` reads its own link to find the app bundle, that read is refused, and registry logins fail.
+Homebrew fails on the same links, with `Permission denied @ rb_readlink`.
+Kandji keeps root-owned links in `/usr/local/bin` too, so the directory stays unsafe.
+
+The Brewfile installs the cask with `no_binaries` to keep the tools out of `/usr/local/bin`.
+`run_after_link-docker-cli.sh.tmpl` then links them into `$HOME/.docker/bin`, which I own, and `zshrc` puts that directory on `PATH`.
+The script runs on every `chezmoi apply`, so `chezmoi apply` repairs the links.
+It also moves the app bundle back to `/Applications` if a failed upgrade left it staged in the Caskroom.
+
+Homebrew does not store the `no_binaries` flag, so `brew upgrade docker-desktop` writes to `/usr/local/bin` again.
+Upgrade Docker Desktop with this instead:
+
+``` shell
+brew upgrade --cask --no-binaries docker-desktop && chezmoi apply
+```
+
 ## Windows Host and WSL2
 I don't manage the host Windows 11 system with chezmoi because configuration is minimal and I only install a few packages using Winget.
 

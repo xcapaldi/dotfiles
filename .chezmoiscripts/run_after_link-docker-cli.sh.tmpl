@@ -1,0 +1,42 @@
+{{ if (eq .chezmoi.os "darwin") -}}
+#!/bin/sh
+
+# The docker-desktop cask links its CLI tools into /usr/local/bin. Root owns
+# that directory, so root makes the links under the login umask. With umask 027
+# the links are unreadable to you. The docker command still runs, because macOS
+# ignores symlink modes when it resolves a path, but docker-credential-desktop
+# reads its own link to find the app bundle, that read is refused, and registry
+# logins fail. Homebrew also fails, with "Permission denied @ rb_readlink".
+#
+# Kandji keeps its own root-owned links in /usr/local/bin, so that directory
+# stays unsafe on this machine. Keep the Docker CLI out of it.
+#
+# The Brewfile installs the cask with no_binaries, but Homebrew does not store
+# that flag. A later upgrade writes to /usr/local/bin again. Upgrade with:
+#   brew upgrade --cask --no-binaries docker-desktop
+#
+# This script makes its own links in $HOME/.docker/bin, which you own. .zshrc
+# puts that directory on $PATH. Run "chezmoi apply" to repair the links.
+
+app="/Applications/Docker.app"
+app_bin="$app/Contents/Resources/bin"
+
+# A failed upgrade leaves $app empty and stages the real bundle in the Caskroom.
+# Move it back, so the links below resolve.
+if [ -d "$app" ] && [ -z "$(ls -A "$app")" ]; then
+	staged=$(ls -d "$(brew --prefix)"/Caskroom/docker-desktop/*/Docker.app 2>/dev/null | head -1)
+	if [ -n "$staged" ] && ! pgrep -qf 'Homebrew/Library/Homebrew/brew.sh'; then
+		echo "$app is empty. Moving the staged bundle back from $staged"
+		rmdir "$app" && mv "$staged" "$app"
+	fi
+fi
+
+if [ -d "$app_bin" ]; then
+	mkdir -p "$HOME/.docker/bin"
+	for tool in docker kubectl docker-credential-desktop docker-credential-ecr-login docker-credential-osxkeychain; do
+		ln -sfn "$app_bin/$tool" "$HOME/.docker/bin/$tool"
+	done
+else
+	echo "$app_bin not found. Install Docker Desktop, then run chezmoi apply again."
+fi
+{{ end -}}
