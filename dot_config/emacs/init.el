@@ -53,6 +53,7 @@
   (global-visual-line-mode -1)             ; Wrap lines instead of extending past view
   (auto-fill-mode -1)                      ; Don't auto-wrap lines
   (minibuffer-depth-indicate-mode 1)       ; Indicate minibuffer recursive depth when recursion enabled
+  (repeat-mode 1)                          ; Quickly repeat certain commands by pressing the last key
   (which-function-mode 1)                  ; Display the
   ;; Pin the server socket to a TMPDIR-independent path so emacsclient run
   ;; from sandboxed shells (e.g. Claude Code) finds the same socket as the GUI.
@@ -760,13 +761,7 @@
 
 (use-package simple
   ;; Native package which contains undo commands
-  :ensure nil
-  :config
-  (advice-add 'undo :after #'undo-transient)
-  (transient-define-prefix undo-transient ()
-    "Undo Prefix"
-    :transient-non-suffix 'transient--do-leave
-    [("u" "undo" undo :transient t)]))
+  :ensure nil)
 
 (use-package sql
   ;; Native SQL interaction mode.
@@ -822,10 +817,7 @@
   ;; https://github.com/casouri/vundo
   ;; Undo tree visualization for the native emacs undo system.
   :ensure t
-  :commands (vundo)
-  :init
-  (transient-append-suffix 'undo-transient '(0) ;; after the last group
-    [("v" "visual undo" vundo)]))
+  :commands (vundo))
 
 (use-package whitespace
   ;; Show whitespace characters
