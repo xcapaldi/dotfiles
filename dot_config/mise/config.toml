@@ -1,6 +1,6 @@
 [tools]
 go = "1.27.0"
-jq = "1.7.1"
+jq = "1.8.2"
 
 [settings]
 # config files with these prefixes will be trusted by default
