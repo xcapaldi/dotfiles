@@ -1,7 +1,6 @@
 ---
 name: stop-the-yap
 description: "Decide if a code comment must exist, and make the ones that stay explain why, not what."
-disable-model-invocation: true
 ---
 
 # Stop the yap
