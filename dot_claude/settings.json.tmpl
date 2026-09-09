@@ -74,6 +74,11 @@
           {
             "type": "command",
             "command": "~/.claude/scripts/find-guard.sh"
+          },
+          {
+            "type": "command",
+            "if": "Bash(git commit:*)",
+            "command": "jq -n --arg msg 'Before this commit, /stop-the-yap' '{hookSpecificOutput:{hookEventName:\"PreToolUse\",additionalContext:$msg}}'"
           }
         ]
       }
