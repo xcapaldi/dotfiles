@@ -80,9 +80,9 @@
            (add-to-list 'default-frame-alist '(font . "Comic Code-13:regular"))))
   ;; set fallback fonts for symbols and emoji
   (set-fontset-font t 'symbol (font-spec :family "Noto Emoji") nil 'prepend)
-  ;;(if (equal system-type 'darwin)
-  ;;    (progn (set-fontset-font t 'symbol (font-spec :family "Apple Symbols") nil 'prepend)
-  ;;           (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend)))
+  (if (equal system-type 'darwin)
+      (progn (set-fontset-font t 'symbol (font-spec :family "Apple Symbols") nil 'prepend)
+             (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend)))
   ;; set line spacing (0.1 == 1x)
   (setq-default line-spacing 0.0)
   (when (equal system-type 'darwin)
@@ -624,7 +624,8 @@
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((shell . t)
-     (python . t)))
+     (python . t)
+     (sql . t)))
   (add-to-list 'org-modules 'org-habit)
   ;; Use Windows host filesystem on WSL
   (if (equal system-name "capaldi-phampc")
@@ -858,6 +859,14 @@
   ;; https://github.com/yoshiki/yaml-mode
   :ensure t
   :mode ("\\.yml\\'" . yaml-mode))
+
+;; Load work configuration. This repository is public, so that code is kept in
+;; Google Drive instead. Skip it when the drive is not mounted.
+(let ((directory "~/Google Drive/My Drive/dotfiles/emacs/"))
+  (when (file-directory-p directory)
+    (add-to-list 'load-path directory)
+    (dolist (file (directory-files directory t "\\.el\\'"))
+      (load file nil t))))
 
 ;; load customization file
 (load custom-file)
