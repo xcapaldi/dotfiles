@@ -56,6 +56,22 @@ sudo snap install chezmoi --classic
 chezmoi init https://github.com/xcapaldi/dotfiles.git
 ```
 
+## Chrome extensions
+Personal Chrome extensions live in `chrome-extensions/`.
+chezmoi ignores this directory, so Chrome loads each extension from the source directory.
+
+* `conventional-comments` adds a [Conventional Comments](https://conventionalcomments.org/) label toolbar to GitHub and GitLab comment boxes.
+
+To load an extension:
+
+1. Open `chrome://extensions`.
+2. Turn on **Developer mode**.
+3. Click **Load unpacked**.
+4. Press **Cmd+Shift+G**, paste the path (for example `~/.local/share/chezmoi/chrome-extensions/conventional-comments`) and click **Select**.
+   The file picker hides dot directories, so type the path.
+
+After you change an extension, click the reload icon on its card in `chrome://extensions` and refresh the page.
+
 ## Homelab
 
 ### OS and tools

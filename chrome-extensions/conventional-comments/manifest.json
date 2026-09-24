@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Conventional Comments",
+  "version": "0.1.0",
+  "description": "Add Conventional Comments labels to GitHub and GitLab comment boxes.",
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*", "https://gitlab.com/*"],
+      "exclude_matches": ["https://github.com/login*"],
+      "js": ["content.js"],
+      "css": ["style.css"],
+      "run_at": "document_end"
+    }
+  ]
+}

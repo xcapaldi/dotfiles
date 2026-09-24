@@ -1,6 +1,7 @@
 README.md
 CLAUDE.md
 dnffile
+chrome-extensions
 .config/emacs/gnus.el
 {{ if ne .chezmoi.os "darwin" -}}
 .zshrc
