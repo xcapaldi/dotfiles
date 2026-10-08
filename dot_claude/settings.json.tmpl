@@ -95,6 +95,8 @@
     {{- if eq .chezmoi.os "darwin" }}
     "typescript-lsp@claude-plugins-official": true,
     "temporal@temporal-marketplace": true,
+    "grafana-core@grafana-skills": true,
+    "grafana-cloud@grafana-skills": true,
     {{- else if (eq .chezmoi.os "linux") }}
     "gopls-lsp@claude-plugins-official": true,
     {{- end }}
@@ -107,6 +109,12 @@
       "source": {
         "source": "github",
         "repo": "ChromeDevTools/chrome-devtools-mcp"
+      }
+    },
+    "grafana-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "grafana/skills"
       }
     },
     "temporal-marketplace": {
