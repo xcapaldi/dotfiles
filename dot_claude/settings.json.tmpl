@@ -1,4 +1,7 @@
 {
+  {{- if eq .chezmoi.os "darwin" }}
+  "autoMemoryDirectory": "/Users/xavier.capaldi/Library/CloudStorage/GoogleDrive-xavier.capaldi@optable.co/My Drive/dotfiles/memory",
+  {{- end }}
   "env": {
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
     "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1",
