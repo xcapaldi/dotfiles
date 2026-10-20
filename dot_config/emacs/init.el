@@ -611,21 +611,30 @@
   ;; store backups and autosaves in centralized tmp directories
   (no-littering-theme-backups))
 
+(use-package ob-d2
+  ;; https://github.com/xcapaldi/ob-d2
+  ;; Support for D2 in org mode code blocks
+  :ensure t)
+;;  :after org-mode)
+
 (use-package ob-go
   ;; https://github.com/pope/ob-go
   ;; Support for Go in org mode code blocks.
-  :ensure t
-  :after org-mode)
+  :ensure t)
+;;  :after org-mode)
 
 (use-package org
   :ensure nil
+  :after (ob-d2 ob-go)
   :config
   ;; Org-babel supported languages
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((shell . t)
      (python . t)
-     (sql . t)))
+     (sql . t)
+     (d2 . t)
+     (go . t)))
   (add-to-list 'org-modules 'org-habit)
   ;; Use Windows host filesystem on WSL
   (if (equal system-name "capaldi-phampc")

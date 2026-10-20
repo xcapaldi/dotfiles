@@ -4,6 +4,7 @@ brew bundle --file=/dev/stdin <<EOF
 
 {{ if (and (eq .chezmoi.os "linux") (.chezmoi.kernel.osrelease | lower | contains "microsoft")) -}}
 brew "beancount"
+brew "d2"
 brew "gcc"
 brew "gh"
 brew "git"
@@ -26,6 +27,7 @@ brew "chezmoi"
 brew "coreutils"
 brew "diffnav"
 brew "dnsmasq"
+brew "d2"
 brew "findutils"
 brew "fzf"
 brew "gh"
