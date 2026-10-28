@@ -45,6 +45,7 @@
       "Bash(pwd:*)",
       "Bash(wc:*)",
       "Bash(which:*)",
+      "Bash({{ .chezmoi.homeDir }}/.claude/plugins/cache/dotfiles/tutor/*/scripts/graph.py *)",
       {{- if eq .chezmoi.os "darwin" }}
       "mcp__claude_ai_Slack__slack_search_public",
       "mcp__claude_ai_Slack__slack_search_public_and_private",
@@ -100,13 +101,20 @@
     {{- end }}
     "chrome-devtools-mcp@chrome-devtools-plugins": true,
     "modern-web-guidance@claude-plugins-official": true,
-    "hookify@claude-plugins-official": true
+    "hookify@claude-plugins-official": true,
+    "tutor@dotfiles": true
   },
   "extraKnownMarketplaces": {
     "chrome-devtools-plugins": {
       "source": {
         "source": "github",
         "repo": "ChromeDevTools/chrome-devtools-mcp"
+      }
+    },
+    "dotfiles": {
+      "source": {
+        "source": "directory",
+        "path": "{{ .chezmoi.homeDir }}/.claude/marketplace"
       }
     },
     "grafana-marketplace": {
