@@ -1,0 +1,14 @@
+{
+  "name": "dotfiles",
+  "description": "Personal plugins kept in my dotfiles",
+  "owner": {
+    "name": "Xavier Capaldi"
+  },
+  "plugins": [
+    {
+      "name": "tutor",
+      "source": "./tutor",
+      "description": "Learn hard things one reasoning step at a time, with a sparse graph of what you hold"
+    }
+  ]
+}

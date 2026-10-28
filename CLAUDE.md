@@ -39,6 +39,12 @@ Note that when removing a package they must be uninstalled manually as the scrip
 
 Templated externals (git repos, release archives) are pulled in via `.chezmoiexternal.toml.tmpl` — e.g. the Vim LSP plugin.
 
+## Local plugins
+
+`dot_claude/marketplace/` is a local plugin marketplace named `dotfiles`, registered in `dot_claude/settings.json.tmpl`.
+Claude Code copies each plugin into its cache at install, so after a change bump `version` in the plugin's `plugin.json` and run `claude plugin update <plugin>@dotfiles`.
+Run plugin tests from the source with `python3 -B -m unittest discover -s dot_claude/marketplace/<plugin>/tests`.
+
 ## Targets
 
 - macOS work machine (primary, full package set)
