@@ -1,6 +1,7 @@
 ---
 name: practice
-description: Run a practice session on things the user learned with the tutor. Problems need the knowledge to come to mind without a prompt. Use when the user runs /tutor:practice or asks to practice or review what they learned.
+description: Practice what you learned with the tutor, with problems that make the knowledge come to mind without a prompt.
+disable-model-invocation: true
 argument-hint: "[topic, optional]"
 allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/scripts/graph.py *) AskUserQuestion
 ---

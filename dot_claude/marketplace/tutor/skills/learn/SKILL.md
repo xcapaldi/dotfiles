@@ -1,6 +1,7 @@
 ---
 name: learn
-description: Teach the user a difficult subject, one reasoning step at a time, from what they already understand to a goal. Use when the user runs /tutor:learn or asks to be taught or to understand something in depth.
+description: Teach a difficult subject one reasoning step at a time, from what you already understand to a goal.
+disable-model-invocation: true
 argument-hint: "[what you want to understand]"
 allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/scripts/graph.py *) AskUserQuestion
 ---
