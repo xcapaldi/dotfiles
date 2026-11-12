@@ -167,3 +167,48 @@ In Task Scheduler -> Create Basic Task -> Daily -> Start a program -> point to `
 Leave it on "Run only when user is logged in".
 Once the task is created, edit it and under Properties -> Settings, enable "Run task as soon as possible after a scheduled start is missed".
 
+### Recipe collection (2-way share)
+
+The Immich share above is read-only and one-way (homelab to desktop).
+For the recipe collection I want both machines to edit the same files directly, so there is no sync step and no risk of conflicting copies.
+This reuses the Samba server set up for Immich; just add a second, writable share.
+
+#### Create the folder
+
+```sh
+mkdir -p /home/admin/recipes
+```
+
+#### Define the share
+
+`sudo vi /etc/samba/smb.conf` and append at the bottom:
+
+```
+[recipes]
+    path = /home/admin/recipes
+    browseable = yes
+    read only = no
+    valid users = admin
+```
+
+#### Allow SELinux to serve it read-write
+
+```sh
+sudo setsebool -P samba_export_all_rw on
+```
+
+#### Test and restart
+
+```sh
+sudo testparm
+sudo systemctl restart smb
+```
+
+The firewall rule for Samba is already open from the Immich setup, so no change is needed there.
+
+#### Map it on Windows
+
+On the desktop go to Explorer -> This PC -> Map network drive -> `\\server-ip\recipes` -> tick "Connect using different credentials" and "Reconnect at sign-in".
+Enter the same Samba username and password used for the Immich share.
+Edit recipes directly on this drive from the desktop; the homelab sees the same files immediately since it is one shared folder, not a copy.
+
