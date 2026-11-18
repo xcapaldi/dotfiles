@@ -3,6 +3,7 @@ CLAUDE.md
 dnffile
 chrome-extensions
 .config/emacs/gnus.el
+.claude/marketplace/*/tests
 {{ if ne .chezmoi.os "darwin" -}}
 .zshrc
 .psqlrc

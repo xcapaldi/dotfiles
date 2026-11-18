@@ -1,0 +1,8 @@
+{
+  "name": "tutor",
+  "version": "0.1.0",
+  "description": "Learn hard things one reasoning step at a time, with a sparse graph of what you hold",
+  "author": {
+    "name": "Xavier Capaldi"
+  }
+}
