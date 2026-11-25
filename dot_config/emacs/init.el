@@ -398,6 +398,52 @@
   :ensure nil
   :bind ([remap dabbrev-expand] . hippie-expand)) ;; M-/ and C-M-/
 
+(use-package howm
+  ;; https://github.com/kaorahi/howm
+  ;; Opinionated note-taking and planning tool implemented in Emacs.
+  :ensure t
+  :init
+  (require 'howm-markdown)
+  ;; Use Windows host filesystem on WSL
+  (if (equal system-name "capaldi-phampc")
+    (setq xcc/howm-directory "/mnt/c/Users/xavie/notes")
+  (setq xcc/howm-directory "~/Notes/"))
+  :custom
+  (howm-directory xcc/howm-directory)
+  (howm-follow-theme t)
+  (howm-keyword-file (expand-file-name ".howm-keys" xcc/howm-directory))
+  (howm-history-file (expand-file-name ".howm-history" xcc/howm-directory))
+  ;; Keep one window after "1" key in the summary buffer.
+  (howm-view-keep-one-window t)
+  ;; Use ripgrep as grep
+  (howm-view-use-grep t)
+  (howm-view-grep-command "rg")
+  (howm-view-grep-option "-nH --no-heading --color never")
+  (howm-view-grep-extended-option nil)
+  (howm-view-grep-fixed-option "-F")
+  (howm-view-grep-expr-option nil)
+  (howm-view-grep-file-stdin-option nil)
+  ;; Search optimisations
+  (howm menu-refresh-after-save nil)
+  (howm-menu-expiry-hours 2)  ;; cache menu N hours
+  ;; (howm-file-name-format "%Y%m%dT%H%M%S.md") ;; might need thisto be in init
+  ;;(howm-menu-file (expand-file-name "00000000T000000.md" xcc/howm-directory))
+  :config
+  ;; Howm's menu entry point only generates the skeleton template when
+  ;; `howm-menu-file' is nil; with it set, opening the menu would just
+  ;; find-file an empty buffer. So generate the skeleton into that path
+  ;; ourselves the first time the menu is opened and the file is missing.
+  ;; `howm-menu-copy-skel' targets `(or howm-menu-file ...)', so it writes
+  ;; straight to our chosen name.
+  (defun xcc/howm-ensure-menu-file (&rest _)
+    "Generate the howm menu skeleton at `howm-menu-file' if it is missing."
+    (when (and howm-menu-file (not (file-exists-p howm-menu-file)))
+      (let ((menu-sym (howm-get-symbol nil "howm-menu-" howm-menu-lang)))
+        (require menu-sym)
+        (howm-menu-copy-skel (symbol-value menu-sym))
+        (ignore-errors (howm-view-kill-buffer)))))
+  (advice-add 'howm-menu :before #'xcc/howm-ensure-menu-file))
+
 (use-package ibuffer
   ;; Native nice replacement for buffer-menu.
   :ensure nil
