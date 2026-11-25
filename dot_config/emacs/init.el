@@ -180,13 +180,6 @@
   (completion-preview-exact-match-only nil) ; If t, only show suggestion if there is only one candidate
   (completion-preview-idle-delay 0.3)) ; If non-nil, wait this many idle seconds before displaying preview
 
-(use-package cook-mode
-  :vc (:url "https://github.com/cooklang/cook-mode"
-            :rev :newest
-            :branch "master")
-  :if (eq system-type 'gnu/linux)
-  :mode ("\\.cook\\'" . cook-mode))
-
 (use-package cua-rect
   ;; Native emulation for CUA keybindings (standard copy/paste/cut).
   ;; I use only for the enhanced rectangle selection.
