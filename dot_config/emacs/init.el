@@ -407,7 +407,7 @@
   ;; Use Windows host filesystem on WSL
   (if (equal system-name "capaldi-phampc")
     (setq xcc/howm-directory "/mnt/c/Users/xavie/notes")
-  (setq xcc/howm-directory "~/Notes/"))
+  (setq xcc/howm-directory "/Users/xavier.capaldi/Library/CloudStorage/GoogleDrive-xavier.capaldi@optable.co/My Drive/notes"))
   :custom
   (howm-directory xcc/howm-directory)
   (howm-follow-theme t)
@@ -554,6 +554,7 @@
   ;; mise is a version manager used at my work to control developer tool
   ;; versions. This package makes tools installed by mise accessible to
   ;; emacs.
+  :ensure t
   :if (eq system-type 'darwin)
   :init (global-mise-mode 1))
 
