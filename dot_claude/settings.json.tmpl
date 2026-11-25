@@ -96,6 +96,7 @@
     "grafana-core@grafana-skills": true,
     "grafana-cloud@grafana-skills": true,
     "slack@claude-plugins-official": true,
+    "node-region-migration@xavier-plugins": true,
     {{- else if (eq .chezmoi.os "linux") }}
     "gopls-lsp@claude-plugins-official": true,
     {{- end }}
@@ -104,6 +105,14 @@
     "hookify@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
+    {{- if eq .chezmoi.os "darwin" }}
+    "xavier-plugins": {
+      "source": {
+        "source": "directory",
+        "path": "{{ .chezmoi.homeDir }}/Library/CloudStorage/GoogleDrive-xavier.capaldi@optable.co/My Drive/dotfiles/claude-plugins"
+      }
+    },
+    {{- end }}
     "chrome-devtools-plugins": {
       "source": {
         "source": "github",
