@@ -285,7 +285,7 @@
       (add-to-list 'eshell-modules-list 'eshell-smart))
   :custom
   ;; commands which should run in a dedicated terminal
-  (eshell-visual-commands '("vi" "vim" "screen" "tmux" "top" "htop" "less" "more" "lynx" "links" "ncftp" "mutt" "pine" "tin" "trn" "elm"))
+  (eshell-visual-commands '("claude" "vi" "vim" "screen" "tmux" "top" "htop" "less" "more" "lynx" "links" "ncftp" "mutt" "pine" "tin" "trn" "elm"))
   ;; command options which need to run in a dedicated terminal
   (eshell-visual-options '(("git" "--help" "--paginate")))
   ;; subcommands which need to run in a dedicated terminal
