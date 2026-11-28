@@ -332,7 +332,8 @@
 (use-package ghostel
   ;; Terminal emulation powered by libghostty.
   :if (eq system-type 'darwin)
-  :ensure t)
+  :ensure t
+  :custom (ghostel-eshell-visual-command-mode 't))
 
 ;;(use-package go-dlv
 ;;   ;; https://github.com/benma/go-dlv.el
@@ -626,8 +627,23 @@
              (file-name-nondirectory (buffer-file-name))
              ":"
              (number-to-string (line-number-at-pos)))))
-  (which-key-add-key-based-replacements
-    "C-x p b" "browse at remote"))
+  (which-key-add-keymap-based-replacements project-prefix-map
+    "C-b" "list buffers"
+    "!" "shell command"
+    "&" "async shell command"
+    "D" "dired"
+    "c" "compile"
+    "d" "find-dir"
+    "e" "eshell"
+    "f" "find-file"
+    "g" "find-regexp"
+    "k" "kill-buffers"
+    "p" "switch-project"
+    "r" "query-replace-regexp"
+    "s" "shell"
+    "v" "vc-dir"
+    "h" "ghostel"
+    "b" "browse at remote"))
 
 (use-package protobuf-mode
   ;; https://github.com/protocolbuffers/protobuf/blob/main/editors/protobuf-mode.el
