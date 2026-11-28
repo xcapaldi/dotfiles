@@ -151,16 +151,6 @@
   :hook ((beancount-mode . outline-minor-mode)
          (beancount-mode . flymake-bean-check-enable)))
 
-;; (use-package browse-at-remote
-;;   ;; https://github.com/rmuslimov/browse-at-remote
-;;   ;; Jump to current line on VC remote repository.
-;;   :ensure t
-;;   :demand t
-;;   :after project
-;;   :config
-;;   (transient-append-suffix 'version-control-transient '(0 -1)
-;;      '("r" "browse at remote" browse-at-remote)))
-
 (use-package chezmoi
   ;; https://github.com/tuh8888/chezmoi.el
   ;; Chezmoi is a dotfiles manager. This package exposes some chezmoi
@@ -201,16 +191,7 @@
   (dired-movement-style 'cycle)
   ;; allow navigating directories in current buffer with 'a'
   :config
-  (put 'dired-find-alternate-file 'disabled nil)
-  (transient-define-prefix dired-prefix ()
-    "Prefix with useful dired commands"
-    :transient-non-suffix 'transient--do-stay
-    [["Dired"
-      ("m" "mark" dired-mark :transient t)
-      ("u" "unmark" dired-unmark :transient t)]
-     ["Image Dired"]])
-  :bind (:map dired-mode-map
-              ("C-c <SPC>" . dired-prefix)))
+  (put 'dired-find-alternate-file 'disabled nil))
 
 (use-package display-line-numbers
   ;; Native method of displaying line numbers.
@@ -234,23 +215,20 @@
   ;; Native LSP client
   :ensure nil
   :commands eglot
+  :bind (:map eglot-mode-map
+              :prefix-map my/eglot-prefix-map
+              :prefix "C-c l"
+              ("f" . eglot-format)
+              ("i" . eglot-code-action-organize-imports)
+              ("a" . eglot-code-actions)
+              ("r" . eglot-rename)
+              ("R" . eglot-reconnect)
+              ("S" . eglot-shutdown))
   :config
   (defun my-eglot-organize-imports () (interactive)
          (eglot-code-actions nil nil "source.organizeImports" t))
   (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
-  (add-hook 'before-save-hook 'eglot-format-buffer)
-  (transient-define-prefix eglot-transient ()
-    "Eglot Prefix"
-    :transient-non-suffix 'transient--do-leave
-    [("f" "format" eglot-format)
-     ("i" "organize imports" eglot-code-action-organize-imports)
-     ("S" "shutdown" eglot-shutdown)
-     ;; eglot-shutdown-all
-     ("R" "reconnect" eglot-reconnect)
-     ("a" "code actions" eglot-code-actions)
-     ("r" "rename" eglot-rename)])
-  (transient-append-suffix 'project-transient '(0 -1 -1) ;; in the last group
-     '("l" "lsp" eglot-transient)))
+  (add-hook 'before-save-hook 'eglot-format-buffer))
 
 (use-package eink-theme
   ;; Minimal colorscheme
@@ -281,23 +259,23 @@
                  nil
                  (window-parameters (mode-line-format . none))))
   ;; Add target for go tests
-  (defun xcc/embark-go-test ()
+  (defun my/embark-go-test ()
     "Target a go test at point of the form func Test___(_ *testing.T) { ___ }."
     (when (and (derived-mode-p 'go-mode)
                (thing-at-point-looking-at "^func \\(Test[A-Za-z0-9_]+\\)"))
       (list 'go-test (match-string 1))))
 
-  (defun xcc/embark-run-go-test (test-name)
+  (defun my/embark-run-go-test (test-name)
     "Run Go test with the given name."
     (let ((command (format "go test -run \"^%s$\"" test-name)))
       (compile command)))
 
-  (add-to-list 'embark-target-finders 'xcc/embark-go-test)
+  (add-to-list 'embark-target-finders 'my/embark-go-test)
 
-  (add-to-list 'embark-keymap-alist '(go-test . xcc/embark-go-test-map))
-  (defvar-keymap xcc/embark-go-test-map
+  (add-to-list 'embark-keymap-alist '(go-test . my/embark-go-test-map))
+  (defvar-keymap my/embark-go-test-map
     :doc "Keymap for go test actions."
-    "t" #'xcc/embark-run-go-test))
+    "t" #'my/embark-run-go-test))
 
 (use-package eshell
   :ensure nil
@@ -342,25 +320,14 @@
   :ensure nil
   :bind
   (:map flymake-mode-map
-        ("C-c f n" . flymake-goto-next-error)
-        ("C-c f p" . flymake-goto-prev-error)
-        ("C-c f b" . flymake-show-buffer-diagnostics)
-        ("C-c f r" . flymake-show-project-diagnostics))
+        ("M-n" . flymake-goto-next-error)
+        ("M-p" . flymake-goto-prev-error))
+        ;;("C-c f b" . flymake-show-buffer-diagnostics)
+        ;;("C-c f r" . flymake-show-project-diagnostics))
   :custom
   ;; can also be set to short which only shows the most severe diagnostics
-  (flymake-show-diagnostics-at-end-of-line nil)
-  :config
-  (advice-add 'flymake-goto-next-error :after #'flymake-transient)
-  (advice-add 'flymake-goto-prev-error :after #'flymake-transient)
-  (transient-define-prefix flymake-transient ()
-    "Flymake Transient"
-    :transient-non-suffix 'transient--do-leave
-    [("n" "next error" flymake-goto-next-error :transient t)
-     ("p" "prev error" flymake-goto-prev-error :transient t)
-     ("b" "show buffer diagnostics" flymake-show-buffer-diagnostics)
-     ("r" "show project diagnostics" flymake-show-project-diagnostics)])
-  (transient-append-suffix 'project-transient '(0 -1 -1) ;; in the last group
-    '("F" "flymake" flymake-transient)))
+  ;; or fancy for detailed info below
+  (flymake-show-diagnostics-at-end-of-line 'fancy))
 
 (use-package ghostel
   ;; Terminal emulation powered by libghostty.
@@ -406,13 +373,13 @@
   (require 'howm-markdown)
   ;; Use Windows host filesystem on WSL
   (if (equal system-name "capaldi-phampc")
-    (setq xcc/howm-directory "/mnt/c/Users/xavie/notes")
-  (setq xcc/howm-directory "/Users/xavier.capaldi/Library/CloudStorage/GoogleDrive-xavier.capaldi@optable.co/My Drive/notes"))
+    (setq my/howm-directory "/mnt/c/Users/xavie/notes")
+  (setq my/howm-directory "/Users/xavier.capaldi/Library/CloudStorage/GoogleDrive-xavier.capaldi@optable.co/My Drive/notes"))
   :custom
-  (howm-directory xcc/howm-directory)
+  (howm-directory my/howm-directory)
   (howm-follow-theme t)
-  (howm-keyword-file (expand-file-name ".howm-keys" xcc/howm-directory))
-  (howm-history-file (expand-file-name ".howm-history" xcc/howm-directory))
+  (howm-keyword-file (expand-file-name ".howm-keys" my/howm-directory))
+  (howm-history-file (expand-file-name ".howm-history" my/howm-directory))
   ;; Keep one window after "1" key in the summary buffer.
   (howm-view-keep-one-window t)
   ;; Use ripgrep as grep
@@ -427,7 +394,7 @@
   (howm menu-refresh-after-save nil)
   (howm-menu-expiry-hours 2)  ;; cache menu N hours
   ;; (howm-file-name-format "%Y%m%dT%H%M%S.md") ;; might need thisto be in init
-  ;;(howm-menu-file (expand-file-name "00000000T000000.md" xcc/howm-directory))
+  ;;(howm-menu-file (expand-file-name "00000000T000000.md" my/howm-directory))
   :config
   ;; Howm's menu entry point only generates the skeleton template when
   ;; `howm-menu-file' is nil; with it set, opening the menu would just
@@ -435,14 +402,14 @@
   ;; ourselves the first time the menu is opened and the file is missing.
   ;; `howm-menu-copy-skel' targets `(or howm-menu-file ...)', so it writes
   ;; straight to our chosen name.
-  (defun xcc/howm-ensure-menu-file (&rest _)
+  (defun my/howm-ensure-menu-file (&rest _)
     "Generate the howm menu skeleton at `howm-menu-file' if it is missing."
     (when (and howm-menu-file (not (file-exists-p howm-menu-file)))
       (let ((menu-sym (howm-get-symbol nil "howm-menu-" howm-menu-lang)))
         (require menu-sym)
         (howm-menu-copy-skel (symbol-value menu-sym))
         (ignore-errors (howm-view-kill-buffer)))))
-  (advice-add 'howm-menu :before #'xcc/howm-ensure-menu-file))
+  (advice-add 'howm-menu :before #'my/howm-ensure-menu-file))
 
 (use-package ibuffer
   ;; Native nice replacement for buffer-menu.
@@ -595,15 +562,20 @@
   ;; Use Windows host filesystem on WSL
   (if (equal system-name "capaldi-phampc")
       (setq org-agenda-files (quote ("/mnt/c/Users/xavie/org/obtf.org")))
-    (setq org-agenda-files (quote ("~/Notes/"))))
+    (setq org-agenda-files (quote ("/Users/xavier.capaldi/Library/CloudStorage/GoogleDrive-xavier.capaldi@optable.co/My Drive/notes/"))))
   :custom
   (org-adapt-indentation nil)
   (org-edit-src-content-indentation 0)
   (org-tags-column 0) ;; don't right align tags
   ;; Capture
-  (org-capture-templates
-   '(("t" "Todo" entry (file+headline "/mnt/c/Users/xavie/org/obtf.org" "Memory")
-         "* TODO %?\n  %i\n  %a")))
+  ;; (org-capture-templates
+  ;;  '(("t" "Todo" entry (file+headline " " "Tasks")
+  ;;     "* TODO %?\n  %i\n  %a")
+  ;;    ("j" "Journal" entry (file+olp+datetree "~/org/journal.org")
+  ;;        "* %?\nEntered on %U\n  %i\n  %a")))
+  ;; Task management
+  (org-todo-keywords
+   '((sequence "TODO(t)" "PROG(p)" "DONE(d)")))
   ;; Agenda configuration
   (org-agenda-span 'week)
   ;; Hide tasks that are scheduled in the future.
@@ -640,49 +612,22 @@
 (use-package project
   ;; Native project management
   :ensure nil
-  :bind ("C-c p" . project-transient)
+  :bind (:map project-prefix-map
+              ("b" . my/browse-at-remote)
+              ("h" . ghostel-project))
   ;; display the current project in the mode line
   :custom (project-mode-line t)
   :config
-  (executable-find "gh")
-  (defun xcc/browse-at-remote ()
+  ;;(executable-find "gh") this needs to be bound to block the command below if not present
+  (defun my/browse-at-remote ()
     (interactive)
     (shell-command
      (concat "gh browse "
              (file-name-nondirectory (buffer-file-name))
              ":"
              (number-to-string (line-number-at-pos)))))
-  (transient-define-prefix version-control-transient()
-    "Version control Prefix"
-    :transient-non-suffix 'transient--do-leave
-    [("s" "status" project-vc-dir)
-     ("b" "browse at remote" xcc/browse-at-remote)])
-  (transient-define-prefix project-transient ()
-    "Project Prefix"
-    :transient-non-suffix 'transient--do-leave
-    [["Project"
-      ("p" "switch project" project-switch-project)
-      ("X" "forget project" project-forget-project)]
-     ["Files and buffers"
-      ("f" "find file" project-find-file)
-      ("d" "dired" project-dired)
-      ("b" "switch buffer" project-switch-to-buffer)
-      ("B" "list buffers" project-list-buffers)
-      ("k" "kill buffers" project-kill-buffers)]
-     ["Search and replace"
-      ("g" "regexp search" project-find-regexp)
-      ("G" "interactive search" project-search)
-      ("r" "query replace" project-query-replace-regexp)]
-     ["Shell and compilation"
-      ("s" "shell" project-shell)
-      ("e" "eshell" project-eshell)
-      ("h" "ghostel" ghostel-project)
-      ("a" "claude agents (project)" xcc/claude-agents-project)
-      ("c" "compile" project-compile)
-      ("!" "shell command" project-shell-command)
-      ("&" "async shell command" project-async-shell-command)]
-     ["Extensions"
-      ("v" "version control" version-control-transient)]]))
+  (which-key-add-key-based-replacements
+    "C-x p b" "browse at remote"))
 
 (use-package protobuf-mode
   ;; https://github.com/protocolbuffers/protobuf/blob/main/editors/protobuf-mode.el
@@ -706,10 +651,10 @@
 ;;  :ensure nil
 ;;  :bind ("C-S-SPC" . rectangle-mark-mode))
 
-;;(use-package repeat
-;;  ;; Native transient keybinding mode allowing repeating terminal keys.
-;;  :ensure nil
-;;  :init (repeat-mode 1))
+(use-package repeat
+  ;; Native transient keybinding mode allowing repeating terminal keys.
+  :ensure nil
+  :init (repeat-mode 1))
 
 (use-package shell
   ;; Native dumb shell. It's non-interactive but retains emacs keybindings. For
@@ -774,16 +719,18 @@
 (use-package vc-annotate
   ;; Native support for display annotations from version-control system.
   :ensure nil
-  :commands (vc-annotate)
-  :init
-  (transient-append-suffix 'version-control-transient '(0 -1)
-    '("b" "blame" vc-annotate)))
+  :commands (vc-annotate))
 
 (use-package vundo
   ;; https://github.com/casouri/vundo
   ;; Undo tree visualization for the native emacs undo system.
   :ensure t
   :commands (vundo))
+
+(use-package which-key
+  ;; Native keybind popup hints.
+  :ensure nil
+  :custom (which-key-mode t))
 
 (use-package whitespace
   ;; Show whitespace characters
@@ -806,13 +753,6 @@
    :config
    (define-advice other-window (:after (&rest _))
      (pulse-momentary-highlight-one-line (point))))
-   ;; (define-advice other-window (:after (&rest _))
-   ;;   (window-transient))
-   ;; (transient-define-prefix window-transient ()
-   ;;   "Window Prefix"
-   ;;   :transient-non-suffix 'transient--do-leave
-   ;;   ["All"
-   ;;    ("o" "other window" other-window :transient t)]))
 
 (use-package wgrep
   ;; https://github.com/mhayashi1120/Emacs-wgrep
